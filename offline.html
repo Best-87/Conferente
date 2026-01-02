@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modo Offline | Controle de Pesagem</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Estilos específicos para offline.html */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #1e293b;
+        }
+        
+        .offline-container {
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        .offline-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border: 1px solid #e2e8f0;
+            animation: slideIn 0.5s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .offline-icon {
+            font-size: 80px;
+            color: #64748b;
+            margin-bottom: 24px;
+            opacity: 0.8;
+        }
+        
+        h1 {
+            color: #1e293b;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        
+        .subtitle {
+            color: #64748b;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+        
+        .features-list {
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 32px 0;
+            text-align: left;
+        }
+        
+        .features-list h3 {
+            color: #1e293b;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .feature-item i {
+            color: #10b981;
+            margin-right: 10px;
+            margin-top: 3px;
+            font-size: 12px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 32px;
+        }
+        
+        .btn {
+            padding: 16px 24px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+        
+        .btn-secondary:hover {
+            background: #cbd5e1;
+        }
+        
+        .btn-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .btn-danger:hover {
+            background: #fecaca;
+        }
+        
+        .connection-status {
+            margin-top: 24px;
+            padding: 12px 20px;
+            background: #fef3c7;
+            border-radius: 20px;
+            color: #92400e;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .connection-status.online {
+            background: #d1fae5;
+            color: #065f46;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .stats-card {
+            background: #e0f2fe;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 24px;
+            text-align: left;
+            display: none;
+        }
+        
+        .stats-card h4 {
+            color: #075985;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2563eb;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #64748b;
+        }
+        
+        @media (max-width: 480px) {
+            .offline-card {
+                padding: 30px 20px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .offline-icon {
+                font-size: 60px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="offline-card">
+            <div class="offline-icon">
+                <i class="fas fa-wifi-slash"></i>
+            </div>
+            
+            <h1>Você está offline</h1>
+            
+            <p class="subtitle">
+                Não foi possível conectar à internet. Verifique sua conexão de rede ou tente novamente mais tarde.
+            </p>
+            
+            <div class="features-list">
+                <h3>
+                    <i class="fas fa-check-circle"></i> Funcionalidades disponíveis offline:
+                </h3>
+                
+                <div class="feature-item">
+                    <i class="fas fa-check"></i>
+                    <span>Controle de pesagens já registradas</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-check"></i>
+                    <span>Visualização de tickets e relatórios</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-check"></i>
+                    <span>Exportação de dados para CSV</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-check"></i>
+                    <span>Impressão de tickets</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-check"></i>
+                    <span>Registro de novas pesagens (salvas localmente)</span>
+                </div>
+            </div>
+            
+            <!-- Stats Section -->
+            <div id="offlineStats" class="stats-card">
+                <h4>
+                    <i class="fas fa-database"></i> Dados armazenados localmente
+                </h4>
+                <div class="stats-grid" id="statsContent">
+                    <!-- Preenchido pelo JavaScript -->
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="retryConnection">
+                    <i class="fas fa-redo"></i> Tentar reconexão
+                </button>
+                
+                <a href="./index.html" class="btn btn-secondary">
+                    <i class="fas fa-home"></i> Acessar aplicativo principal
+                </a>
+                
+                <button class="btn btn-danger" id="clearData">
+                    <i class="fas fa-trash"></i> Limpar dados locais
+                </button>
+            </div>
+            
+            <div id="connectionStatus" class="connection-status">
+                <i class="fas fa-wifi-slash"></i>
+                <span>Verificando conexão...</span>
+            </div>
+            
+            <p style="margin-top: 24px; font-size: 12px; color: #94a3b8;">
+                <i class="fas fa-info-circle"></i> Os dados serão sincronizados quando a conexão for restaurada.
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        // Elementos del DOM
+        const retryBtn = document.getElementById('retryConnection');
+        const clearDataBtn = document.getElementById('clearData');
+        const connectionStatus = document.getElementById('connectionStatus');
+        const offlineStats = document.getElementById('offlineStats');
+        const statsContent = document.getElementById('statsContent');
+        
+        // Cargar estadísticas locales
+        function loadOfflineStats() {
+            try {
+                const weighings = JSON.parse(localStorage.getItem('weighings')) || [];
+                const products = JSON.parse(localStorage.getItem('products')) || {};
+                
+                if (weighings.length > 0 || Object.keys(products).length > 0) {
+                    const totalWeight = weighings.reduce((sum, w) => sum + (w.netWeight || 0), 0);
+                    
+                    statsContent.innerHTML = `
+                        <div class="stat-item">
+                            <div class="stat-value">${weighings.length}</div>
+                            <div class="stat-label">Pesagens</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${Object.keys(products).length}</div>
+                            <div class="stat-label">Produtos</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${weighings.reduce((sum, w) => sum + (w.boxQuantity || 0), 0)}</div>
+                            <div class="stat-label">Caixas</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${totalWeight.toFixed(1)}</div>
+                            <div class="stat-label">Kg Total</div>
+                        </div>
+                    `;
+                    
+                    offlineStats.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Erro ao carregar estatísticas:', error);
+            }
+        }
+        
+        // Verificar conexión
+        function checkConnection() {
+            if (navigator.onLine) {
+                connectionStatus.innerHTML = '<i class="fas fa-wifi"></i> <span>Conexão restaurada! Redirecionando...</span>';
+                connectionStatus.classList.add('online');
+                
+                setTimeout(() => {
+                    window.location.href = './index.html';
+                }, 2000);
+            } else {
+                connectionStatus.innerHTML = '<i class="fas fa-wifi-slash"></i> <span>Sem conexão com a internet</span>';
+                connectionStatus.classList.remove('online');
+            }
+        }
+        
+        // Intentar reconexión
+        function attemptReconnection() {
+            connectionStatus.innerHTML = '<i class="fas fa-sync fa-spin"></i> <span>Tentando reconectar...</span>';
+            
+            fetch(window.location.href, { 
+                method: 'HEAD',
+                cache: 'no-cache'
+            })
+            .then(() => checkConnection())
+            .catch(() => setTimeout(checkConnection, 2000));
+        }
+        
+        // Limpiar datos locales
+        function clearLocalData() {
+            if (confirm('⚠️ ATENÇÃO!\n\nTem certeza que deseja limpar TODOS os dados locais?\n\nEsta ação não pode ser desfeita.')) {
+                const theme = localStorage.getItem('theme');
+                
+                localStorage.clear();
+                
+                if (theme) {
+                    localStorage.setItem('theme', theme);
+                }
+                
+                offlineStats.style.display = 'none';
+                
+                connectionStatus.innerHTML = '<i class="fas fa-check-circle"></i> <span>Dados limpos com sucesso!</span>';
+                connectionStatus.style.background = '#d1fae5';
+                connectionStatus.style.color = '#065f46';
+                
+                setTimeout(checkConnection, 1000);
+            }
+        }
+        
+        // Event Listeners
+        retryBtn.addEventListener('click', attemptReconnection);
+        clearDataBtn.addEventListener('click', clearLocalData);
+        
+        // Inicializar
+        window.addEventListener('load', () => {
+            if (navigator.onLine) {
+                window.location.href = './index.html';
+            }
+            
+            loadOfflineStats();
+            checkConnection();
+            
+            // Verificar conexión cada 10 segundos
+            setInterval(checkConnection, 10000);
+        });
+        
+        window.addEventListener('online', checkConnection);
+        window.addEventListener('offline', checkConnection);
+        
+        // Atalhos de teclado
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                window.location.href = './index.html';
+            }
+            if (e.key === 'r' && (e.ctrlKey || e.metaKey)) {
+                e.preventDefault();
+                attemptReconnection();
+            }
+        });
+    </script>
+</body>
+</html>

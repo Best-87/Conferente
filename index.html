@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Pesagem | Armazém</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- PWA Metadata -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Pesagem">
+    
+    <style>
+        /* Estilos para notificación de actualización */
+        #sw-update-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #2563eb;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideInRight 0.3s ease;
+            max-width: 350px;
+            border-left: 4px solid #1d4ed8;
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideOutRight {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        
+        /* Corrección para caracteres especiales en el ticket */
+        .ticket-preview,
+        .ticket-body,
+        .ticket-item-detail,
+        .ticket-product-group,
+        .product-header,
+        .net-weight,
+        .ticket-totals,
+        .ticket-header {
+            font-family: 'Roboto Mono', monospace, 'Courier New', Courier, monospace !important;
+        }
+        
+        /* Modal más compacto para tickets */
+        .modal-content {
+            max-width: 450px;
+            width: 95%;
+        }
+        
+        /* Estilos para opciones de impresión */
+        .print-option-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 120px;
+        }
+        
+        .print-option-btn:hover {
+            border-color: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .print-option-btn i {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: #2563eb;
+        }
+        
+        .print-option-btn span {
+            font-size: 12px;
+            text-align: center;
+            color: #4b5563;
+        }
+        
+        /* Vista previa del ticket térmico */
+        .thermal-preview {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 10px;
+            font-family: 'Courier New', monospace !important;
+            font-size: 11px !important;
+            line-height: 1.2;
+            text-align: left;
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 0 auto;
+            max-width: 320px;
+        }
+        
+        /* Nuevos estilos para layout horizontal */
+        .horizontal-form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .tara-inputs-horizontal {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .tara-group-horizontal {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .tara-input-row-horizontal {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .tara-input-row-horizontal .input-compact {
+            flex: 1;
+        }
+        
+        .tara-totals-horizontal {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .tara-total-item {
+            text-align: center;
+            padding: 8px;
+            background: var(--primary-light);
+            border-radius: 6px;
+        }
+        
+        .tara-total-item span {
+            display: block;
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        
+        .tara-total-item strong {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary-color);
+            font-family: 'Roboto Mono', monospace;
+        }
+        
+        /* Quick stats horizontal */
+        .quick-stats-horizontal {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-item-horizontal {
+            background: var(--primary-light);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+        
+        .stat-icon-horizontal {
+            font-size: 14px;
+            color: var(--primary-color);
+            margin-bottom: 6px;
+        }
+        
+        .stat-info-horizontal {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .stat-info-horizontal span {
+            font-size: 10px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        
+        .stat-info-horizontal strong {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            font-family: 'Roboto Mono', monospace;
+        }
+        
+        /* Botones en línea */
+        .form-actions-horizontal {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .form-actions-horizontal .btn {
+            flex: 1;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .horizontal-form-row {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .tara-inputs-horizontal {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .tara-totals-horizontal {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            
+            .quick-stats-horizontal {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            
+            .form-actions-horizontal {
+                flex-direction: column;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .quick-stats-horizontal {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container" data-theme="light">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-weight-hanging"></i>
+                    <h1>Controle de Pesagem</h1>
+                </div>
+                <div class="header-info">
+                    <div class="datetime">
+                        <span id="currentDate">01 Jan 2026</span>
+                        <span id="currentTime">16:25</span>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn-icon" id="clearSession" title="Limpar sessão">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-grid">
+            <!-- Left Column - Input -->
+            <section class="input-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-plus-circle"></i> Nova Pesagem</h2>
+                    <div class="status-badge" id="productStatus">
+                        <span class="status-dot"></span>
+                        <span>Novo produto</span>
+                    </div>
+                </div>
+
+                <form id="pesagemForm" class="compact-form">
+                    <!-- Producto y Fornecedor en una fila -->
+                    <div class="horizontal-form-row">
+                        <div class="form-group">
+                            <label for="product">
+                                <i class="fas fa-box"></i> Produto
+                            </label>
+                            <div class="input-with-hint">
+                                <input type="text" 
+                                       id="product" 
+                                       list="productList"
+                                       placeholder="Digite o produto"
+                                       autocomplete="off">
+                                <datalist id="productList"></datalist>
+                                <small>Produtos conhecidos autocompletam as taras</small>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="supplier">
+                                <i class="fas fa-truck"></i> Fornecedor
+                            </label>
+                            <input type="text" 
+                                   id="supplier"
+                                   placeholder="Nome do fornecedor">
+                        </div>
+                    </div>
+
+                    <!-- Caixas e Embalagens -->
+                    <div class="form-section-compact">
+                        <div class="form-section-title">
+                            <i class="fas fa-cubes"></i> Caixas & Embalagens
+                        </div>
+                        
+                        <div class="tara-inputs-horizontal">
+                            <!-- Caixas -->
+                            <div class="tara-group-horizontal">
+                                <label><i class="fas fa-cube"></i> Caixas</label>
+                                <div class="tara-input-row-horizontal">
+                                    <div class="input-compact">
+                                        <small>Quantidade</small>
+                                        <input type="number" 
+                                               id="boxQuantity"
+                                               min="0"
+                                               value="0"
+                                               class="compact-input">
+                                    </div>
+                                    <div class="input-compact">
+                                        <small>Tara/Unidade (kg)</small>
+                                        <input type="number" 
+                                               id="boxTara"
+                                               step="0.001"
+                                               placeholder="0.000"
+                                               class="compact-input">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Embalagens -->
+                            <div class="tara-group-horizontal">
+                                <label><i class="fas fa-layer-group"></i> Embalagens</label>
+                                <div class="tara-input-row-horizontal">
+                                    <div class="input-compact">
+                                        <small>Quantidade</small>
+                                        <input type="number" 
+                                               id="packagingQuantity"
+                                               min="0"
+                                               value="0"
+                                               class="compact-input">
+                                    </div>
+                                    <div class="input-compact">
+                                        <small>Tara/Unidade (kg)</small>
+                                        <input type="number" 
+                                               id="packagingTara"
+                                               step="0.001"
+                                               placeholder="0.000"
+                                               class="compact-input">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Totales en una fila -->
+                        <div class="tara-totals-horizontal">
+                            <div class="tara-total-item">
+                                <span>Total Caixas</span>
+                                <strong id="totalBoxTara">0.000 kg</strong>
+                            </div>
+                            <div class="tara-total-item">
+                                <span>Total Embalagens</span>
+                                <strong id="totalPackagingTara">0.000 kg</strong>
+                            </div>
+                            <div class="tara-total-item">
+                                <span>Tara Total</span>
+                                <strong id="totalTara">0.000 kg</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Peso Bruto y Peso Nota en una fila -->
+                    <div class="horizontal-form-row">
+                        <div class="form-group">
+                            <label for="grossWeight">
+                                <i class="fas fa-weight-hanging"></i> Peso Bruto (kg)
+                            </label>
+                            <input type="text" 
+                                   id="grossWeight"
+                                   placeholder="15.5, 12.3, 18.7">
+                            <small class="hint">Separar por vírgula para múltiplas</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="invoiceWeight">
+                                <i class="fas fa-file-invoice"></i> Peso Nota (kg)
+                            </label>
+                            <input type="number" 
+                                   id="invoiceWeight"
+                                   step="0.001"
+                                   placeholder="Peso declarado">
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="form-group">
+                        <label for="notes">
+                            <i class="fas fa-sticky-note"></i> Observações
+                        </label>
+                        <textarea id="notes" 
+                                  rows="2"
+                                  placeholder="Anotações adicionais..."
+                                  style="resize: vertical; min-height: 60px;"></textarea>
+                    </div>
+
+                    <!-- Action Buttons en una fila -->
+                    <div class="form-actions-horizontal">
+                        <button type="button" class="btn btn-secondary" id="clearForm">
+                            <i class="fas fa-eraser"></i> Limpar
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Adicionar Pesagem
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Right Column - Summary & Ticket -->
+            <section class="summary-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-receipt"></i> Ticket Fiscal</h2>
+                    <div class="card-actions">
+                        <button class="btn-icon small" id="exportBtn" title="Exportar CSV">
+                            <i class="fas fa-file-export"></i>
+                        </button>
+                        <button class="btn-icon small" id="printBtn" title="Imprimir">
+                            <i class="fas fa-print"></i>
+                        </button>
+                        <button class="btn-icon small" id="whatsappBtn" title="Compartilhar no WhatsApp">
+                            <i class="fab fa-whatsapp"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quick Stats en una fila -->
+                <div class="quick-stats-horizontal">
+                    <div class="stat-item-horizontal">
+                        <div class="stat-icon-horizontal">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <div class="stat-info-horizontal">
+                            <span>Caixas</span>
+                            <strong id="sessionBoxes">0</strong>
+                        </div>
+                    </div>
+                    <div class="stat-item-horizontal">
+                        <div class="stat-icon-horizontal">
+                            <i class="fas fa-layer-group"></i>
+                        </div>
+                        <div class="stat-info-horizontal">
+                            <span>Embalagens</span>
+                            <strong id="sessionPackaging">0</strong>
+                        </div>
+                    </div>
+                    <div class="stat-item-horizontal">
+                        <div class="stat-icon-horizontal">
+                            <i class="fas fa-weight"></i>
+                        </div>
+                        <div class="stat-info-horizontal">
+                            <span>Peso Líq.</span>
+                            <strong id="sessionNet">0.000</strong>
+                        </div>
+                    </div>
+                    <div class="stat-item-horizontal">
+                        <div class="stat-icon-horizontal">
+                            <i class="fas fa-list"></i>
+                        </div>
+                        <div class="stat-info-horizontal">
+                            <span>Itens</span>
+                            <strong id="sessionCount">0</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ticket -->
+                <div class="ticket-preview">
+                    <div class="ticket-header">
+                        <div class="ticket-title">
+                            <h3>CONTROLE DE PESAGEM</h3>
+                            <small>Ticket Fiscal</small>
+                        </div>
+                        <div class="ticket-meta">
+                            <div class="ticket-id">#<span id="ticketNumber">001</span></div>
+                            <div id="ticketDate">01/01/2026</div>
+                        </div>
+                    </div>
+
+                    <div class="ticket-body" id="ticketBody">
+                        <div class="empty-ticket">
+                            <i class="fas fa-receipt"></i>
+                            <p>Nenhuma pesagem registrada</p>
+                        </div>
+                    </div>
+
+                    <div class="ticket-footer">
+                        <div class="ticket-totals">
+                            <div class="total-row">
+                                <span>Total Itens:</span>
+                                <strong id="ticketItems">0</strong>
+                            </div>
+                            <div class="total-row">
+                                <span>Total Líquido:</span>
+                                <strong id="ticketTotal">0.000 kg</strong>
+                            </div>
+                        </div>
+                        <div class="ticket-signature">
+                            <div class="signature-line"></div>
+                            <small>Responsável</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent List -->
+                <div class="recent-list">
+                    <h3><i class="fas fa-history"></i> Últimas Pesagens</h3>
+                    <div class="list-container" id="recentList">
+                        <div class="empty-list">
+                            <i class="fas fa-weight"></i>
+                            <p>Nenhuma pesagem recente</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Toast Notifications -->
+        <div id="toastContainer"></div>
+
+        <!-- Print Modal -->
+        <div class="modal" id="printModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-print"></i> Opções de Impressão</h3>
+                    <button class="close-modal">&times;</button>
+                </div>
+                <div class="modal-body" id="printView">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h4 style="margin-bottom: 15px; color: #2563eb;">Selecione o tipo de impressão:</h4>
+                        <div style="display: flex; gap: 15px; justify-content: center; margin-bottom: 25px;">
+                            <button onclick="window.printThermalTicket()" class="print-option-btn">
+                                <i class="fas fa-receipt"></i>
+                                <span>Ticket Térmico</span>
+                            </button>
+                            <button onclick="window.printFullPagePDF()" class="print-option-btn">
+                                <i class="fas fa-file-pdf"></i>
+                                <span>Página Completa</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="thermalPreview" class="thermal-preview">
+                        <!-- Vista previa térmica se generará aquí -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary close-modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Connection Status -->
+        <div id="connectionStatus" class="connection-status" style="display: none;">
+            <i class="fas fa-wifi"></i>
+            <span>Online</span>
+        </div>
+    </div>
+
+    <!-- Main Application Script -->
+    <script src="app.js"></script>
+    
+    <!-- Service Worker Registration and Offline Management -->
+    <script>
+        // Registrar Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(registration => {
+                        console.log('✅ Service Worker registrado:', registration.scope);
+                        
+                        // Manejar actualizaciones
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            console.log('🔄 Nueva versión del Service Worker encontrada');
+                            
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed') {
+                                    if (navigator.serviceWorker.controller) {
+                                        showServiceWorkerUpdateNotification(registration);
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .catch(error => {
+                        console.log('❌ Error registrando Service Worker:', error);
+                    });
+                
+                // Recargar página cuando cambie el controlador
+                let refreshing = false;
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if (!refreshing) {
+                        refreshing = true;
+                        window.location.reload();
+                    }
+                });
+            });
+        }
+        
+        // Función para mostrar notificación de actualización del Service Worker
+        function showServiceWorkerUpdateNotification(registration) {
+            if (document.getElementById('sw-update-notification')) return;
+            
+            const notification = document.createElement('div');
+            notification.id = 'sw-update-notification';
+            notification.innerHTML = `
+                <i class="fas fa-sync-alt" style="font-size: 1.2rem;"></i>
+                <div style="flex: 1;">
+                    <strong>¡Nova versão disponível!</strong>
+                    <p style="margin: 5px 0 0 0; font-size: 14px; opacity: 0.9;">
+                        Recarregue a página para atualizar.
+                    </p>
+                </div>
+                <button id="sw-reload-btn" style="
+                    background: white;
+                    color: #2563eb;
+                    border: none;
+                    padding: 8px 16px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-weight: bold;
+                    margin-left: 10px;
+                ">Atualizar</button>
+                <button id="sw-dismiss-btn" style="
+                    background: transparent;
+                    color: white;
+                    border: none;
+                    padding: 8px;
+                    cursor: pointer;
+                    border-radius: 4px;
+                ">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Configurar botones
+            document.getElementById('sw-reload-btn').addEventListener('click', function() {
+                notification.style.animation = 'slideOutRight 0.3s ease forwards';
+                setTimeout(() => notification.remove(), 300);
+                
+                if (registration.waiting) {
+                    registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+                }
+            });
+            
+            document.getElementById('sw-dismiss-btn').addEventListener('click', function() {
+                notification.style.animation = 'slideOutRight 0.3s ease forwards';
+                setTimeout(() => notification.remove(), 300);
+            });
+        }
+        
+        // Función para actualizar estado de conexión
+        function updateConnectionStatus() {
+            const statusElement = document.getElementById('connectionStatus');
+            if (!statusElement) return;
+            
+            if (navigator.onLine) {
+                statusElement.innerHTML = '<i class="fas fa-wifi"></i> <span>Online</span>';
+                statusElement.className = 'connection-status online';
+                statusElement.style.display = 'flex';
+                
+                setTimeout(() => {
+                    if (statusElement.classList.contains('online')) {
+                        statusElement.style.display = 'none';
+                    }
+                }, 3000);
+            } else {
+                statusElement.innerHTML = '<i class="fas fa-wifi-slash"></i> <span>Offline - Modo local</span>';
+                statusElement.className = 'connection-status offline';
+                statusElement.style.display = 'flex';
+                
+                setTimeout(() => {
+                    if (typeof window.showToast === 'function') {
+                        window.showToast('Modo offline ativado. Dados salvos localmente.', 'info');
+                    }
+                }, 1000);
+            }
+        }
+        
+        // Inicializar eventos de conexión
+        document.addEventListener('DOMContentLoaded', () => {
+            updateConnectionStatus();
+            
+            window.addEventListener('online', updateConnectionStatus);
+            window.addEventListener('offline', updateConnectionStatus);
+            
+            setInterval(updateConnectionStatus, 30000);
+        });
+        
+        // Detectar si la PWA puede ser instalada
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+        });
+        
+        // Detectar se o app está instalado
+        window.addEventListener('load', () => {
+            if (window.matchMedia('(display-mode: standalone)').matches || 
+                window.navigator.standalone === true) {
+                console.log('📱 Aplicação em modo standalone');
+            }
+        });
+        
+        // Expor funções globalmente
+        window.printThermalTicket = () => {
+            if (window.app && window.app.printThermalTicket) {
+                window.app.printThermalTicket();
+            } else {
+                window.app.printTicketSimple();
+            }
+        };
+        
+        window.printFullPagePDF = () => {
+            if (window.app && window.app.printFullPagePDF) {
+                window.app.printFullPagePDF();
+            } else {
+                window.app.printFullPage();
+            }
+        };
+    </script>
+</body>
+</html>

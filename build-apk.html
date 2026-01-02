@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar APK - Controle de Pesagem</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #2563eb;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .step {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2563eb;
+        }
+        
+        .step h3 {
+            color: #1e293b;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .step-number {
+            background: #2563eb;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            flex: 1;
+            min-width: 200px;
+            justify-content: center;
+        }
+        
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+        
+        .btn-secondary:hover {
+            background: #cbd5e1;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 Criar APK para Android</h1>
+        
+        <div class="step">
+            <h3><span class="step-number">1</span> Preparar archivos</h3>
+            <p>Asegúrate de tener todos los archivos en una carpeta:</p>
+            <div class="code-block">
+index.html<br>
+style.css<br>
+app.js<br>
+manifest.json<br>
+sw.js<br>
+icon-192.png (opcional)<br>
+icon-512.png (opcional)
+            </div>
+        </div>
+        
+        <div class="step">
+            <h3><span class="step-number">2</span> Método recomendado: PWABuilder</h3>
+            <p>La forma más fácil de crear tu APK:</p>
+            <ol style="margin-left: 20px; margin-top: 10px;">
+                <li>Visita <a href="https://www.pwabuilder.com" target="_blank">pwabuilder.com</a></li>
+                <li>Introduce la URL de tu aplicación o sube un ZIP</li>
+                <li>Sigue los pasos para generar el APK</li>
+                <li>Descarga y comparte tu aplicación</li>
+            </ol>
+        </div>
+        
+        <div class="step">
+            <h3><span class="step-number">3</span> Método alternativo: Android Studio</h3>
+            <p>Para más control sobre la aplicación:</p>
+            <div class="code-block">
+1. Descarga Android Studio<br>
+2. Crea nuevo proyecto "Empty Activity"<br>
+3. Reemplaza contenido de /app/src/main/assets<br>
+4. Configura AndroidManifest.xml<br>
+5. Build → Generate Signed Bundle/APK
+            </div>
+        </div>
+        
+        <div class="step">
+            <h3><span class="step-number">4</span> Método rápido: Servicios online</h3>
+            <p>Otras plataformas para crear APK:</p>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+                <li><a href="https://gonative.io" target="_blank">GoNative.io</a></li>
+                <li><a href="https://bubblewrap.app" target="_blank">Bubblewrap.app</a></li>
+                <li><a href="https://www.websitetomobileapp.com" target="_blank">WebsiteToMobileApp.com</a></li>
+            </ul>
+        </div>
+        
+        <div class="button-group">
+            <a href="https://www.pwabuilder.com" target="_blank" class="btn btn-primary">
+                <i class="fas fa-external-link-alt"></i> Ir a PWABuilder
+            </a>
+            
+            <a href="./index.html" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Volver a la App
+            </a>
+            
+            <button onclick="downloadProjectZip()" class="btn btn-primary">
+                <i class="fas fa-download"></i> Descargar Proyecto ZIP
+            </button>
+        </div>
+        
+        <div style="margin-top: 30px; padding: 20px; background: #fef3c7; border-radius: 10px;">
+            <h4 style="color: #92400e; margin-bottom: 10px;">⚠️ Importante</h4>
+            <p style="color: #92400e; font-size: 14px;">
+                Para publicar en Google Play Store necesitas:
+                <br>1. Crear una cuenta de desarrollador ($25 USD una vez)
+                <br>2. Firmar el APK con una keystore
+                <br>3. Seguir las políticas de Google Play
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        function downloadProjectZip() {
+            // Crear un archivo README.txt con instrucciones
+            const readmeContent = `CONTROLE DE PESAGEM - APP PARA ANDROID
+
+INSTRUÇÕES PARA CRIAR APK:
+
+1. Vá para https://www.pwabuilder.com
+2. Faça upload deste arquivo ZIP
+3. Siga as instruções para gerar o APK
+4. Baixe e instale no seu Android
+
+Arquivos incluídos:
+- index.html (página principal)
+- style.css (estilos)
+- app.js (lógica da aplicação)
+- manifest.json (configuração PWA)
+- sw.js (service worker)
+
+App desenvolvido para controle de pesagem em armazém.`;
+            
+            const readmeBlob = new Blob([readmeContent], { type: 'text/plain' });
+            
+            // Crear archivo ZIP virtual
+            alert('Esta función crearía un ZIP con todos los archivos.\n\nEn el sistema real necesitarías un servidor o librería JS para crear ZIPs.\n\nPor ahora, comprime manualmente los archivos o usa PWABuilder.');
+            
+            // Redirigir a PWABuilder
+            window.open('https://www.pwabuilder.com', '_blank');
+        }
+        
+        // Crear archivos de icono placeholder si no existen
+        function createPlaceholderIcons() {
+            // Esto es solo para demostración
+            console.log('Para íconos reales, crea archivos PNG:');
+            console.log('1. icon-192.png (192x192 pixels)');
+            console.log('2. icon-512.png (512x512 pixels)');
+        }
+        
+        createPlaceholderIcons();
+    </script>
+    
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</body>
+</html>
