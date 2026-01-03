@@ -5,16 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Conferente | Armazém</title>
     
-    <!-- PWA Metadata -->
+    <!-- PWA Metadata COMPLETO -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2563eb">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Pesagem">
+    <meta name="apple-mobile-web-app-title" content="Conferente">
     <meta name="description" content="Sistema de controle de pesagem para armazém">
+    <meta name="application-name" content="Conferente">
+    <meta name="msapplication-TileColor" content="#2563eb">
+    <meta name="msapplication-TileImage" content="icon-192.png">
     
-    <!-- Icons -->
-    <link rel="icon" type="image/png" href="icon-192.png">
+    <!-- Icons para PWA -->
+    <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icon-16.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
     <link rel="apple-touch-icon" href="icon-192.png">
     
     <!-- Styles & Fonts -->
@@ -108,6 +114,27 @@
         .header-info {
             display: flex;
             align-items: center;
+            gap: 15px;
+        }
+        
+        /* Botón de instalación PWA */
+        .install-btn {
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
+        }
+        
+        .install-btn:hover {
+            background: #0da271;
         }
         
         .datetime {
@@ -127,7 +154,7 @@
             font-family: 'Roboto Mono', monospace;
         }
         
-        /* Tabs - VISIBLES EN MÓVIL Y ESCRITORIO */
+        /* Tabs */
         .app-tabs {
             display: flex;
             background: white;
@@ -161,7 +188,7 @@
             border-bottom: 3px solid #2563eb;
         }
         
-        /* Contenedor principal */
+        /* Contenido principal */
         .main-content {
             padding: 20px;
             max-width: 1200px;
@@ -169,48 +196,21 @@
             width: 100%;
         }
         
-        /* Contenedor para swipe (solo móvil) */
-        @media (max-width: 768px) {
-            .swipe-container {
-                display: flex;
-                width: 300%;
-                height: 100%;
-                transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); /* Animación más lenta y suave */
-                will-change: transform; /* Optimización para Chrome */
-            }
-            
-            .swipe-section {
-                width: 33.333%;
-                height: 100%;
-                overflow-y: auto;
-                padding: 15px;
-                -webkit-overflow-scrolling: touch;
-            }
-            
-            .main-content {
-                display: none;
-            }
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
         }
         
-        /* Para escritorio */
-        @media (min-width: 769px) {
-            .swipe-container {
-                display: none;
-            }
-            
-            .main-content {
-                display: block;
-            }
-            
-            .tab-content {
-                display: none;
-            }
-            
-            .tab-content.active {
-                display: block;
-            }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Formulario */
         .form-group {
             margin-bottom: 15px;
         }
@@ -230,7 +230,7 @@
             border-radius: 6px;
             font-size: 14px;
             transition: all 0.2s;
-            -webkit-appearance: none; /* Mejor compatibilidad con Chrome */
+            -webkit-appearance: none;
             appearance: none;
         }
         
@@ -254,7 +254,7 @@
             justify-content: center;
             gap: 8px;
             min-height: 44px;
-            -webkit-appearance: none; /* Mejor compatibilidad con Chrome */
+            -webkit-appearance: none;
             appearance: none;
         }
         
@@ -458,10 +458,6 @@
                 padding: 15px;
             }
             
-            .swipe-section {
-                padding: 10px;
-            }
-            
             /* Tabs en móvil más compactos */
             .app-tabs {
                 top: 61px;
@@ -474,6 +470,17 @@
             
             .tab-btn i {
                 font-size: 16px;
+            }
+            
+            .main-content {
+                padding: 15px;
+            }
+            
+            /* Ocultar botón de instalación en móvil si está instalado como PWA */
+            @media all and (display-mode: standalone) {
+                .install-btn {
+                    display: none !important;
+                }
             }
         }
         
@@ -494,6 +501,26 @@
             .form-title {
                 font-size: 16px;
             }
+            
+            .header-info {
+                flex-direction: column;
+                align-items: flex-end;
+                gap: 5px;
+            }
+        }
+        
+        /* Estilos para modo PWA instalado */
+        @media all and (display-mode: standalone) {
+            body {
+                padding-top: env(safe-area-inset-top);
+                padding-bottom: env(safe-area-inset-bottom);
+                padding-left: env(safe-area-inset-left);
+                padding-right: env(safe-area-inset-right);
+            }
+            
+            .app-header {
+                padding-top: calc(12px + env(safe-area-inset-top, 0px));
+            }
         }
     </style>
 </head>
@@ -506,6 +533,10 @@
                 <h1>Conferente</h1>
             </div>
             <div class="header-info">
+                <button class="install-btn" id="installBtn">
+                    <i class="fas fa-download"></i>
+                    Instalar
+                </button>
                 <div class="datetime">
                     <span id="currentDate">01 Jan 2026</span>
                     <span id="currentTime">16:25</span>
@@ -514,7 +545,7 @@
         </div>
     </header>
 
-    <!-- Tabs - VISIBLES EN MÓVIL Y ESCRITORIO -->
+    <!-- Tabs -->
     <nav class="app-tabs">
         <button class="tab-btn active" data-tab="pesar">
             <i class="fas fa-weight-hanging"></i>
@@ -530,10 +561,10 @@
         </button>
     </nav>
 
-    <!-- Contenedor para swipe (solo móvil) -->
-    <div class="swipe-container" id="swipeContainer">
-        <!-- Sección 1: Pesar -->
-        <section class="swipe-section" id="swipe-pesar">
+    <!-- Contenido principal -->
+    <div class="main-content">
+        <!-- Pestaña 1: Pesar -->
+        <section class="tab-content active" id="tab-pesar">
             <!-- Formulario -->
             <div class="form-container">
                 <div class="form-title">
@@ -636,9 +667,9 @@
                 </form>
             </div>
         </section>
-
-        <!-- Sección 2: Ticket -->
-        <section class="swipe-section" id="swipe-ticket">
+        
+        <!-- Pestaña 2: Ticket -->
+        <section class="tab-content" id="tab-ticket">
             <div class="ticket-section">
                 <div class="form-title">
                     <i class="fas fa-receipt"></i> Ticket Atual
@@ -712,9 +743,9 @@
                 </div>
             </div>
         </section>
-
-        <!-- Sección 3: Histórico -->
-        <section class="swipe-section" id="swipe-historico">
+        
+        <!-- Pestaña 3: Histórico -->
+        <section class="tab-content" id="tab-historico">
             <div>
                 <div class="form-title">
                     <i class="fas fa-history"></i> Histórico de Pesagens
@@ -737,7 +768,7 @@
                 </div>
                 
                 <!-- Lista del histórico -->
-                <div class="ticket-section" style="max-height: 400px; overflow-y: auto;" id="historyList">
+                <div class="ticket-section" style="max-height: 500px; overflow-y: auto;" id="historyList">
                     <div style="text-align: center; padding: 60px 0; color: #94a3b8;">
                         <i class="fas fa-weight-hanging" style="font-size: 40px; margin-bottom: 10px;"></i>
                         <div>Nenhuma pesagem no histórico</div>
@@ -772,244 +803,16 @@
         </section>
     </div>
 
-    <!-- Contenido principal para escritorio -->
-    <div class="main-content">
-        <!-- Pestaña 1: Pesar -->
-        <section class="tab-content active" id="tab-pesar">
-            <!-- Formulario -->
-            <div class="form-container">
-                <div class="form-title">
-                    <i class="fas fa-plus-circle"></i> Nova Pesagem
-                    <span class="status-badge">
-                        <span class="status-dot"></span>
-                        <span>Novo produto</span>
-                    </span>
-                </div>
-                
-                <form id="pesagemFormDesktop">
-                    <!-- Producto -->
-                    <div class="form-group">
-                        <label for="productDesktop"><i class="fas fa-box"></i> Produto</label>
-                        <input type="text" id="productDesktop" placeholder="Nome do produto" autocomplete="off" list="productListDesktop">
-                        <datalist id="productListDesktop"></datalist>
-                        <small style="font-size: 12px; color: #64748b;">Produtos conhecidos autocompletam as taras</small>
-                    </div>
-                    
-                    <!-- Fornecedor -->
-                    <div class="form-group">
-                        <label for="supplierDesktop"><i class="fas fa-truck"></i> Fornecedor</label>
-                        <input type="text" id="supplierDesktop" placeholder="Nome do fornecedor">
-                    </div>
-                    
-                    <!-- Pesos -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                        <div class="form-group">
-                            <label for="grossWeightDesktop"><i class="fas fa-weight-hanging"></i> Peso Bruto (kg)</label>
-                            <input type="text" id="grossWeightDesktop" placeholder="15.5, 12.3, 18.7">
-                            <small style="font-size: 11px; color: #64748b;">Separar por vírgula para múltiplas</small>
-                        </div>
-                        <div class="form-group">
-                            <label for="invoiceWeightDesktop"><i class="fas fa-file-invoice"></i> Peso Nota (kg)</label>
-                            <input type="number" id="invoiceWeightDesktop" step="0.001" placeholder="Peso declarado">
-                        </div>
-                    </div>
-                    
-                    <!-- Caixas -->
-                    <div class="form-group">
-                        <label><i class="fas fa-cube"></i> Caixas</label>
-                        <div style="display: flex; gap: 10px;">
-                            <div style="flex: 1;">
-                                <small style="display: block; font-size: 11px; color: #64748b;">Quantidade</small>
-                                <input type="number" id="boxQuantityDesktop" value="0" min="0" style="padding: 8px;">
-                            </div>
-                            <div style="flex: 1;">
-                                <small style="display: block; font-size: 11px; color: #64748b;">Tara/Unid. (kg)</small>
-                                <input type="number" id="boxTaraDesktop" step="0.001" placeholder="0.000" style="padding: 8px;">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Embalagens -->
-                    <div class="form-group">
-                        <label><i class="fas fa-layer-group"></i> Embalagens</label>
-                        <div style="display: flex; gap: 10px;">
-                            <div style="flex: 1;">
-                                <small style="display: block; font-size: 11px; color: #64748b;">Quantidade</small>
-                                <input type="number" id="packagingQuantityDesktop" value="0" min="0" style="padding: 8px;">
-                            </div>
-                            <div style="flex: 1;">
-                                <small style="display: block; font-size: 11px; color: #64748b;">Tara/Unid. (kg)</small>
-                                <input type="number" id="packagingTaraDesktop" step="0.001" placeholder="0.000" style="padding: 8px;">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Totales de Tara - HORIZONTAL -->
-                    <div class="tara-totals">
-                        <div class="tara-item">
-                            <span class="tara-label">Total Caixas</span>
-                            <span class="tara-value" id="totalBoxTaraDesktop">0.000 kg</span>
-                        </div>
-                        <div class="tara-item">
-                            <span class="tara-label">Total Embal.</span>
-                            <span class="tara-value" id="totalPackagingTaraDesktop">0.000 kg</span>
-                        </div>
-                        <div class="tara-item">
-                            <span class="tara-label">Tara Total</span>
-                            <span class="tara-value" id="totalTaraDesktop">0.000 kg</span>
-                        </div>
-                    </div>
-                    
-                    <!-- Botones de Acción -->
-                    <div class="buttons-grid">
-                        <button type="button" class="btn-secondary" id="clearFormDesktop">
-                            <i class="fas fa-eraser"></i> Limpar
-                        </button>
-                        <button type="submit" class="btn-primary">
-                            <i class="fas fa-plus"></i> Adicionar
-                        </button>
-                        <button type="button" class="btn-secondary" id="quickCalcDesktop">
-                            <i class="fas fa-calculator"></i> Calcular
-                        </button>
-                        <button type="button" class="btn-secondary" id="saveProductDesktop">
-                            <i class="fas fa-save"></i> Salvar Prod.
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </section>
-        
-        <!-- Pestaña 2: Ticket -->
-        <section class="tab-content" id="tab-ticket">
-            <div class="ticket-section">
-                <div class="form-title">
-                    <i class="fas fa-receipt"></i> Ticket Atual
-                </div>
-                
-                <!-- Botones del ticket -->
-                <div class="buttons-grid">
-                    <button class="btn-secondary" id="printTicketBtnDesktop">
-                        <i class="fas fa-print"></i> Imprimir
-                    </button>
-                    <button class="btn-secondary" id="shareTicketBtnDesktop">
-                        <i class="fab fa-whatsapp"></i> WhatsApp
-                    </button>
-                    <button class="btn-secondary" id="exportTicketBtnDesktop">
-                        <i class="fas fa-file-export"></i> Exportar
-                    </button>
-                    <button class="btn-secondary" id="clearTicketBtnDesktop">
-                        <i class="fas fa-trash"></i> Limpar
-                    </button>
-                </div>
-                
-                <!-- Ticket -->
-                <div class="ticket-preview">
-                    <div class="ticket-header">
-                        <div style="font-weight: bold; font-size: 16px;">CONTROLE DE PESAGEM</div>
-                        <div style="font-size: 12px;">Ticket #<span id="ticketNumberCompactDesktop">001</span></div>
-                        <div style="font-size: 11px;" id="ticketDateCompactDesktop">03/01/2026</div>
-                    </div>
-                    
-                    <div class="ticket-body" id="ticketItemsCompactDesktop">
-                        <!-- Contenido dinámico -->
-                    </div>
-                    
-                    <div class="ticket-footer">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                            <span>Total Itens:</span>
-                            <span id="ticketTotalItemsDesktop">1</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; font-weight: bold;">
-                            <span>TOTAL LÍQUIDO:</span>
-                            <span id="ticketTotalWeightDesktop">200.100 kg</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Opciones de impresión -->
-                <div style="margin-top: 20px;">
-                    <h4 style="margin-bottom: 10px; color: #1e293b;"><i class="fas fa-print"></i> Opções de Impressão</h4>
-                    <div class="print-options">
-                        <button class="btn-secondary" id="printThermalBtnDesktop">
-                            <i class="fas fa-receipt"></i> Ticket Térmico
-                        </button>
-                        <button class="btn-secondary" id="printFullBtnDesktop">
-                            <i class="fas fa-file-pdf"></i> Página Completa
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-        <!-- Pestaña 3: Histórico -->
-        <section class="tab-content" id="tab-historico">
-            <div>
-                <div class="form-title">
-                    <i class="fas fa-history"></i> Histórico de Pesagens
-                </div>
-                
-                <!-- Botones del histórico -->
-                <div class="buttons-grid">
-                    <button class="btn-secondary" id="filterTodayBtnDesktop">
-                        <i class="fas fa-calendar-day"></i> Hoje
-                    </button>
-                    <button class="btn-secondary" id="filterWeekBtnDesktop">
-                        <i class="fas fa-calendar-week"></i> Esta Semana
-                    </button>
-                    <button class="btn-secondary" id="filterAllBtnDesktop">
-                        <i class="fas fa-calendar-alt"></i> Todos
-                    </button>
-                    <button class="btn-secondary" id="exportHistoryBtnDesktop">
-                        <i class="fas fa-file-csv"></i> CSV
-                    </button>
-                </div>
-                
-                <!-- Lista del histórico -->
-                <div class="ticket-section" style="max-height: 500px; overflow-y: auto;" id="historyListDesktop">
-                    <!-- Contenido dinámico -->
-                </div>
-                
-                <!-- Configuração -->
-                <div class="config-section">
-                    <h3 style="margin-bottom: 15px; color: #1e293b;">
-                        <i class="fas fa-cog"></i> Configurações
-                    </h3>
-                    
-                    <div style="display: grid; gap: 15px;">
-                        <div>
-                            <div style="font-size: 14px; color: #64748b; margin-bottom: 10px;">
-                                Pesagens: <span id="dataCountDesktop">1</span> | 
-                                Produtos: <span id="productCountDesktop">1</span>
-                            </div>
-                            <button class="btn-secondary" id="clearAllDataDesktop" style="width: 100%;">
-                                <i class="fas fa-trash"></i> Limpar Todos os Dados
-                            </button>
-                        </div>
-                        
-                        <div>
-                            <button class="btn-primary" id="exportAllDataDesktop" style="width: 100%; margin-bottom: 10px;">
-                                <i class="fas fa-file-export"></i> Exportar Todos os Dados
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </div>
-
     <!-- Toast Container -->
     <div id="toastContainer"></div>
 
-    <!-- JavaScript SIMPLIFICADO -->
+    <!-- JavaScript -->
     <script>
         // ===== APP COMPLETA =====
         
         let products = {};
         let weighings = [];
-        let currentTab = 0; // 0: pesar, 1: ticket, 2: historico
-        let startX = 0;
-        let isSwiping = false;
-        let isMobile = window.innerWidth <= 768;
+        let deferredPrompt; // Para PWA
         
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 App iniciada');
@@ -1026,6 +829,9 @@
             // Configurar botones
             setupButtons();
             
+            // Configurar PWA
+            setupPWA();
+            
             // Configurar fecha/hora
             updateDateTime();
             setInterval(updateDateTime, 60000);
@@ -1035,6 +841,86 @@
             
             console.log('✅ App lista para usar');
         });
+        
+        // ===== PWA FUNCTIONALITY =====
+        
+        function setupPWA() {
+            // Evento para detectar cuando la app puede ser instalada
+            window.addEventListener('beforeinstallprompt', (e) => {
+                console.log('📱 PWA: beforeinstallprompt event fired');
+                // Prevenir que Chrome muestre el prompt automático
+                e.preventDefault();
+                // Guardar el evento para usarlo después
+                deferredPrompt = e;
+                // Mostrar el botón de instalación
+                const installBtn = document.getElementById('installBtn');
+                if (installBtn) {
+                    installBtn.style.display = 'flex';
+                    installBtn.addEventListener('click', installPWA);
+                }
+                
+                // Mostrar toast informativo
+                showToast('Aplicação pode ser instalada como app!', 'info');
+            });
+            
+            // Evento cuando la app se instala
+            window.addEventListener('appinstalled', () => {
+                console.log('✅ PWA instalada con éxito');
+                deferredPrompt = null;
+                // Ocultar el botón de instalación
+                const installBtn = document.getElementById('installBtn');
+                if (installBtn) {
+                    installBtn.style.display = 'none';
+                }
+                showToast('Aplicação instalada com sucesso!', 'success');
+            });
+            
+            // Verificar si ya está instalada como PWA
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                console.log('📱 App ejecutándose como PWA instalada');
+                const installBtn = document.getElementById('installBtn');
+                if (installBtn) {
+                    installBtn.style.display = 'none';
+                }
+            }
+            
+            // Service Worker registration (si existe el archivo)
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('/sw.js').then(registration => {
+                        console.log('✅ ServiceWorker registrado con ámbito:', registration.scope);
+                    }).catch(error => {
+                        console.log('❌ Error registrando ServiceWorker:', error);
+                    });
+                });
+            }
+        }
+        
+        function installPWA() {
+            if (!deferredPrompt) {
+                showToast('La aplicación ya está instalada o no se puede instalar', 'warning');
+                return;
+            }
+            
+            // Mostrar el prompt de instalación
+            deferredPrompt.prompt();
+            
+            // Esperar a que el usuario responda
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('✅ Usuario aceptó la instalación');
+                } else {
+                    console.log('❌ Usuario rechazó la instalación');
+                }
+                deferredPrompt = null;
+                
+                // Ocultar el botón de instalación
+                const installBtn = document.getElementById('installBtn');
+                if (installBtn) {
+                    installBtn.style.display = 'none';
+                }
+            });
+        }
         
         // ===== FUNCIONES BÁSICAS =====
         
@@ -1077,244 +963,108 @@
             }
         }
         
-        // ===== NAVEGACIÓN SIMPLIFICADA =====
+        // ===== NAVEGACIÓN =====
         
         function setupNavigation() {
             // Configurar tabs
-            document.querySelectorAll('.tab-btn').forEach((btn, index) => {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     // Actualizar tab activo
                     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                     this.classList.add('active');
                     
-                    // Actualizar contenido
-                    currentTab = index;
-                    
-                    if (isMobile) {
-                        // En móvil, usar swipe
-                        updateSwipePosition();
-                    } else {
-                        // En escritorio, mostrar contenido correspondiente
-                        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                        document.getElementById(`tab-${this.dataset.tab}`).classList.add('active');
-                    }
+                    // Ocultar todos los contenidos y mostrar el activo
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    document.getElementById(`tab-${this.dataset.tab}`).classList.add('active');
                     
                     // Actualizar datos del tab
                     updateTabData(this.dataset.tab);
                 });
             });
-            
-            // Configurar swipe solo para móvil
-            if (isMobile) {
-                setupSwipe();
-            }
-        }
-        
-        function setupSwipe() {
-            const swipeContainer = document.getElementById('swipeContainer');
-            
-            // Touch events
-            swipeContainer.addEventListener('touchstart', function(e) {
-                startX = e.touches[0].clientX;
-                isSwiping = true;
-                this.style.transition = 'none';
-            });
-            
-            swipeContainer.addEventListener('touchmove', function(e) {
-                if (!isSwiping) return;
-                e.preventDefault();
-                
-                const currentX = e.touches[0].clientX;
-                const diff = startX - currentX;
-                
-                // Limitar movimiento máximo
-                if (Math.abs(diff) < 200) {
-                    const translateX = -currentTab * 33.333 + (diff / window.innerWidth * 100);
-                    this.style.transform = `translateX(${translateX}%)`;
-                }
-            });
-            
-            swipeContainer.addEventListener('touchend', function(e) {
-                if (!isSwiping) return;
-                isSwiping = false;
-                
-                // Aplicar animación más lenta y suave
-                this.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
-                
-                const endX = e.changedTouches[0].clientX;
-                const diff = startX - endX;
-                
-                // Cambiar tab si se deslizó suficiente
-                if (Math.abs(diff) > 100) {
-                    if (diff > 0 && currentTab < 2) {
-                        currentTab++;
-                    } else if (diff < 0 && currentTab > 0) {
-                        currentTab--;
-                    }
-                }
-                
-                updateSwipePosition();
-                updateActiveTab();
-            });
-        }
-        
-        function updateSwipePosition() {
-            const swipeContainer = document.getElementById('swipeContainer');
-            if (swipeContainer && isMobile) {
-                swipeContainer.style.transform = `translateX(-${currentTab * 33.333}%)`;
-            }
-        }
-        
-        function updateActiveTab() {
-            // Actualizar botón de tab activo
-            document.querySelectorAll('.tab-btn').forEach((btn, index) => {
-                if (index === currentTab) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
-            });
         }
         
         function updateTabData(tabId) {
-            // No es necesario hacer nada especial aquí
-            // El contenido ya está cargado
+            switch(tabId) {
+                case 'pesar':
+                    updatePesagemTab();
+                    break;
+                case 'ticket':
+                    updateTicketTab();
+                    break;
+                case 'historico':
+                    updateHistoricoTab();
+                    break;
+            }
         }
         
-        // ===== FORMULARIOS SIMPLIFICADOS =====
+        // ===== FORMULARIOS =====
         
         function setupForms() {
-            // Configurar formulario principal (móvil y escritorio)
-            const forms = ['pesagemForm', 'pesagemFormDesktop'];
+            // Producto input
+            document.getElementById('product')?.addEventListener('input', handleProductInput);
             
-            forms.forEach(formId => {
-                const form = document.getElementById(formId);
-                if (form) {
-                    form.addEventListener('submit', handleFormSubmit);
-                }
+            // Inputs de taras
+            ['boxQuantity', 'boxTara', 'packagingQuantity', 'packagingTara'].forEach(id => {
+                document.getElementById(id)?.addEventListener('input', calculateTaras);
             });
             
-            // Configurar eventos de inputs de tara
-            const taraInputs = [
-                'boxQuantity', 'boxTara', 'packagingQuantity', 'packagingTara',
-                'boxQuantityDesktop', 'boxTaraDesktop', 'packagingQuantityDesktop', 'packagingTaraDesktop'
-            ];
-            
-            taraInputs.forEach(id => {
-                const input = document.getElementById(id);
-                if (input) {
-                    input.addEventListener('input', calculateTaras);
-                }
-            });
-            
-            // Configurar autocompletado de productos
-            const productInputs = ['product', 'productDesktop'];
-            productInputs.forEach(id => {
-                const input = document.getElementById(id);
-                if (input) {
-                    input.addEventListener('input', handleProductInput);
-                }
-            });
+            // Form submit
+            document.getElementById('pesagemForm')?.addEventListener('submit', handleFormSubmit);
         }
         
-        function handleProductInput(e) {
-            const input = e.target;
-            const productName = input.value.trim();
-            const isDesktop = input.id.includes('Desktop');
+        function handleProductInput() {
+            const productName = document.getElementById('product').value.trim();
+            const statusDot = document.querySelector('#productStatus .status-dot');
+            const statusText = document.querySelector('#productStatus span:last-child');
             
             if (!productName) {
-                // Actualizar estado si es móvil
-                if (!isDesktop) {
-                    const statusDot = document.querySelector('#productStatus .status-dot');
-                    const statusText = document.querySelector('#productStatus span:last-child');
-                    if (statusDot && statusText) {
-                        statusDot.className = 'status-dot';
-                        statusText.textContent = 'Novo produto';
-                    }
-                }
+                statusDot.className = 'status-dot';
+                statusText.textContent = 'Novo produto';
                 return;
             }
             
             if (products[productName]) {
-                // Autocompletar taras
-                const boxTaraId = isDesktop ? 'boxTaraDesktop' : 'boxTara';
-                const packagingTaraId = isDesktop ? 'packagingTaraDesktop' : 'packagingTara';
-                
-                document.getElementById(boxTaraId).value = products[productName].boxTara || '';
-                document.getElementById(packagingTaraId).value = products[productName].packagingTara || '';
-                
-                // Actualizar estado si es móvil
-                if (!isDesktop) {
-                    const statusDot = document.querySelector('#productStatus .status-dot');
-                    const statusText = document.querySelector('#productStatus span:last-child');
-                    if (statusDot && statusText) {
-                        statusDot.className = 'status-dot known';
-                        statusText.textContent = 'Produto conhecido';
-                    }
-                }
-                
+                document.getElementById('boxTara').value = products[productName].boxTara || '';
+                document.getElementById('packagingTara').value = products[productName].packagingTara || '';
+                statusDot.className = 'status-dot known';
+                statusText.textContent = 'Produto conhecido';
                 showToast('Taras preenchidas automaticamente', 'success');
             } else {
-                // Limpiar taras si no existe el producto
-                const boxTaraId = isDesktop ? 'boxTaraDesktop' : 'boxTara';
-                const packagingTaraId = isDesktop ? 'packagingTaraDesktop' : 'packagingTara';
-                
-                document.getElementById(boxTaraId).value = '';
-                document.getElementById(packagingTaraId).value = '';
-                
-                // Actualizar estado si es móvil
-                if (!isDesktop) {
-                    const statusDot = document.querySelector('#productStatus .status-dot');
-                    const statusText = document.querySelector('#productStatus span:last-child');
-                    if (statusDot && statusText) {
-                        statusDot.className = 'status-dot';
-                        statusText.textContent = 'Novo produto';
-                    }
-                }
+                document.getElementById('boxTara').value = '';
+                document.getElementById('packagingTara').value = '';
+                statusDot.className = 'status-dot';
+                statusText.textContent = 'Novo produto';
             }
             
             calculateTaras();
         }
         
         function calculateTaras() {
-            // Calcular para móvil y escritorio
-            const contexts = [
-                { prefix: '', boxTaraEl: 'totalBoxTara', packagingTaraEl: 'totalPackagingTara', totalTaraEl: 'totalTara' },
-                { prefix: 'Desktop', boxTaraEl: 'totalBoxTaraDesktop', packagingTaraEl: 'totalPackagingTaraDesktop', totalTaraEl: 'totalTaraDesktop' }
-            ];
+            const boxQty = parseFloat(document.getElementById('boxQuantity').value) || 0;
+            const boxTara = parseFloat(document.getElementById('boxTara').value) || 0;
+            const packagingQty = parseFloat(document.getElementById('packagingQuantity').value) || 0;
+            const packagingTara = parseFloat(document.getElementById('packagingTara').value) || 0;
             
-            contexts.forEach(context => {
-                const boxQty = parseFloat(document.getElementById(`boxQuantity${context.prefix}`)?.value) || 0;
-                const boxTara = parseFloat(document.getElementById(`boxTara${context.prefix}`)?.value) || 0;
-                const packagingQty = parseFloat(document.getElementById(`packagingQuantity${context.prefix}`)?.value) || 0;
-                const packagingTara = parseFloat(document.getElementById(`packagingTara${context.prefix}`)?.value) || 0;
-                
-                const totalBoxTara = boxQty * boxTara;
-                const totalPackagingTara = packagingQty * packagingTara;
-                const totalTara = totalBoxTara + totalPackagingTara;
-                
-                // Actualizar UI solo si los elementos existen
-                const boxTaraEl = document.getElementById(context.boxTaraEl);
-                const packagingTaraEl = document.getElementById(context.packagingTaraEl);
-                const totalTaraEl = document.getElementById(context.totalTaraEl);
-                
-                if (boxTaraEl) boxTaraEl.textContent = totalBoxTara.toFixed(3) + ' kg';
-                if (packagingTaraEl) packagingTaraEl.textContent = totalPackagingTara.toFixed(3) + ' kg';
-                if (totalTaraEl) totalTaraEl.textContent = totalTara.toFixed(3) + ' kg';
-            });
+            const totalBoxTara = boxQty * boxTara;
+            const totalPackagingTara = packagingQty * packagingTara;
+            const totalTara = totalBoxTara + totalPackagingTara;
+            
+            document.getElementById('totalBoxTara').textContent = totalBoxTara.toFixed(3) + ' kg';
+            document.getElementById('totalPackagingTara').textContent = totalPackagingTara.toFixed(3) + ' kg';
+            document.getElementById('totalTara').textContent = totalTara.toFixed(3) + ' kg';
+            
+            return { totalBoxTara, totalPackagingTara, totalTara };
         }
         
         function handleFormSubmit(e) {
             e.preventDefault();
-            addWeighing(e.target.id === 'pesagemFormDesktop');
+            addWeighing();
         }
         
-        function addWeighing(isDesktop = false) {
-            const prefix = isDesktop ? 'Desktop' : '';
-            
+        function addWeighing() {
             // Obtener valores del formulario
-            const productName = document.getElementById(`product${prefix}`).value.trim();
-            const grossWeightInput = document.getElementById(`grossWeight${prefix}`).value.trim();
+            const productName = document.getElementById('product').value.trim();
+            const grossWeightInput = document.getElementById('grossWeight').value.trim();
             
             // Validaciones básicas
             if (!productName) {
@@ -1339,22 +1089,22 @@
             }
             
             // Calcular taras
-            const boxQty = parseFloat(document.getElementById(`boxQuantity${prefix}`).value) || 0;
-            const boxTara = parseFloat(document.getElementById(`boxTara${prefix}`).value) || 0;
-            const packagingQty = parseFloat(document.getElementById(`packagingQuantity${prefix}`).value) || 0;
-            const packagingTara = parseFloat(document.getElementById(`packagingTara${prefix}`).value) || 0;
+            const boxQty = parseFloat(document.getElementById('boxQuantity').value) || 0;
+            const boxTara = parseFloat(document.getElementById('boxTara').value) || 0;
+            const packagingQty = parseFloat(document.getElementById('packagingQuantity').value) || 0;
+            const packagingTara = parseFloat(document.getElementById('packagingTara').value) || 0;
             const totalTara = (boxQty * boxTara) + (packagingQty * packagingTara);
             
             // Crear registros para cada peso
             weightValues.forEach(grossWeight => {
                 const netWeight = grossWeight - totalTara;
-                const invoiceWeight = parseFloat(document.getElementById(`invoiceWeight${prefix}`).value) || 0;
+                const invoiceWeight = parseFloat(document.getElementById('invoiceWeight').value) || 0;
                 const difference = invoiceWeight > 0 ? netWeight - invoiceWeight : null;
                 
                 const weighing = {
                     id: Date.now() + Math.random(),
                     product: productName,
-                    supplier: document.getElementById(`supplier${prefix}`).value.trim() || '',
+                    supplier: document.getElementById('supplier').value.trim() || '',
                     boxQuantity: boxQty,
                     boxTara: boxTara,
                     packagingQuantity: packagingQty,
@@ -1388,98 +1138,39 @@
             updateUI();
             
             // Limpiar formulario
-            clearForm(isDesktop);
+            clearForm();
             
             // Mostrar mensaje de éxito
             showToast(`${weightValues.length} pesagem(ns) adicionada(s) com sucesso!`, 'success');
         }
         
-        // ===== BOTONES SIMPLIFICADOS =====
+        // ===== BOTONES =====
         
         function setupButtons() {
             // Botones de limpiar
-            ['clearForm', 'clearFormDesktop'].forEach(id => {
-                const btn = document.getElementById(id);
-                if (btn) {
-                    btn.addEventListener('click', () => clearForm(id === 'clearFormDesktop'));
-                }
-            });
+            document.getElementById('clearForm')?.addEventListener('click', clearForm);
             
             // Botones de calcular
-            ['quickCalc', 'quickCalcDesktop'].forEach(id => {
-                const btn = document.getElementById(id);
-                if (btn) {
-                    btn.addEventListener('click', () => {
-                        calculateTaras();
-                        showToast('Cálculos atualizados', 'info');
-                    });
-                }
+            document.getElementById('quickCalc')?.addEventListener('click', () => {
+                calculateTaras();
+                showToast('Cálculos atualizados', 'info');
             });
             
             // Botones de salvar producto
-            ['saveProduct', 'saveProductDesktop'].forEach(id => {
-                const btn = document.getElementById(id);
-                if (btn) {
-                    btn.addEventListener('click', () => saveCurrentProduct(id === 'saveProductDesktop'));
-                }
-            });
+            document.getElementById('saveProduct')?.addEventListener('click', saveCurrentProduct);
             
             // Botones de ticket
-            setupTicketButtons();
+            document.getElementById('printTicketBtn')?.addEventListener('click', printThermalTicket);
+            document.getElementById('shareTicketBtn')?.addEventListener('click', shareWhatsApp);
+            document.getElementById('exportTicketBtn')?.addEventListener('click', exportToCSV);
+            document.getElementById('clearTicketBtn')?.addEventListener('click', clearAllWeighings);
+            document.getElementById('printThermalBtn')?.addEventListener('click', printThermalTicket);
+            document.getElementById('printFullBtn')?.addEventListener('click', printFullPage);
             
             // Botones de histórico
-            setupHistoryButtons();
-        }
-        
-        function setupTicketButtons() {
-            // Asignar funciones comunes a botones de ticket
-            const ticketActions = {
-                'printTicketBtn': printThermalTicket,
-                'shareTicketBtn': shareWhatsApp,
-                'exportTicketBtn': exportToCSV,
-                'clearTicketBtn': clearAllWeighings,
-                'printThermalBtn': printThermalTicket,
-                'printFullBtn': printFullPage,
-                'printTicketBtnDesktop': printThermalTicket,
-                'shareTicketBtnDesktop': shareWhatsApp,
-                'exportTicketBtnDesktop': exportToCSV,
-                'clearTicketBtnDesktop': clearAllWeighings,
-                'printThermalBtnDesktop': printThermalTicket,
-                'printFullBtnDesktop': printFullPage
-            };
-            
-            Object.entries(ticketActions).forEach(([id, func]) => {
-                const btn = document.getElementById(id);
-                if (btn) {
-                    btn.addEventListener('click', func);
-                }
-            });
-        }
-        
-        function setupHistoryButtons() {
-            // Botones de histórico
-            const historyButtons = [
-                'filterTodayBtn', 'filterWeekBtn', 'filterAllBtn', 'exportHistoryBtn',
-                'clearAllData', 'exportAllData',
-                'filterTodayBtnDesktop', 'filterWeekBtnDesktop', 'filterAllBtnDesktop', 'exportHistoryBtnDesktop',
-                'clearAllDataDesktop', 'exportAllDataDesktop'
-            ];
-            
-            historyButtons.forEach(id => {
-                const btn = document.getElementById(id);
-                if (btn) {
-                    if (id.includes('export')) {
-                        btn.addEventListener('click', exportToCSV);
-                    } else if (id.includes('clearAllData')) {
-                        btn.addEventListener('click', clearAllData);
-                    } else {
-                        // Para los botones de filtro, por ahora solo mostramos mensaje
-                        btn.addEventListener('click', () => {
-                            showToast('Filtro aplicado', 'info');
-                        });
-                    }
-                }
-            });
+            document.getElementById('exportHistoryBtn')?.addEventListener('click', exportToCSV);
+            document.getElementById('clearAllData')?.addEventListener('click', clearAllData);
+            document.getElementById('exportAllData')?.addEventListener('click', exportToCSV);
         }
         
         // ===== FUNCIONES DE UI =====
@@ -1490,47 +1181,23 @@
             updateConfigData();
         }
         
+        function updatePesagemTab() {
+            // Actualizar lista de productos
+            updateProductList();
+        }
+        
         function updateTicketTab() {
-            // Actualizar ticket para móvil y escritorio
             const recentWeighings = weighings.slice(0, 10);
             const totalNetTicket = recentWeighings.reduce((sum, w) => sum + w.netWeight, 0);
             
             // Actualizar número de ticket y fecha
-            const ticketNumber = String(weighings.length).padStart(3, '0');
-            const currentDate = new Date().toLocaleDateString('pt-BR');
+            document.getElementById('ticketNumberCompact').textContent = String(weighings.length).padStart(3, '0');
+            document.getElementById('ticketDateCompact').textContent = new Date().toLocaleDateString('pt-BR');
             
-            // Para móvil
-            const ticketNumberEl = document.getElementById('ticketNumberCompact');
-            const ticketDateEl = document.getElementById('ticketDateCompact');
+            // Actualizar items del ticket
             const ticketItemsEl = document.getElementById('ticketItemsCompact');
-            const ticketTotalItemsEl = document.getElementById('ticketTotalItems');
-            const ticketTotalWeightEl = document.getElementById('ticketTotalWeight');
-            
-            if (ticketNumberEl) ticketNumberEl.textContent = ticketNumber;
-            if (ticketDateEl) ticketDateEl.textContent = currentDate;
-            if (ticketItemsEl) updateTicketItems(ticketItemsEl, recentWeighings);
-            if (ticketTotalItemsEl) ticketTotalItemsEl.textContent = recentWeighings.length;
-            if (ticketTotalWeightEl) ticketTotalWeightEl.textContent = totalNetTicket.toFixed(3) + ' kg';
-            
-            // Para escritorio
-            const ticketNumberElDesktop = document.getElementById('ticketNumberCompactDesktop');
-            const ticketDateElDesktop = document.getElementById('ticketDateCompactDesktop');
-            const ticketItemsElDesktop = document.getElementById('ticketItemsCompactDesktop');
-            const ticketTotalItemsElDesktop = document.getElementById('ticketTotalItemsDesktop');
-            const ticketTotalWeightElDesktop = document.getElementById('ticketTotalWeightDesktop');
-            
-            if (ticketNumberElDesktop) ticketNumberElDesktop.textContent = ticketNumber;
-            if (ticketDateElDesktop) ticketDateElDesktop.textContent = currentDate;
-            if (ticketItemsElDesktop) updateTicketItems(ticketItemsElDesktop, recentWeighings);
-            if (ticketTotalItemsElDesktop) ticketTotalItemsElDesktop.textContent = recentWeighings.length;
-            if (ticketTotalWeightElDesktop) ticketTotalWeightElDesktop.textContent = totalNetTicket.toFixed(3) + ' kg';
-        }
-        
-        function updateTicketItems(element, weighings) {
-            if (!element) return;
-            
-            if (weighings.length === 0) {
-                element.innerHTML = `
+            if (recentWeighings.length === 0) {
+                ticketItemsEl.innerHTML = `
                     <div style="text-align: center; padding: 40px 0; color: #94a3b8;">
                         <i class="fas fa-receipt" style="font-size: 40px; margin-bottom: 10px;"></i>
                         <div>Nenhuma pesagem registrada</div>
@@ -1538,7 +1205,7 @@
                 `;
             } else {
                 let html = '';
-                weighings.forEach(w => {
+                recentWeighings.forEach(w => {
                     const diffClass = w.difference >= 0 ? 'diff-positive' : 'diff-negative';
                     const diffText = w.difference !== null ? 
                         `(${w.difference >= 0 ? '+' : ''}${w.difference.toFixed(2)}kg)` : '';
@@ -1561,27 +1228,20 @@
                         </div>
                     `;
                 });
-                element.innerHTML = html;
+                ticketItemsEl.innerHTML = html;
             }
+            
+            // Actualizar totales
+            document.getElementById('ticketTotalItems').textContent = recentWeighings.length;
+            document.getElementById('ticketTotalWeight').textContent = totalNetTicket.toFixed(3) + ' kg';
         }
         
         function updateHistoricoTab() {
             const recentWeighings = weighings.slice(0, 20);
-            
-            // Para móvil
             const historyListEl = document.getElementById('historyList');
-            if (historyListEl) updateHistoryItems(historyListEl, recentWeighings);
-            
-            // Para escritorio
-            const historyListElDesktop = document.getElementById('historyListDesktop');
-            if (historyListElDesktop) updateHistoryItems(historyListElDesktop, recentWeighings);
-        }
-        
-        function updateHistoryItems(element, weighings) {
-            if (!element) return;
             
             if (weighings.length === 0) {
-                element.innerHTML = `
+                historyListEl.innerHTML = `
                     <div style="text-align: center; padding: 60px 0; color: #94a3b8;">
                         <i class="fas fa-weight-hanging" style="font-size: 40px; margin-bottom: 10px;"></i>
                         <div>Nenhuma pesagem no histórico</div>
@@ -1591,7 +1251,7 @@
             }
             
             let html = '';
-            weighings.forEach(w => {
+            recentWeighings.forEach(w => {
                 const date = new Date(w.timestamp);
                 const timeStr = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
                 const dateStr = date.toLocaleDateString('pt-BR');
@@ -1625,51 +1285,24 @@
                 `;
             });
             
-            element.innerHTML = html;
+            historyListEl.innerHTML = html;
         }
         
         function updateConfigData() {
-            // Para móvil
-            const dataCountEl = document.getElementById('dataCount');
-            const productCountEl = document.getElementById('productCount');
-            
-            if (dataCountEl) dataCountEl.textContent = weighings.length;
-            if (productCountEl) productCountEl.textContent = Object.keys(products).length;
-            
-            // Para escritorio
-            const dataCountElDesktop = document.getElementById('dataCountDesktop');
-            const productCountElDesktop = document.getElementById('productCountDesktop');
-            
-            if (dataCountElDesktop) dataCountElDesktop.textContent = weighings.length;
-            if (productCountElDesktop) productCountElDesktop.textContent = Object.keys(products).length;
+            document.getElementById('dataCount').textContent = weighings.length;
+            document.getElementById('productCount').textContent = Object.keys(products).length;
         }
         
         function updateProductList() {
-            // Actualizar datalist para móvil
             const productListEl = document.getElementById('productList');
-            if (productListEl) {
-                productListEl.innerHTML = '';
-                Object.keys(products)
-                    .sort()
-                    .forEach(product => {
-                        const option = document.createElement('option');
-                        option.value = product;
-                        productListEl.appendChild(option);
-                    });
-            }
-            
-            // Actualizar datalist para escritorio
-            const productListElDesktop = document.getElementById('productListDesktop');
-            if (productListElDesktop) {
-                productListElDesktop.innerHTML = '';
-                Object.keys(products)
-                    .sort()
-                    .forEach(product => {
-                        const option = document.createElement('option');
-                        option.value = product;
-                        productListElDesktop.appendChild(option);
-                    });
-            }
+            productListEl.innerHTML = '';
+            Object.keys(products)
+                .sort()
+                .forEach(product => {
+                    const option = document.createElement('option');
+                    option.value = product;
+                    productListEl.appendChild(option);
+                });
         }
         
         function updateDateTime() {
@@ -1687,58 +1320,34 @@
         
         // ===== ACCIONES =====
         
-        function clearForm(isDesktop = false) {
-            const prefix = isDesktop ? 'Desktop' : '';
+        function clearForm() {
+            document.getElementById('product').value = '';
+            document.getElementById('supplier').value = '';
+            document.getElementById('boxQuantity').value = '0';
+            document.getElementById('boxTara').value = '';
+            document.getElementById('packagingQuantity').value = '0';
+            document.getElementById('packagingTara').value = '';
+            document.getElementById('grossWeight').value = '';
+            document.getElementById('invoiceWeight').value = '';
             
-            // Limpiar campos
-            const fields = [
-                `product${prefix}`,
-                `supplier${prefix}`,
-                `grossWeight${prefix}`,
-                `invoiceWeight${prefix}`,
-                `boxTara${prefix}`,
-                `packagingTara${prefix}`
-            ];
+            const statusDot = document.querySelector('#productStatus .status-dot');
+            const statusText = document.querySelector('#productStatus span:last-child');
+            statusDot.className = 'status-dot';
+            statusText.textContent = 'Novo produto';
             
-            fields.forEach(id => {
-                const field = document.getElementById(id);
-                if (field) field.value = '';
-            });
-            
-            // Restablecer cantidades a 0
-            const quantityFields = [`boxQuantity${prefix}`, `packagingQuantity${prefix}`];
-            quantityFields.forEach(id => {
-                const field = document.getElementById(id);
-                if (field) field.value = '0';
-            });
-            
-            // Actualizar estado si es móvil
-            if (!isDesktop) {
-                const statusDot = document.querySelector('#productStatus .status-dot');
-                const statusText = document.querySelector('#productStatus span:last-child');
-                if (statusDot && statusText) {
-                    statusDot.className = 'status-dot';
-                    statusText.textContent = 'Novo produto';
-                }
-            }
-            
-            // Recalcular taras
             calculateTaras();
-            
             showToast('Formulário limpo', 'info');
         }
         
-        function saveCurrentProduct(isDesktop = false) {
-            const prefix = isDesktop ? 'Desktop' : '';
-            const productName = document.getElementById(`product${prefix}`).value.trim();
-            
+        function saveCurrentProduct() {
+            const productName = document.getElementById('product').value.trim();
             if (!productName) {
                 showToast('Digite o nome do produto primeiro', 'warning');
                 return;
             }
             
-            const boxTara = parseFloat(document.getElementById(`boxTara${prefix}`).value) || 0;
-            const packagingTara = parseFloat(document.getElementById(`packagingTara${prefix}`).value) || 0;
+            const boxTara = parseFloat(document.getElementById('boxTara').value) || 0;
+            const packagingTara = parseFloat(document.getElementById('packagingTara').value) || 0;
             
             products[productName] = {
                 boxTara: boxTara,
@@ -1749,16 +1358,10 @@
             saveData();
             updateProductList();
             
-            // Actualizar estado si es móvil
-            if (!isDesktop) {
-                const statusDot = document.querySelector('#productStatus .status-dot');
-                const statusText = document.querySelector('#productStatus span:last-child');
-                if (statusDot && statusText) {
-                    statusDot.className = 'status-dot known';
-                    statusText.textContent = 'Produto salvo';
-                }
-            }
-            
+            const statusDot = document.querySelector('#productStatus .status-dot');
+            const statusText = document.querySelector('#productStatus span:last-child');
+            statusDot.className = 'status-dot known';
+            statusText.textContent = 'Produto salvo';
             showToast(`"${productName}" salvo com sucesso!`, 'success');
         }
         
@@ -1787,8 +1390,7 @@
             }
         }
         
-        // ===== FUNCIONES DE IMPRESIÓN, WHATSAPP Y EXPORTACIÓN =====
-        // (Estas funciones se mantienen igual que antes)
+        // ===== IMPRESIÓN =====
         
         function printThermalTicket() {
             if (weighings.length === 0) {
@@ -1876,7 +1478,6 @@
         }
         
         function printFullPage() {
-            // (Implementación igual que antes)
             if (weighings.length === 0) {
                 showToast('Nenhuma pesagem para imprimir', 'warning');
                 return;
@@ -1979,6 +1580,8 @@
             printWindow.document.close();
         }
         
+        // ===== WHATSAPP =====
+        
         function shareWhatsApp() {
             if (weighings.length === 0) {
                 showToast('Nenhuma pesagem para compartilhar', 'warning');
@@ -2014,6 +1617,8 @@
             const encoded = encodeURIComponent(message);
             window.open(`https://wa.me/?text=${encoded}`, '_blank');
         }
+        
+        // ===== EXPORTACIÓN =====
         
         function exportToCSV() {
             if (weighings.length === 0) {
