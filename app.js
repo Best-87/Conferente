@@ -1,21 +1,17 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // Estado da aplicação
-    const state = {
-        products: JSON.parse(localStorage.getItem('products')) || {},
-        weighings: JSON.parse(localStorage.getItem('weighings')) || [],
-        session: {
-            boxes: 0,
-            packaging: 0,
-            grossWeight: 0,
-            netWeight: 0,
-            count: 0
-        },
-        theme: 'light'
-    };
+// ===== CONTROLE DE PESAGEM - APP FUNCIONAL =====
+// Versión simplificada y corregida
 
-    // Elementos del DOM
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 App iniciando...');
+    
+    // ===== VARIABLES GLOBALES =====
+    let products = {};
+    let weighings = [];
+    let deferredPrompt = null;
+    
+    // ===== ELEMENTOS DEL DOM =====
     const elements = {
-        // Formulário
+        // Formulario
         product: document.getElementById('product'),
         supplier: document.getElementById('supplier'),
         boxQuantity: document.getElementById('boxQuantity'),
@@ -25,404 +21,596 @@ document.addEventListener('DOMContentLoaded', function() {
         grossWeight: document.getElementById('grossWeight'),
         invoiceWeight: document.getElementById('invoiceWeight'),
         notes: document.getElementById('notes'),
-        pesagemForm: document.getElementById('pesagemForm'),
+        productList: document.getElementById('productList'),
         
-        // Cálculos
+        // Totales
         totalBoxTara: document.getElementById('totalBoxTara'),
         totalPackagingTara: document.getElementById('totalPackagingTara'),
         totalTara: document.getElementById('totalTara'),
         
-        // Status do produto
-        productStatus: document.getElementById('productStatus'),
+        // Estado producto
         statusDot: document.querySelector('#productStatus .status-dot'),
         statusText: document.querySelector('#productStatus span:last-child'),
         
-        // Estatísticas
-        sessionBoxes: document.getElementById('sessionBoxes'),
-        sessionPackaging: document.getElementById('sessionPackaging'),
-        sessionNet: document.getElementById('sessionNet'),
-        sessionCount: document.getElementById('sessionCount'),
+        // Stats compactos
+        sessionCountCompact: document.getElementById('sessionCountCompact'),
+        sessionNetCompact: document.getElementById('sessionNetCompact'),
         
-        // Ticket
-        ticketBody: document.getElementById('ticketBody'),
-        ticketItems: document.getElementById('ticketItems'),
-        ticketTotal: document.getElementById('ticketTotal'),
-        ticketNumber: document.getElementById('ticketNumber'),
-        ticketDate: document.getElementById('ticketDate'),
+        // Ticket compacto
+        ticketItemsCompact: document.getElementById('ticketItemsCompact'),
+        ticketTotalItems: document.getElementById('ticketTotalItems'),
+        ticketTotalWeight: document.getElementById('ticketTotalWeight'),
+        ticketNumberCompact: document.getElementById('ticketNumberCompact'),
+        ticketDateCompact: document.getElementById('ticketDateCompact'),
         
-        // Lista recente
-        recentList: document.getElementById('recentList'),
+        // Histórico
+        historyList: document.getElementById('historyList'),
         
-        // Data e hora
+        // Fecha y hora
         currentDate: document.getElementById('currentDate'),
         currentTime: document.getElementById('currentTime'),
         
-        // Botões
-        clearForm: document.getElementById('clearForm'),
-        clearSession: document.getElementById('clearSession'),
-        exportBtn: document.getElementById('exportBtn'),
-        printBtn: document.getElementById('printBtn'),
-        whatsappBtn: document.getElementById('whatsappBtn'),
+        // Botones
+        clearFormBtn: document.getElementById('clearForm'),
+        saveProductBtn: document.getElementById('saveProduct'),
+        quickCalcBtn: document.getElementById('quickCalc'),
+        submitBtn: document.querySelector('button[type="submit"]'),
         
-        // Modal
-        printModal: document.getElementById('printModal'),
-        printView: document.getElementById('printView'),
-        closeModal: document.querySelectorAll('.close-modal'),
-        thermalPreview: document.getElementById('thermalPreview')
+        // Botones ticket
+        printTicketBtn: document.getElementById('printTicketBtn'),
+        shareTicketBtn: document.getElementById('shareTicketBtn'),
+        exportTicketBtn: document.getElementById('exportTicketBtn'),
+        clearTicketBtn: document.getElementById('clearTicketBtn'),
+        
+        // Botones histórico
+        exportHistoryBtn: document.getElementById('exportHistoryBtn'),
+        filterTodayBtn: document.getElementById('filterTodayBtn'),
+        
+        // Botones configuración
+        clearAllDataBtn: document.getElementById('clearAllData'),
+        exportAllDataBtn: document.getElementById('exportAllData'),
+        installAppBtn: document.getElementById('installAppBtn'),
+        createAPKBtn: document.getElementById('createAPKBtn')
     };
-
-    // Inicialização
+    
+    // ===== INICIALIZACIÓN =====
     init();
-
+    
     function init() {
-        // Atualizar data e hora
+        console.log('✅ Inicializando app...');
+        
+        // Cargar datos
+        loadData();
+        
+        // Actualizar UI
         updateDateTime();
-        setInterval(updateDateTime, 1000);
-        
-        // Atualizar lista de produtos
         updateProductList();
+        updateCompactSummary();
+        updateTicketTab();
+        updateHistoricoTab();
         
-        // Calcular valores iniciais
-        calculateTotals();
-        
-        // Atualizar interface
-        updateTicket();
-        updateRecentList();
-        updateSessionStats();
-        
-        // Configurar event listeners
+        // Event listeners
         setupEventListeners();
         
-        console.log('Aplicação inicializada com sucesso!');
+        // Iniciar reloj
+        setInterval(updateDateTime, 60000);
+        
+        console.log('✅ App lista!');
     }
-
+    
+    // ===== CARGA DE DATOS =====
+    function loadData() {
+        try {
+            products = JSON.parse(localStorage.getItem('products')) || {};
+            weighings = JSON.parse(localStorage.getItem('weighings')) || [];
+            console.log(`📊 Datos cargados: ${weighings.length} pesagens, ${Object.keys(products).length} productos`);
+        } catch (e) {
+            console.error('Error cargando datos:', e);
+            products = {};
+            weighings = [];
+        }
+    }
+    
+    function saveData() {
+        try {
+            localStorage.setItem('products', JSON.stringify(products));
+            localStorage.setItem('weighings', JSON.stringify(weighings));
+        } catch (e) {
+            console.error('Error guardando datos:', e);
+        }
+    }
+    
+    // ===== EVENT LISTENERS =====
     function setupEventListeners() {
-        // Mudanças no formulário
-        elements.product.addEventListener('input', handleProductInput);
-        elements.boxQuantity.addEventListener('input', calculateTotals);
-        elements.boxTara.addEventListener('input', calculateTotals);
-        elements.packagingQuantity.addEventListener('input', calculateTotals);
-        elements.packagingTara.addEventListener('input', calculateTotals);
+        console.log('🔧 Configurando eventos...');
         
-        // Botões
-        elements.clearForm.addEventListener('click', clearForm);
-        elements.clearSession.addEventListener('click', clearSession);
-        elements.pesagemForm.addEventListener('submit', handleSubmit);
-        elements.exportBtn.addEventListener('click', exportToCSV);
-        elements.printBtn.addEventListener('click', showPrintOptions);
-        elements.whatsappBtn.addEventListener('click', sendWhatsApp);
+        // Input del producto
+        if (elements.product) {
+            elements.product.addEventListener('input', handleProductInput);
+        }
         
-        // Modal
-        elements.closeModal.forEach(btn => {
-            btn.addEventListener('click', () => {
-                elements.printModal.style.display = 'none';
+        // Inputs numéricos para calcular taras
+        const taraInputs = ['boxQuantity', 'boxTara', 'packagingQuantity', 'packagingTara'];
+        taraInputs.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('input', calculateTaras);
+            }
+        });
+        
+        // Botones del formulario
+        if (elements.clearFormBtn) {
+            elements.clearFormBtn.addEventListener('click', clearForm);
+        }
+        
+        if (elements.saveProductBtn) {
+            elements.saveProductBtn.addEventListener('click', saveCurrentProduct);
+        }
+        
+        if (elements.quickCalcBtn) {
+            elements.quickCalcBtn.addEventListener('click', () => {
+                calculateTaras();
+                showToast('Cálculos actualizados', 'info');
+            });
+        }
+        
+        // Formulario submit
+        const form = document.getElementById('pesagemForm');
+        if (form) {
+            form.addEventListener('submit', handleFormSubmit);
+        }
+        
+        // Botones del ticket
+        if (elements.printTicketBtn) {
+            elements.printTicketBtn.addEventListener('click', printThermalTicket);
+        }
+        
+        if (elements.shareTicketBtn) {
+            elements.shareTicketBtn.addEventListener('click', shareWhatsApp);
+        }
+        
+        if (elements.exportTicketBtn) {
+            elements.exportTicketBtn.addEventListener('click', exportToCSV);
+        }
+        
+        if (elements.clearTicketBtn) {
+            elements.clearTicketBtn.addEventListener('click', clearAllWeighings);
+        }
+        
+        // Botones del histórico
+        if (elements.exportHistoryBtn) {
+            elements.exportHistoryBtn.addEventListener('click', exportToCSV);
+        }
+        
+        if (elements.filterTodayBtn) {
+            elements.filterTodayBtn.addEventListener('click', () => {
+                showToast('Mostrando pesagens de hoy', 'info');
+                updateHistoricoTab();
+            });
+        }
+        
+        // Botones de configuración
+        if (elements.clearAllDataBtn) {
+            elements.clearAllDataBtn.addEventListener('click', clearAllData);
+        }
+        
+        if (elements.exportAllDataBtn) {
+            elements.exportAllDataBtn.addEventListener('click', exportToCSV);
+        }
+        
+        if (elements.installAppBtn) {
+            elements.installAppBtn.addEventListener('click', showInstallPrompt);
+        }
+        
+        if (elements.createAPKBtn) {
+            elements.createAPKBtn.addEventListener('click', () => {
+                window.open('https://www.pwabuilder.com', '_blank');
+            });
+        }
+        
+        // Navegación por tabs
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remover active de todos
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Activar tab clickeado
+                this.classList.add('active');
+                
+                // Mostrar contenido
+                const tabId = this.dataset.tab;
+                document.getElementById(`tab-${tabId}`).classList.add('active');
+                
+                // Actualizar datos
+                updateTabData(tabId);
             });
         });
         
-        elements.printModal.addEventListener('click', (e) => {
-            if (e.target === elements.printModal) {
-                elements.printModal.style.display = 'none';
-            }
+        // PWA Install
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            console.log('📱 PWA puede ser instalada');
         });
+        
+        console.log('✅ Eventos configurados');
     }
-
+    
+    // ===== FUNCIONES PRINCIPALES =====
+    
     function handleProductInput() {
         const productName = elements.product.value.trim();
         
         if (!productName) {
-            elements.statusDot.className = 'status-dot';
-            elements.statusText.textContent = 'Novo produto';
+            if (elements.statusDot) elements.statusDot.className = 'status-dot';
+            if (elements.statusText) elements.statusText.textContent = 'Novo produto';
             return;
         }
         
-        if (state.products[productName]) {
-            // Produto conhecido
-            const product = state.products[productName];
-            elements.boxTara.value = product.boxTara || '';
-            elements.packagingTara.value = product.packagingTara || '';
+        if (products[productName]) {
+            // Producto conocido - llenar taras automáticamente
+            const product = products[productName];
+            if (elements.boxTara) elements.boxTara.value = product.boxTara || '';
+            if (elements.packagingTara) elements.packagingTara.value = product.packagingTara || '';
             
-            elements.statusDot.className = 'status-dot known';
-            elements.statusText.textContent = 'Produto conhecido';
+            if (elements.statusDot) elements.statusDot.className = 'status-dot known';
+            if (elements.statusText) elements.statusText.textContent = 'Produto conhecido';
+            
             showToast('Taras preenchidas automaticamente', 'success');
         } else {
-            // Produto novo
-            elements.boxTara.value = '';
-            elements.packagingTara.value = '';
+            // Producto nuevo
+            if (elements.boxTara) elements.boxTara.value = '';
+            if (elements.packagingTara) elements.packagingTara.value = '';
             
-            elements.statusDot.className = 'status-dot';
-            elements.statusText.textContent = 'Novo produto';
+            if (elements.statusDot) elements.statusDot.className = 'status-dot';
+            if (elements.statusText) elements.statusText.textContent = 'Novo produto';
         }
         
-        calculateTotals();
+        calculateTaras();
     }
-
-    function calculateTotals() {
-        // Obter valores
-        const boxQty = parseFloat(elements.boxQuantity.value) || 0;
-        const boxTara = parseFloat(elements.boxTara.value) || 0;
-        const packagingQty = parseFloat(elements.packagingQuantity.value) || 0;
-        const packagingTara = parseFloat(elements.packagingTara.value) || 0;
+    
+    function calculateTaras() {
+        console.log('🧮 Calculando taras...');
         
-        // Calcular totais
+        // Obtener valores
+        const boxQty = parseFloat(elements.boxQuantity?.value) || 0;
+        const boxTara = parseFloat(elements.boxTara?.value) || 0;
+        const packagingQty = parseFloat(elements.packagingQuantity?.value) || 0;
+        const packagingTara = parseFloat(elements.packagingTara?.value) || 0;
+        
+        // Calcular
         const totalBoxTara = boxQty * boxTara;
         const totalPackagingTara = packagingQty * packagingTara;
         const totalTara = totalBoxTara + totalPackagingTara;
         
-        // Atualizar UI
-        elements.totalBoxTara.textContent = `${totalBoxTara.toFixed(3)} kg`;
-        elements.totalPackagingTara.textContent = `${totalPackagingTara.toFixed(3)} kg`;
-        elements.totalTara.textContent = `${totalTara.toFixed(3)} kg`;
+        console.log(`📦 Caixas: ${boxQty} x ${boxTara} = ${totalBoxTara}`);
+        console.log(`📦 Embalagens: ${packagingQty} x ${packagingTara} = ${totalPackagingTara}`);
+        console.log(`📦 Tara Total: ${totalTara}`);
         
-        return {
-            boxQty,
-            boxTara,
-            packagingQty,
-            packagingTara,
-            totalBoxTara,
-            totalPackagingTara,
-            totalTara
-        };
+        // Actualizar UI
+        if (elements.totalBoxTara) {
+            elements.totalBoxTara.textContent = totalBoxTara.toFixed(3) + ' kg';
+        }
+        
+        if (elements.totalPackagingTara) {
+            elements.totalPackagingTara.textContent = totalPackagingTara.toFixed(3) + ' kg';
+        }
+        
+        if (elements.totalTara) {
+            elements.totalTara.textContent = totalTara.toFixed(3) + ' kg';
+        }
+        
+        return { totalBoxTara, totalPackagingTara, totalTara };
     }
-
-    function handleSubmit(e) {
+    
+    function handleFormSubmit(e) {
         e.preventDefault();
+        console.log('📝 Enviando formulario...');
         
-        // Validações
-        const productName = elements.product.value.trim();
+        // Validaciones básicas
+        const productName = elements.product?.value.trim();
         if (!productName) {
             showToast('Por favor, insira o nome do produto', 'error');
             return;
         }
         
-        const grossWeightsInput = elements.grossWeight.value.trim();
-        if (!grossWeightsInput) {
+        const grossWeightInput = elements.grossWeight?.value.trim();
+        if (!grossWeightInput) {
             showToast('Por favor, insira o peso bruto', 'error');
             return;
         }
         
         // Calcular taras
-        const calculations = calculateTotals();
+        const taras = calculateTaras();
         
-        // Processar múltiplos pesos brutos
-        const grossWeights = grossWeightsInput
+        // Procesar múltiples pesos (separados por coma)
+        const weightValues = grossWeightInput
             .split(/[,;\s]+/)
             .map(w => parseFloat(w.replace(',', '.')))
             .filter(w => !isNaN(w) && w > 0);
         
-        if (grossWeights.length === 0) {
+        if (weightValues.length === 0) {
             showToast('Nenhum peso bruto válido encontrado', 'error');
             return;
         }
         
-        // Criar pesagens para cada peso bruto
-        grossWeights.forEach(grossWeight => {
-            const netWeight = grossWeight - calculations.totalTara;
-            const invoiceWeight = parseFloat(elements.invoiceWeight.value) || 0;
+        // Crear pesajes para cada peso
+        weightValues.forEach((grossWeight, index) => {
+            const netWeight = grossWeight - taras.totalTara;
+            const invoiceWeight = parseFloat(elements.invoiceWeight?.value) || 0;
             const difference = invoiceWeight > 0 ? netWeight - invoiceWeight : null;
             
             const weighing = {
-                id: Date.now() + Math.random(),
+                id: Date.now() + index,
                 product: productName,
-                supplier: elements.supplier.value.trim(),
-                boxQuantity: calculations.boxQty,
-                boxTara: calculations.boxTara,
-                packagingQuantity: calculations.packagingQty,
-                packagingTara: calculations.packagingTara,
-                totalTara: calculations.totalTara,
+                supplier: elements.supplier?.value.trim() || '',
+                boxQuantity: parseFloat(elements.boxQuantity?.value) || 0,
+                boxTara: parseFloat(elements.boxTara?.value) || 0,
+                packagingQuantity: parseFloat(elements.packagingQuantity?.value) || 0,
+                packagingTara: parseFloat(elements.packagingTara?.value) || 0,
+                totalTara: taras.totalTara,
                 grossWeight: grossWeight,
                 netWeight: netWeight,
                 invoiceWeight: invoiceWeight,
                 difference: difference,
-                notes: elements.notes.value.trim(),
+                notes: elements.notes?.value.trim() || '',
                 timestamp: Date.now(),
                 dateTime: new Date().toLocaleString('pt-BR')
             };
             
-            state.weighings.unshift(weighing);
-            
-            // Atualizar estatísticas da sessão
-            state.session.boxes += calculations.boxQty;
-            state.session.packaging += calculations.packagingQty;
-            state.session.grossWeight += grossWeight;
-            state.session.netWeight += netWeight;
-            state.session.count++;
+            weighings.unshift(weighing); // Agregar al inicio
+            console.log(`➕ Pesagem adicionada: ${productName} - ${netWeight.toFixed(2)}kg`);
         });
         
-        // Salvar produto se for novo
-        if (!state.products[productName]) {
-            state.products[productName] = {
-                boxTara: calculations.boxTara,
-                packagingTara: calculations.packagingTara,
+        // Guardar producto si es nuevo
+        if (!products[productName]) {
+            products[productName] = {
+                boxTara: parseFloat(elements.boxTara?.value) || 0,
+                packagingTara: parseFloat(elements.packagingTara?.value) || 0,
                 lastUsed: Date.now()
             };
             updateProductList();
         }
         
-        // Salvar e atualizar
+        // Guardar y actualizar
         saveData();
-        updateSessionStats();
-        updateTicket();
-        updateRecentList();
+        updateCompactSummary();
+        updateTicketTab();
+        updateHistoricoTab();
         clearForm();
         
-        showToast(`${grossWeights.length} pesagem(ns) adicionada(s)`, 'success');
+        showToast(`${weightValues.length} pesagem(ns) adicionada(s) com sucesso!`, 'success');
     }
-
-    function updateTicket() {
-        if (state.weighings.length === 0) {
-            elements.ticketBody.innerHTML = `
-                <div class="empty-ticket">
-                    <i class="fas fa-receipt"></i>
-                    <p>Nenhuma pesagem registrada</p>
-                </div>
-            `;
-            elements.ticketItems.textContent = '0';
-            elements.ticketTotal.textContent = '0.000 kg';
-            elements.ticketNumber.textContent = '001';
-            elements.ticketDate.textContent = new Date().toLocaleDateString('pt-BR');
+    
+    function saveCurrentProduct() {
+        const productName = elements.product?.value.trim();
+        const boxTara = elements.boxTara?.value;
+        const packagingTara = elements.packagingTara?.value;
+        
+        if (!productName) {
+            showToast('Digite o nome do produto primeiro', 'warning');
             return;
         }
         
-        // Gerar número do ticket
-        const ticketNum = String(state.weighings.length).padStart(3, '0');
-        elements.ticketNumber.textContent = ticketNum;
-        elements.ticketDate.textContent = new Date().toLocaleDateString('pt-BR');
+        products[productName] = {
+            boxTara: parseFloat(boxTara) || 0,
+            packagingTara: parseFloat(packagingTara) || 0,
+            lastUsed: Date.now()
+        };
         
-        // Mostrar cada producto con su peso líquido individual
-        let ticketHtml = '';
-        const recentWeighings = state.weighings.slice(0, 8);
+        saveData();
+        updateProductList();
         
-        // Agrupar por producto
-        const groupedByProduct = {};
-        recentWeighings.forEach(w => {
-            if (!groupedByProduct[w.product]) {
-                groupedByProduct[w.product] = {
-                    items: [],
-                    totalNet: 0,
-                    count: 0
-                };
-            }
-            groupedByProduct[w.product].items.push(w);
-            groupedByProduct[w.product].totalNet += w.netWeight;
-            groupedByProduct[w.product].count++;
-        });
+        // Actualizar estado
+        if (elements.statusDot) elements.statusDot.className = 'status-dot known';
+        if (elements.statusText) elements.statusText.textContent = 'Produto salvo';
         
-        Object.entries(groupedByProduct).forEach(([product, data]) => {
-            ticketHtml += `
-                <div class="ticket-product-group">
-                    <div class="product-header">
-                        <strong>${product}</strong>
-                        <small>${data.count} ${data.count > 1 ? 'itens' : 'item'}</small>
-                    </div>
-            `;
+        showToast(`"${productName}" salvo com sucesso!`, 'success');
+    }
+    
+    // ===== FUNCIONES DE UI =====
+    
+    function updateTabData(tabId) {
+        console.log(`🔄 Actualizando tab: ${tabId}`);
+        
+        switch(tabId) {
+            case 'pesar':
+                updateCompactSummary();
+                break;
+            case 'ticket':
+                updateTicketTab();
+                break;
+            case 'historico':
+                updateHistoricoTab();
+                break;
+            case 'config':
+                updateConfigData();
+                break;
+        }
+    }
+    
+    function updateCompactSummary() {
+        try {
+            const today = new Date().toDateString();
+            const todayWeighings = weighings.filter(w => {
+                const weighDate = new Date(w.timestamp).toDateString();
+                return weighDate === today;
+            });
             
-            data.items.forEach((item, idx) => {
-                ticketHtml += `
-                    <div class="ticket-item-detail">
-                        <div class="weight-info">
-                            <span>Bruto: ${item.grossWeight.toFixed(2)}kg</span>
-                            ${item.invoiceWeight > 0 ? 
-                              `<span>Nota: ${item.invoiceWeight.toFixed(2)}kg</span>` : ''}
+            const totalNet = todayWeighings.reduce((sum, w) => sum + (w.netWeight || 0), 0);
+            
+            if (elements.sessionCountCompact) {
+                elements.sessionCountCompact.textContent = todayWeighings.length;
+            }
+            
+            if (elements.sessionNetCompact) {
+                elements.sessionNetCompact.textContent = totalNet.toFixed(3);
+            }
+            
+            console.log(`📊 Resumo: ${todayWeighings.length} pesagens hoje, ${totalNet.toFixed(3)}kg total`);
+        } catch (e) {
+            console.error('Error en updateCompactSummary:', e);
+        }
+    }
+    
+    function updateTicketTab() {
+        try {
+            const recentWeighings = weighings.slice(0, 10); // Últimas 10
+            
+            // Actualizar número y fecha
+            if (elements.ticketNumberCompact) {
+                elements.ticketNumberCompact.textContent = String(weighings.length).padStart(3, '0');
+            }
+            
+            if (elements.ticketDateCompact) {
+                elements.ticketDateCompact.textContent = new Date().toLocaleDateString('pt-BR');
+            }
+            
+            // Actualizar items
+            if (elements.ticketItemsCompact) {
+                if (recentWeighings.length === 0) {
+                    elements.ticketItemsCompact.innerHTML = `
+                        <div style="text-align: center; padding: 30px 0; color: #94a3b8;">
+                            <i class="fas fa-receipt" style="font-size: 40px; margin-bottom: 10px;"></i>
+                            <div>Nenhuma pesagem registrada</div>
                         </div>
-                        <div class="net-weight">
-                            <strong>Líquido: ${item.netWeight.toFixed(2)}kg</strong>
+                    `;
+                } else {
+                    let html = '';
+                    recentWeighings.forEach(w => {
+                        const productName = w.product.length > 15 ? 
+                            w.product.substring(0, 12) + '...' : w.product;
+                        
+                        html += `
+                            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #ccc;">
+                                <span>${productName}</span>
+                                <span style="font-weight: bold;">${w.netWeight.toFixed(2)}kg</span>
+                            </div>
+                        `;
+                    });
+                    elements.ticketItemsCompact.innerHTML = html;
+                }
+            }
+            
+            // Actualizar totales
+            const totalNet = recentWeighings.reduce((sum, w) => sum + (w.netWeight || 0), 0);
+            
+            if (elements.ticketTotalItems) {
+                elements.ticketTotalItems.textContent = recentWeighings.length;
+            }
+            
+            if (elements.ticketTotalWeight) {
+                elements.ticketTotalWeight.textContent = totalNet.toFixed(3) + ' kg';
+            }
+            
+            console.log(`🎫 Ticket actualizado: ${recentWeighings.length} items`);
+        } catch (e) {
+            console.error('Error en updateTicketTab:', e);
+        }
+    }
+    
+    function updateHistoricoTab() {
+        try {
+            if (!elements.historyList) return;
+            
+            if (weighings.length === 0) {
+                elements.historyList.innerHTML = `
+                    <div style="text-align: center; padding: 40px 0; color: #94a3b8;">
+                        <i class="fas fa-weight-hanging" style="font-size: 40px; margin-bottom: 10px;"></i>
+                        <div>Nenhuma pesagem no histórico</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            const recentWeighings = weighings.slice(0, 20); // Últimas 20
+            
+            recentWeighings.forEach(w => {
+                const date = new Date(w.timestamp);
+                const timeStr = date.toLocaleTimeString('pt-BR', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+                const dateStr = date.toLocaleDateString('pt-BR');
+                
+                html += `
+                    <div style="display: flex; justify-content: space-between; align-items: center; 
+                                padding: 10px; border-bottom: 1px solid #e2e8f0; font-size: 13px;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 500; margin-bottom: 4px;">${w.product}</div>
+                            <div style="font-size: 11px; color: #64748b;">
+                                ${dateStr} ${timeStr}
+                            </div>
+                        </div>
+                        <div style="text-align: right; font-family: 'Roboto Mono', monospace; font-weight: 600;">
+                            ${w.netWeight.toFixed(2)}kg
                         </div>
                     </div>
                 `;
             });
             
-            // Mostrar subtotal si hay más de un item
-            if (data.count > 1) {
-                ticketHtml += `
-                    <div class="product-subtotal">
-                        <span>Subtotal ${product}:</span>
-                        <strong>${data.totalNet.toFixed(2)}kg</strong>
-                    </div>
-                `;
+            elements.historyList.innerHTML = html;
+            console.log(`📜 Histórico actualizado: ${recentWeighings.length} items`);
+        } catch (e) {
+            console.error('Error en updateHistoricoTab:', e);
+        }
+    }
+    
+    function updateConfigData() {
+        try {
+            // Calcular espacio usado
+            const totalData = JSON.stringify(localStorage).length;
+            const storageUsedKB = (totalData / 1024).toFixed(2);
+            
+            // Actualizar UI si los elementos existen
+            if (document.getElementById('dataCount')) {
+                document.getElementById('dataCount').textContent = weighings.length;
             }
             
-            ticketHtml += `</div>`;
-        });
-        
-        elements.ticketBody.innerHTML = ticketHtml;
-        elements.ticketItems.textContent = recentWeighings.length;
-        
-        // Total general
-        const totalNet = recentWeighings.reduce((sum, w) => sum + w.netWeight, 0);
-        elements.ticketTotal.textContent = `${totalNet.toFixed(3)} kg`;
-    }
-
-    function updateRecentList() {
-        if (state.weighings.length === 0) {
-            elements.recentList.innerHTML = `
-                <div class="empty-list">
-                    <i class="fas fa-weight"></i>
-                    <p>Nenhuma pesagem recente</p>
-                </div>
-            `;
-            return;
-        }
-        
-        // Mostrar últimas 5 pesagens
-        const recentWeighings = state.weighings.slice(0, 5);
-        let listHtml = '';
-        
-        recentWeighings.forEach(weighing => {
-            const diffClass = weighing.difference >= 0 ? 'positive' : 'negative';
-            const diffText = weighing.difference !== null ? 
-                `${weighing.difference >= 0 ? '+' : ''}${weighing.difference.toFixed(1)}` : '—';
+            if (document.getElementById('productCount')) {
+                document.getElementById('productCount').textContent = Object.keys(products).length;
+            }
             
-            listHtml += `
-                <div class="list-item">
-                    <div>
-                        <div class="product">${weighing.product}</div>
-                        <div class="supplier">${weighing.supplier || '—'}</div>
-                    </div>
-                    <div class="weight">${weighing.netWeight.toFixed(2)} kg</div>
-                    <div class="difference ${diffClass}">${diffText}</div>
-                </div>
-            `;
-        });
-        
-        elements.recentList.innerHTML = listHtml;
+            if (document.getElementById('storageUsed')) {
+                document.getElementById('storageUsed').textContent = storageUsedKB + ' KB';
+            }
+        } catch (e) {
+            console.error('Error en updateConfigData:', e);
+        }
     }
-
-    function updateSessionStats() {
-        elements.sessionBoxes.textContent = state.session.boxes;
-        elements.sessionPackaging.textContent = state.session.packaging;
-        elements.sessionNet.textContent = state.session.netWeight.toFixed(3);
-        elements.sessionCount.textContent = state.session.count;
-    }
-
+    
     function updateProductList() {
-        const datalist = document.getElementById('productList');
-        if (!datalist) return;
+        if (!elements.productList) return;
         
-        datalist.innerHTML = '';
-        
-        Object.keys(state.products)
-            .sort()
-            .forEach(product => {
-                const option = document.createElement('option');
-                option.value = product;
-                datalist.appendChild(option);
-            });
+        try {
+            elements.productList.innerHTML = '';
+            
+            Object.keys(products)
+                .sort()
+                .forEach(product => {
+                    const option = document.createElement('option');
+                    option.value = product;
+                    elements.productList.appendChild(option);
+                });
+                
+            console.log(`📋 Lista de productos actualizada: ${Object.keys(products).length} productos`);
+        } catch (e) {
+            console.error('Error en updateProductList:', e);
+        }
     }
-
+    
     function updateDateTime() {
         const now = new Date();
         
-        // Formatar data
-        const optionsDate = { 
-            day: '2-digit', 
-            month: 'short', 
-            year: 'numeric' 
-        };
+        // Fecha
         if (elements.currentDate) {
-            elements.currentDate.textContent = now.toLocaleDateString('pt-BR', optionsDate);
+            const options = { day: '2-digit', month: 'short', year: 'numeric' };
+            elements.currentDate.textContent = now.toLocaleDateString('pt-BR', options);
         }
         
-        // Formatar hora
+        // Hora
         if (elements.currentTime) {
             elements.currentTime.textContent = now.toLocaleTimeString('pt-BR', { 
                 hour: '2-digit', 
@@ -430,69 +618,90 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     }
-
+    
+    // ===== ACCIONES =====
+    
     function clearForm() {
-        elements.product.value = '';
-        elements.supplier.value = '';
-        elements.boxQuantity.value = '0';
-        elements.boxTara.value = '';
-        elements.packagingQuantity.value = '0';
-        elements.packagingTara.value = '';
-        elements.grossWeight.value = '';
-        elements.invoiceWeight.value = '';
-        elements.notes.value = '';
+        console.log('🧹 Limpiando formulario...');
         
-        // Resetar status do produto
-        elements.statusDot.className = 'status-dot';
-        elements.statusText.textContent = 'Novo produto';
+        if (elements.product) elements.product.value = '';
+        if (elements.supplier) elements.supplier.value = '';
+        if (elements.boxQuantity) elements.boxQuantity.value = '0';
+        if (elements.boxTara) elements.boxTara.value = '';
+        if (elements.packagingQuantity) elements.packagingQuantity.value = '0';
+        if (elements.packagingTara) elements.packagingTara.value = '';
+        if (elements.grossWeight) elements.grossWeight.value = '';
+        if (elements.invoiceWeight) elements.invoiceWeight.value = '';
+        if (elements.notes) elements.notes.value = '';
         
-        calculateTotals();
+        // Resetar status
+        if (elements.statusDot) elements.statusDot.className = 'status-dot';
+        if (elements.statusText) elements.statusText.textContent = 'Novo produto';
+        
+        calculateTaras();
+        
         if (elements.product) {
             elements.product.focus();
         }
+        
+        showToast('Formulário limpo', 'info');
     }
-
-    function clearSession() {
-        if (state.weighings.length === 0) {
+    
+    function clearAllWeighings() {
+        if (weighings.length === 0) {
             showToast('Nenhuma pesagem para limpar', 'warning');
             return;
         }
         
-        if (confirm(`Tem certeza que deseja limpar todas as ${state.weighings.length} pesagens?`)) {
-            state.weighings = [];
-            state.session = {
-                boxes: 0,
-                packaging: 0,
-                grossWeight: 0,
-                netWeight: 0,
-                count: 0
-            };
-            
+        if (confirm(`Limpar todas as ${weighings.length} pesagens?`)) {
+            weighings = [];
             saveData();
-            updateSessionStats();
-            updateTicket();
-            updateRecentList();
             
-            showToast('Sessão limpa com sucesso', 'success');
+            updateCompactSummary();
+            updateTicketTab();
+            updateHistoricoTab();
+            
+            showToast('Todas as pesagens foram limpas', 'success');
         }
     }
-
+    
+    function clearAllData() {
+        if (confirm('⚠️ ATENÇÃO!\n\nIsso vai apagar TODOS os dados (pesagens e produtos).\n\nTem certeza?')) {
+            localStorage.clear();
+            
+            // Recargar estado vacío
+            products = {};
+            weighings = [];
+            
+            // Actualizar todo
+            updateCompactSummary();
+            updateTicketTab();
+            updateHistoricoTab();
+            updateProductList();
+            updateConfigData();
+            
+            showToast('Todos os dados foram apagados', 'success');
+        }
+    }
+    
+    // ===== EXPORTACIÓN =====
+    
     function exportToCSV() {
-        if (state.weighings.length === 0) {
+        if (weighings.length === 0) {
             showToast('Nenhuma pesagem para exportar', 'warning');
             return;
         }
         
         const headers = [
-            'Produto', 'Fornecedor', 'Qtd Caixas', 'Tara Caixa',
-            'Qtd Embalagens', 'Tara Embalagem', 'Tara Total',
+            'Produto', 'Fornecedor', 'Caixas', 'Tara Caixa',
+            'Embalagens', 'Tara Embalagem', 'Tara Total',
             'Peso Bruto', 'Peso Líquido', 'Peso Nota',
             'Diferença', 'Observações', 'Data/Hora'
         ];
         
         const csvRows = [
             headers.join(';'),
-            ...state.weighings.map(w => [
+            ...weighings.map(w => [
                 `"${w.product}"`,
                 `"${w.supplier || ''}"`,
                 w.boxQuantity,
@@ -522,146 +731,18 @@ document.addEventListener('DOMContentLoaded', function() {
         
         showToast('CSV exportado com sucesso', 'success');
     }
-
-    function sendWhatsApp() {
-        if (state.weighings.length === 0) {
-            showToast('Nenhuma pesagem para enviar', 'warning');
-            return;
-        }
-        
-        // Formato similar al ticket térmico
-        let message = `*CONTROLE DE PESAGEM*\n`;
-        message += `*Ticket:* #${elements.ticketNumber.textContent}\n`;
-        message += `*Data:* ${new Date().toLocaleDateString('pt-BR')}\n`;
-        message += `*Hora:* ${new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}\n`;
-        message += `\n${'='.repeat(30)}\n\n`;
-        
-        // Mostrar últimas 8 pesagens
-        const recentWeighings = state.weighings.slice(0, 8);
-        const totalNet = recentWeighings.reduce((sum, w) => sum + w.netWeight, 0);
-        
-        // Agrupar por producto
-        const groupedByProduct = {};
-        recentWeighings.forEach(w => {
-            if (!groupedByProduct[w.product]) {
-                groupedByProduct[w.product] = {
-                    items: [],
-                    totalNet: 0,
-                    count: 0
-                };
-            }
-            groupedByProduct[w.product].items.push(w);
-            groupedByProduct[w.product].totalNet += w.netWeight;
-            groupedByProduct[w.product].count++;
-        });
-        
-        Object.entries(groupedByProduct).forEach(([product, data]) => {
-            message += `*${product}*\n`;
-            data.items.forEach((item, idx) => {
-                message += `  └ Bruto: ${item.grossWeight.toFixed(2)}kg`;
-                if (item.invoiceWeight > 0) {
-                    message += ` | Nota: ${item.invoiceWeight.toFixed(2)}kg`;
-                }
-                message += `\n  └ Líquido: ${item.netWeight.toFixed(2)}kg`;
-                if (item.difference !== null) {
-                    message += ` (${item.difference >= 0 ? '+' : ''}${item.difference.toFixed(2)}kg)`;
-                }
-                message += `\n`;
-            });
-            message += `\n`;
-        });
-        
-        message += `${'='.repeat(30)}\n`;
-        message += `*TOTAL ITENS:* ${recentWeighings.length}\n`;
-        message += `*TOTAL LÍQUIDO:* ${totalNet.toFixed(2)} kg\n`;
-        message += `\n_Controle de Pesagem - Armazém_`;
-        
-        // Codificar para WhatsApp
-        const encoded = encodeURIComponent(message);
-        window.open(`https://wa.me/?text=${encoded}`, '_blank');
-    }
-
-    // ==============================
-    // FUNÇÕES DE IMPRESSÃO
-    // ==============================
-
-    function showPrintOptions() {
-        if (state.weighings.length === 0) {
+    
+    // ===== IMPRESIÓN =====
+    
+    function printThermalTicket() {
+        if (weighings.length === 0) {
             showToast('Nenhuma pesagem para imprimir', 'warning');
             return;
         }
         
-        // Generar vista previa térmica
-        const thermalPreview = generateThermalPreview();
-        if (elements.thermalPreview) {
-            elements.thermalPreview.innerHTML = thermalPreview;
-        }
-        
-        // Configurar modal
-        elements.printModal.style.display = 'flex';
-    }
-
-    function generateThermalPreview() {
-        if (state.weighings.length === 0) return '';
-        
-        const recentWeighings = state.weighings.slice(0, 10);
-        let preview = `
-            <div style="font-family: 'Courier New', monospace; font-size: 11px; line-height: 1.2;">
-                <div style="text-align: center; border-bottom: 1px solid #000; padding-bottom: 5px; margin-bottom: 10px;">
-                    <div style="font-weight: bold;">CONTROLE DE PESAGEM</div>
-                    <div>Ticket #${elements.ticketNumber.textContent}</div>
-                    <div>${new Date().toLocaleDateString('pt-BR')}</div>
-                </div>
-        `;
-        
-        recentWeighings.forEach((weighing, index) => {
-            const productName = weighing.product.length > 15 ? 
-                weighing.product.substring(0, 12) + '...' : weighing.product;
-            
-            preview += `
-                <div style="margin-bottom: 8px; border-bottom: 1px dashed #ccc; padding-bottom: 5px;">
-                    <div style="font-weight: bold;">${productName}</div>
-                    <div style="display: flex; justify-content: space-between; font-size: 10px;">
-                        <span>Bruto: ${weighing.grossWeight.toFixed(2)}kg</span>
-                        ${weighing.invoiceWeight > 0 ? `<span>Nota: ${weighing.invoiceWeight.toFixed(2)}kg</span>` : ''}
-                    </div>
-                    <div style="text-align: right; font-weight: bold;">
-                        Líquido: ${weighing.netWeight.toFixed(2)}kg
-                    </div>
-                </div>
-            `;
-        });
-        
-        // Totales
-        const totalNet = recentWeighings.reduce((sum, w) => sum + w.netWeight, 0);
-        preview += `
-                <div style="margin-top: 10px; border-top: 1px solid #000; padding-top: 5px;">
-                    <div style="display: flex; justify-content: space-between; font-weight: bold;">
-                        <span>Total Itens:</span>
-                        <span>${recentWeighings.length}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; font-weight: bold;">
-                        <span>Total Líquido:</span>
-                        <span>${totalNet.toFixed(2)} kg</span>
-                    </div>
-                </div>
-                <div style="text-align: center; margin-top: 15px; font-size: 10px;">
-                    ${'='.repeat(32)}
-                    <div>Responsável</div>
-                </div>
-            </div>
-        `;
-        
-        return preview;
-    }
-
-    function printThermalTicket() {
-        if (state.weighings.length === 0) return;
-        
-        const recentWeighings = state.weighings.slice(0, 15);
+        const recentWeighings = weighings.slice(0, 10);
         const totalNet = recentWeighings.reduce((sum, w) => sum + w.netWeight, 0);
         
-        // Crear contenido para impresión térmica
         const printContent = `
             <!DOCTYPE html>
             <html>
@@ -670,60 +751,42 @@ document.addEventListener('DOMContentLoaded', function() {
                 <meta charset="UTF-8">
                 <style>
                     @media print {
-                        @page {
-                            margin: 0;
-                            size: 80mm auto;
+                        @page { margin: 0; size: 80mm auto; }
+                        body { 
+                            margin: 5mm; 
+                            padding: 0; 
+                            width: 70mm; 
+                            font-family: 'Courier New', monospace; 
+                            font-size: 12px; 
+                            line-height: 1.2; 
+                            color: #000; 
                         }
-                        body {
-                            margin: 5mm;
-                            padding: 0;
-                            width: 70mm;
-                            font-family: 'Courier New', monospace;
-                            font-size: 12px;
-                            line-height: 1.2;
-                            color: #000;
-                        }
-                        .no-print { display: none; }
                     }
-                    body {
-                        margin: 5mm;
-                        padding: 0;
-                        width: 70mm;
-                        font-family: 'Courier New', monospace;
-                        font-size: 12px;
-                        line-height: 1.2;
-                        color: #000;
+                    body { 
+                        margin: 5mm; 
+                        padding: 0; 
+                        width: 70mm; 
+                        font-family: 'Courier New', monospace; 
+                        font-size: 12px; 
+                        line-height: 1.2; 
+                        color: #000; 
                     }
-                    .header {
-                        text-align: center;
-                        border-bottom: 2px solid #000;
-                        padding-bottom: 5px;
-                        margin-bottom: 10px;
+                    .header { 
+                        text-align: center; 
+                        border-bottom: 2px solid #000; 
+                        padding-bottom: 5px; 
+                        margin-bottom: 10px; 
                     }
-                    .item {
-                        margin: 3px 0;
-                        padding: 2px 0;
-                        border-bottom: 1px dashed #ccc;
+                    .item { 
+                        margin: 3px 0; 
+                        padding: 2px 0; 
+                        border-bottom: 1px dashed #ccc; 
                     }
-                    .product-name {
-                        font-weight: bold;
-                        margin-bottom: 2px;
-                    }
-                    .weight-details {
-                        display: flex;
-                        justify-content: space-between;
-                        font-size: 10px;
-                        margin-bottom: 2px;
-                    }
-                    .net-weight {
-                        text-align: right;
-                        font-weight: bold;
-                    }
-                    .footer {
-                        margin-top: 10px;
-                        border-top: 2px solid #000;
-                        padding-top: 10px;
-                        text-align: center;
+                    .footer { 
+                        margin-top: 10px; 
+                        border-top: 2px solid #000; 
+                        padding-top: 10px; 
+                        text-align: center; 
                     }
                 </style>
             </head>
@@ -731,35 +794,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="header">
                     <h3>CONTROLE DE PESAGEM</h3>
                     <p>${new Date().toLocaleDateString('pt-BR')}</p>
-                    <p>Ticket #${elements.ticketNumber.textContent}</p>
+                    <p>Ticket #${String(weighings.length).padStart(3, '0')}</p>
                 </div>
                 
-                <div class="content">
-        `;
-        
-        let itemsHtml = '';
-        recentWeighings.forEach(w => {
-            const productName = w.product.length > 15 ? 
-                w.product.substring(0, 15) : w.product;
-            
-            itemsHtml += `
-                <div class="item">
-                    <div class="product-name">${productName}</div>
-                    <div class="weight-details">
-                        <span>Bruto: ${w.grossWeight.toFixed(2)}kg</span>
-                        ${w.invoiceWeight > 0 ? `<span>Nota: ${w.invoiceWeight.toFixed(2)}kg</span>` : ''}
+                ${recentWeighings.map(w => `
+                    <div class="item">
+                        <div><strong>${w.product.substring(0, 15)}${w.product.length > 15 ? '...' : ''}</strong></div>
+                        <div style="display: flex; justify-content: space-between; font-size: 10px;">
+                            <span>Bruto: ${w.grossWeight.toFixed(2)}kg</span>
+                            ${w.invoiceWeight > 0 ? `<span>Nota: ${w.invoiceWeight.toFixed(2)}kg</span>` : ''}
+                        </div>
+                        <div style="text-align: right; font-weight: bold;">
+                            Líq: ${w.netWeight.toFixed(2)}kg
+                        </div>
                     </div>
-                    <div class="net-weight">
-                        Líq: ${w.netWeight.toFixed(2)}kg
-                        ${w.difference !== null ? 
-                          ` (${w.difference >= 0 ? '+' : ''}${w.difference.toFixed(2)}kg)` : ''}
-                    </div>
-                </div>
-            `;
-        });
-        
-        const finalContent = printContent + itemsHtml + `
-                </div>
+                `).join('')}
                 
                 <div class="footer">
                     <div style="display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 5px;">
@@ -785,276 +834,136 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
         
         const printWindow = window.open('', '_blank', 'width=400,height=600');
-        printWindow.document.write(finalContent);
+        printWindow.document.write(printContent);
         printWindow.document.close();
-        
-        elements.printModal.style.display = 'none';
     }
-
-    function printFullPage() {
-        if (state.weighings.length === 0) return;
+    
+    function shareWhatsApp() {
+        if (weighings.length === 0) {
+            showToast('Nenhuma pesagem para compartilhar', 'warning');
+            return;
+        }
         
-        const recentWeighings = state.weighings.slice(0, 50);
+        const recentWeighings = weighings.slice(0, 5);
         const totalNet = recentWeighings.reduce((sum, w) => sum + w.netWeight, 0);
         
-        // Crear contenido para impresión en página completa
-        const printContent = `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Relatório de Pesagem</title>
-                <meta charset="UTF-8">
-                <style>
-                    @media print {
-                        @page {
-                            margin: 15mm;
-                        }
-                        body {
-                            font-family: 'Inter', Arial, sans-serif;
-                            line-height: 1.6;
-                            color: #333;
-                        }
-                    }
-                    body {
-                        font-family: 'Inter', Arial, sans-serif;
-                        line-height: 1.6;
-                        color: #333;
-                        max-width: 210mm;
-                        margin: 0 auto;
-                        padding: 20px;
-                    }
-                    .print-header {
-                        text-align: center;
-                        border-bottom: 3px solid #2563eb;
-                        padding-bottom: 20px;
-                        margin-bottom: 30px;
-                    }
-                    .print-header h1 {
-                        color: #2563eb;
-                        font-size: 28px;
-                        margin-bottom: 10px;
-                    }
-                    .print-meta {
-                        display: flex;
-                        justify-content: space-between;
-                        margin-bottom: 20px;
-                        font-size: 14px;
-                        color: #666;
-                    }
-                    .summary-grid {
-                        display: grid;
-                        grid-template-columns: repeat(4, 1fr);
-                        gap: 15px;
-                        margin-bottom: 30px;
-                        background: #f8fafc;
-                        padding: 20px;
-                        border-radius: 10px;
-                    }
-                    .summary-item {
-                        text-align: center;
-                    }
-                    .summary-item .label {
-                        font-size: 12px;
-                        color: #64748b;
-                        margin-bottom: 5px;
-                    }
-                    .summary-item .value {
-                        font-size: 24px;
-                        font-weight: bold;
-                        color: #2563eb;
-                        font-family: 'Roboto Mono', monospace;
-                    }
-                    .table-container {
-                        margin-bottom: 30px;
-                    }
-                    table {
-                        width: 100%;
-                        border-collapse: collapse;
-                        margin-bottom: 20px;
-                    }
-                    th {
-                        background: #2563eb;
-                        color: white;
-                        padding: 12px 8px;
-                        text-align: left;
-                        font-size: 14px;
-                    }
-                    td {
-                        padding: 10px 8px;
-                        border-bottom: 1px solid #e2e8f0;
-                        font-size: 13px;
-                    }
-                    tr:nth-child(even) {
-                        background: #f8fafc;
-                    }
-                    .total-row {
-                        font-weight: bold;
-                        background: #e0f2fe !important;
-                    }
-                    .footer {
-                        margin-top: 40px;
-                        padding-top: 20px;
-                        border-top: 2px solid #2563eb;
-                        text-align: center;
-                        font-size: 12px;
-                        color: #666;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="print-header">
-                    <h1>CONTROLE DE PESAGEM</h1>
-                    <p>Relatório Completo - ${new Date().toLocaleDateString('pt-BR')}</p>
-                </div>
-                
-                <div class="print-meta">
-                    <div>
-                        <strong>Ticket:</strong> #${elements.ticketNumber.textContent}
-                    </div>
-                    <div>
-                        <strong>Data de Emissão:</strong> ${new Date().toLocaleString('pt-BR')}
-                    </div>
-                    <div>
-                        <strong>Total de Itens:</strong> ${recentWeighings.length}
-                    </div>
-                </div>
-                
-                <div class="summary-grid">
-                    <div class="summary-item">
-                        <div class="label">Caixas</div>
-                        <div class="value">${state.session.boxes}</div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="label">Embalagens</div>
-                        <div class="value">${state.session.packaging}</div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="label">Peso Bruto</div>
-                        <div class="value">${state.session.grossWeight.toFixed(2)}kg</div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="label">Peso Líquido</div>
-                        <div class="value">${totalNet.toFixed(2)}kg</div>
-                    </div>
-                </div>
-                
-                <div class="table-container">
-                    <h3 style="color: #2563eb; margin-bottom: 15px;">Detalhes das Pesagens</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Produto</th>
-                                <th>Fornecedor</th>
-                                <th>Caixas</th>
-                                <th>Embalagens</th>
-                                <th>Tara Total</th>
-                                <th>Peso Bruto</th>
-                                <th>Peso Nota</th>
-                                <th>Peso Líquido</th>
-                                <th>Diferença</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-        `;
+        let message = `*CONTROLE DE PESAGEM*\n`;
+        message += `*Data:* ${new Date().toLocaleDateString('pt-BR')}\n`;
+        message += `*Ticket:* #${String(weighings.length).padStart(3, '0')}\n\n`;
         
-        let tableRows = '';
         recentWeighings.forEach(w => {
-            const diffClass = w.difference >= 0 ? 'color: #065f46;' : 'color: #991b1b;';
-            const diffText = w.difference !== null ? 
-                `${w.difference >= 0 ? '+' : ''}${w.difference.toFixed(2)}` : '—';
-            
-            tableRows += `
-                <tr>
-                    <td>${w.product}</td>
-                    <td>${w.supplier || '—'}</td>
-                    <td>${w.boxQuantity}</td>
-                    <td>${w.packagingQuantity}</td>
-                    <td>${w.totalTara.toFixed(2)}kg</td>
-                    <td>${w.grossWeight.toFixed(2)}kg</td>
-                    <td>${w.invoiceWeight > 0 ? w.invoiceWeight.toFixed(2) + 'kg' : '—'}</td>
-                    <td><strong>${w.netWeight.toFixed(2)}kg</strong></td>
-                    <td style="${diffClass}">${diffText}</td>
-                </tr>
-            `;
+            message += `*${w.product}*\n`;
+            message += `Bruto: ${w.grossWeight.toFixed(2)}kg\n`;
+            message += `Líquido: ${w.netWeight.toFixed(2)}kg\n`;
+            if (w.difference !== null) {
+                message += `Dif: ${w.difference >= 0 ? '+' : ''}${w.difference.toFixed(2)}kg\n`;
+            }
+            message += `\n`;
         });
         
-        const finalContent = printContent + tableRows + `
-                        </tbody>
-                        <tfoot>
-                            <tr class="total-row">
-                                <td colspan="5"><strong>TOTAIS</strong></td>
-                                <td><strong>${state.session.grossWeight.toFixed(2)}kg</strong></td>
-                                <td>—</td>
-                                <td><strong>${totalNet.toFixed(2)}kg</strong></td>
-                                <td>—</td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-                
-                <div class="footer">
-                    <p>Emitido por: Controle de Pesagem - Sistema Armazém</p>
-                    <p>${new Date().toLocaleString('pt-BR')}</p>
-                    <div style="margin-top: 40px; text-align: right;">
-                        <div style="border-top: 1px solid #000; width: 300px; margin-left: auto; padding-top: 10px;">
-                            <div>_________________________________</div>
-                            <div style="font-size: 14px; margin-top: 5px;">Assinatura do Responsável</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <script>
-                    setTimeout(() => {
-                        window.print();
-                        setTimeout(() => window.close(), 1000);
-                    }, 500);
-                <\/script>
-            </body>
-            </html>
-        `;
+        message += `*TOTAL:* ${totalNet.toFixed(2)} kg\n`;
+        message += `_Enviado via Controle de Pesagem_`;
         
-        const printWindow = window.open('', '_blank', 'width=1200,height=800');
-        printWindow.document.write(finalContent);
-        printWindow.document.close();
-        
-        elements.printModal.style.display = 'none';
+        const encoded = encodeURIComponent(message);
+        window.open(`https://wa.me/?text=${encoded}`, '_blank');
     }
-
-    function saveData() {
-        try {
-            localStorage.setItem('products', JSON.stringify(state.products));
-            localStorage.setItem('weighings', JSON.stringify(state.weighings));
-        } catch (e) {
-            console.error('Erro ao salvar dados:', e);
+    
+    // ===== PWA INSTALL =====
+    
+    function showInstallPrompt() {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    showToast('Aplicação instalada com sucesso!', 'success');
+                }
+                deferredPrompt = null;
+            });
+        } else {
+            showToast('Procure a opção "Instalar aplicativo" no menu do seu navegador', 'info');
         }
     }
-
-    function showToast(message, type = 'success') {
-        const container = document.getElementById('toastContainer');
-        if (!container) return;
+    
+    // ===== TOAST NOTIFICATIONS =====
+    
+    function showToast(message, type = 'info') {
+        console.log(`💬 Toast [${type}]: ${message}`);
         
+        // Crear container si no existe
+        let container = document.getElementById('toastContainer');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toastContainer';
+            container.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                z-index: 10000;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            `;
+            document.body.appendChild(container);
+        }
+        
+        // Crear toast
         const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
+        toast.style.cssText = `
+            background: white;
+            border-left: 4px solid ${type === 'success' ? '#10b981' : 
+                                      type === 'error' ? '#ef4444' : 
+                                      type === 'warning' ? '#f59e0b' : '#2563eb'};
+            border-radius: 8px;
+            padding: 12px 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease;
+            min-width: 280px;
+            max-width: 360px;
+        `;
+        
+        // Icono según tipo
+        let icon = 'info-circle';
+        if (type === 'success') icon = 'check-circle';
+        if (type === 'error') icon = 'exclamation-circle';
+        if (type === 'warning') icon = 'exclamation-triangle';
+        
         toast.innerHTML = `
-            <i class="fas fa-${type === 'success' ? 'check-circle' : 
-                              type === 'error' ? 'exclamation-circle' : 
-                              'exclamation-triangle'}"></i>
+            <i class="fas fa-${icon}" style="color: ${type === 'success' ? '#10b981' : 
+                                                   type === 'error' ? '#ef4444' : 
+                                                   type === 'warning' ? '#f59e0b' : '#2563eb'}"></i>
             <span>${message}</span>
         `;
         
         container.appendChild(toast);
         
+        // Remover después de 3 segundos
         setTimeout(() => {
             toast.style.animation = 'slideIn 0.3s ease reverse';
             setTimeout(() => toast.remove(), 300);
         }, 3000);
     }
-
-    // Exponer funciones al scope global
+    
+    // ===== EXPORTAR FUNCIONES =====
+    
     window.app = {
+        calculateTaras,
+        updateCompactSummary,
+        updateTicketTab,
+        clearForm,
+        clearAllWeighings,
+        exportToCSV,
         printThermalTicket,
-        printFullPagePDF: printFullPage,
-        printTicketSimple: printThermalTicket,
-        printFullPage
+        shareWhatsApp,
+        showToast,
+        getStats: () => ({
+            weighings: weighings.length,
+            products: Object.keys(products).length
+        })
     };
+    
+    console.log('🎉 App completamente cargada y lista!');
 });

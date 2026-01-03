@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar APK - Controle de Pesagem</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #2563eb;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #64748b;
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 16px;
+        }
+        
+        .step {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2563eb;
+            transition: transform 0.3s;
+        }
+        
+        .step:hover {
+            transform: translateY(-2px);
+        }
+        
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            background: #2563eb;
+            color: white;
+            border-radius: 50%;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .step h3 {
+            color: #1e293b;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            font-size: 18px;
+        }
+        
+        .step-content {
+            color: #475569;
+            line-height: 1.6;
+            font-size: 15px;
+        }
+        
+        .step-content ol, .step-content ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+        
+        .step-content li {
+            margin-bottom: 8px;
+        }
+        
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            font-size: 13px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .btn {
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s;
+            min-width: 200px;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+        }
+        
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(29, 78, 216, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+        
+        .btn-secondary:hover {
+            background: #cbd5e1;
+            transform: translateY(-2px);
+        }
+        
+        .warning-box {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .warning-box h4 {
+            color: #92400e;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .warning-content {
+            color: #92400e;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px 20px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                min-width: unset;
+            }
+            
+            .step {
+                padding: 20px 15px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>📱 Criar APK para Android</h1>
+        <p class="subtitle">Converta sua aplicação web em um app nativo instalável</p>
+        
+        <div class="step">
+            <h3><span class="step-number">1</span> Método mais rápido: PWABuilder</h3>
+            <div class="step-content">
+                <p>O PWABuilder é a forma mais fácil de criar seu APK:</p>
+                <ol>
+                    <li>Acesse <strong>pwabuilder.com</strong></li>
+                    <li>Cole sua URL: <code>https://best-87.github.io/Conferente/</code></li>
+                    <li>Clique em "Analisar"</li>
+                    <li>Vá para "Package for stores"</li>
+                    <li>Selecione "Android" e siga as instruções</li>
+                    <li>Faça o download do APK gerado</li>
+                </ol>
+                <p>✅ Vantagens: Gratuito, rápido, não precisa de código</p>
+            </div>
+        </div>
+        
+        <div class="step">
+            <h3><span class="step-number">2</span> Método alternativo: Bubblewrap</h3>
+            <div class="step-content">
+                <p>Para desenvolvedores que querem mais controle:</p>
+                <div class="code-block">
+# Instalar Bubblewrap (Node.js necessário)<br>
+npm install -g @bubblewrap/cli<br><br>
+# Inicializar projeto<br>
+bubblewrap init --manifest=https://best-87.github.io/Conferente/manifest.json<br><br>
+# Construir APK<br>
+bubblewrap build
+                </div>
+                <p>📁 O APK será gerado na pasta <code>./app-release-signed.apk</code></p>
+            </div>
+        </div>
+        
+        <div class="step">
+            <h3><span class="step-number">3</span> Preparar ícones (obrigatório)</h3>
+            <div class="step-content">
+                <p>Para um APK profissional, você precisa de ícones em vários tamanhos:</p>
+                <ul>
+                    <li><strong>icon-192.png</strong> - 192x192 pixels</li>
+                    <li><strong>icon-512.png</strong> - 512x512 pixels</li>
+                    <li>Ícones para diferentes densidades de tela</li>
+                </ul>
+                <p>🎨 Use o gerador: <a href="https://www.pwabuilder.com/imageGenerator" target="_blank">pwabuilder.com/imageGenerator</a></p>
+                <p>Coloque os ícones na pasta <code>/icons</code> do seu projeto.</p>
+            </div>
+        </div>
+        
+        <div class="button-group">
+            <a href="https://www.pwabuilder.com" target="_blank" class="btn btn-primary">
+                <i class="fas fa-external-link-alt"></i> Ir para PWABuilder
+            </a>
+            
+            <a href="./index.html" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Voltar para a App
+            </a>
+            
+            <button onclick="downloadAllFiles()" class="btn btn-primary">
+                <i class="fas fa-download"></i> Baixar Arquivos
+            </button>
+        </div>
+        
+        <div class="warning-box">
+            <h4><i class="fas fa-exclamation-triangle"></i> Importante para Google Play Store</h4>
+            <div class="warning-content">
+                <p>Para publicar na Play Store você precisa:</p>
+                <ol>
+                    <li>Criar conta de desenvolvedor Google (US$ 25 uma vez)</li>
+                    <li>Assinar o APK com uma keystore</li>
+                    <li>Seguir as políticas de conteúdo do Google</li>
+                    <li>Criar página da loja com screenshots e descrição</li>
+                </ol>
+                <p>Para distribuição interna (sem Play Store), basta instalar o APK diretamente nos dispositivos.</p>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px; color: #64748b; font-size: 14px;">
+            <p><i class="fas fa-info-circle"></i> Sua app já está configurada como PWA. Usuários podem instalá-la diretamente do navegador.</p>
+        </div>
+    </div>
+    
+    <script>
+        function downloadAllFiles() {
+            // Criar um arquivo ZIP virtual com todos os arquivos necessários
+            const files = {
+                'index.html': `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arquivos para APK - Controle de Pesagem</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; line-height: 1.6; }
+        h1 { color: #2563eb; }
+        .file-list { margin: 20px 0; }
+        .file-item { padding: 10px; border-bottom: 1px solid #ddd; }
+        .instructions { background: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <h1>📁 Arquivos para criar APK</h1>
+    
+    <div class="instructions">
+        <h2>Instruções:</h2>
+        <ol>
+            <li>Suba estes arquivos para: <strong>https://best-87.github.io/Conferente/</strong></li>
+            <li>Acesse: <a href="https://www.pwabuilder.com">pwabuilder.com</a></li>
+            <li>Cole sua URL e clique em "Package for stores"</li>
+            <li>Selecione Android e siga os passos</li>
+        </ol>
+    </div>
+    
+    <div class="file-list">
+        <h3>Arquivos incluídos:</h3>
+        <div class="file-item"><strong>index.html</strong> - Página principal</div>
+        <div class="file-item"><strong>style.css</strong> - Estilos da aplicação</div>
+        <div class="file-item"><strong>app.js</strong> - Lógica JavaScript</div>
+        <div class="file-item"><strong>manifest.json</strong> - Configuração PWA</div>
+        <div class="file-item"><strong>sw.js</strong> - Service Worker (offline)</div>
+        <div class="file-item"><strong>generate-apk.html</strong> - Este arquivo</div>
+    </div>
+    
+    <p><strong>Próximos passos:</strong></p>
+    <ol>
+        <li>Crie ícones em <a href="https://www.pwabuilder.com/imageGenerator">pwabuilder.com/imageGenerator</a></li>
+        <li>Adicione os ícones na pasta /icons</li>
+        <li>Teste a PWA instalando do navegador</li>
+        <li>Gere o APK no PWABuilder</li>
+    </ol>
+</body>
+</html>`
+            };
+            
+            // Para cada arquivo, criar link de download
+            Object.entries(files).forEach(([filename, content]) => {
+                const blob = new Blob([content], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+            
+            alert('Arquivos baixados! Agora acesse PWABuilder.com para criar seu APK.');
+            
+            // Abrir PWABuilder em nova aba
+            window.open('https://www.pwabuilder.com', '_blank');
+        }
+        
+        // Detectar se é mobile
+        if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+            document.querySelector('.warning-box').innerHTML += `
+                <p style="margin-top: 10px; padding: 10px; background: #d1fae5; border-radius: 6px;">
+                    <strong>📱 Dispositivo móvel detectado:</strong> Você pode instalar esta aplicação diretamente 
+                    do navegador clicando no botão "Instalar App" na aplicação principal.
+                </p>
+            `;
+        }
+    </script>
+</body>
+</html>
