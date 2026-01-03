@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Conferente | Armazém</title>
     
     <!-- PWA Metadata COMPLETO -->
@@ -14,21 +14,32 @@
     <meta name="description" content="Sistema de controle de pesagem para armazém">
     <meta name="application-name" content="Conferente">
     <meta name="msapplication-TileColor" content="#2563eb">
-    <meta name="msapplication-TileImage" content="icon-192.png">
+    <meta name="msapplication-TileImage" content="icons/icon-144x144.png">
+    
+    <!-- Mejoras para Chrome Mobile -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- iOS específico -->
+    <link rel="apple-touch-startup-image" href="icons/icon-512x512.png">
     
     <!-- Icons para PWA -->
-    <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="icon-16.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
-    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16x16.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512x512.png">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
     
     <!-- Styles & Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
     
+    <!-- Service Worker Registration -->
+    <script src="install-service-worker.js"></script>
+    
     <style>
-        /* Estilos básicos */
+        /* ===== RESET Y BASE ===== */
         * {
             margin: 0;
             padding: 0;
@@ -36,48 +47,39 @@
             -webkit-tap-highlight-color: transparent;
         }
         
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow-x: hidden;
+            -webkit-text-size-adjust: 100%;
+            -moz-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
+        
         body {
-            font-family: 'Inter', sans-serif;
-            background: #f8fafc;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8fafc;
             color: #1e293b;
             line-height: 1.5;
-            overflow-x: hidden;
-            height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
         }
         
-        #toastContainer {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 10000;
+        /* ===== APP LAYOUT ===== */
+        .app-container {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            height: 100vh;
+            height: -webkit-fill-available;
+            max-height: 100%;
         }
         
-        .toast {
-            background: white;
-            border-left: 4px solid #2563eb;
-            border-radius: 8px;
-            padding: 12px 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            animation: slideIn 0.3s ease;
-            min-width: 280px;
-        }
-        
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        
-        .toast.success { border-left-color: #10b981; }
-        .toast.error { border-left-color: #ef4444; }
-        .toast.warning { border-left-color: #f59e0b; }
-        
-        /* Header */
+        /* ===== HEADER ===== */
         .app-header {
             background: white;
             padding: 12px 16px;
@@ -86,6 +88,7 @@
             position: sticky;
             top: 0;
             z-index: 1000;
+            flex-shrink: 0;
         }
         
         .header-content {
@@ -154,14 +157,15 @@
             font-family: 'Roboto Mono', monospace;
         }
         
-        /* Tabs */
+        /* ===== TABS ===== */
         .app-tabs {
             display: flex;
             background: white;
             border-bottom: 1px solid #e2e8f0;
             position: sticky;
-            top: 61px; /* Altura del header */
+            top: 61px;
             z-index: 100;
+            flex-shrink: 0;
         }
         
         .tab-btn {
@@ -188,8 +192,11 @@
             border-bottom: 3px solid #2563eb;
         }
         
-        /* Contenido principal */
+        /* ===== CONTENIDO PRINCIPAL ===== */
         .main-content {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
             padding: 20px;
             max-width: 1200px;
             margin: 0 auto;
@@ -210,73 +217,7 @@
             display: block;
         }
         
-        /* Formulario */
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-            color: #1e293b;
-            font-size: 14px;
-        }
-        
-        input, textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            font-size: 14px;
-            transition: all 0.2s;
-            -webkit-appearance: none;
-            appearance: none;
-        }
-        
-        input:focus {
-            outline: none;
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-        
-        /* Botones - ESTILO DE LA IMAGEN */
-        button {
-            padding: 12px 15px;
-            border-radius: 8px;
-            border: none;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            min-height: 44px;
-            -webkit-appearance: none;
-            appearance: none;
-        }
-        
-        .btn-primary {
-            background: #2563eb;
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #1d4ed8;
-        }
-        
-        .btn-secondary {
-            background: #e2e8f0;
-            color: #1e293b;
-        }
-        
-        .btn-secondary:hover {
-            background: #cbd5e1;
-        }
-        
-        /* Formulario principal */
+        /* ===== FORMULARIO ===== */
         .form-container {
             background: white;
             padding: 20px;
@@ -318,6 +259,72 @@
         
         .status-dot.known {
             background: #10b981;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #1e293b;
+            font-size: 14px;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.2s;
+            -webkit-appearance: none;
+            appearance: none;
+            background: white;
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        /* Botones - ESTILO DE LA IMAGEN */
+        button {
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 44px;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+        
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+        
+        .btn-secondary:hover {
+            background: #cbd5e1;
         }
         
         /* Tara totals - HORIZONTAL */
@@ -428,7 +435,7 @@
             margin-top: 30px;
         }
         
-        /* Responsive */
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
             .buttons-grid {
                 grid-template-columns: repeat(2, 1fr);
@@ -509,7 +516,98 @@
             }
         }
         
-        /* Estilos para modo PWA instalado */
+        /* ===== TOAST NOTIFICATIONS ===== */
+        #toastContainer {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .toast {
+            background: white;
+            border-left: 4px solid #2563eb;
+            border-radius: 8px;
+            padding: 12px 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease;
+            min-width: 280px;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .toast.success { border-left-color: #10b981; }
+        .toast.error { border-left-color: #ef4444; }
+        .toast.warning { border-left-color: #f59e0b; }
+        
+        /* ===== INSTALL PROMPT ===== */
+        #pwaInstallPrompt {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(37, 99, 235, 0.3);
+            z-index: 10001;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            animation: slideUp 0.4s ease;
+            max-width: 90%;
+            width: 400px;
+            border: 2px solid white;
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translate(-50%, 100%);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
+        }
+        
+        /* ===== BOTÓN FLOTANTE DE INSTALACIÓN ===== */
+        #floatingInstallBtn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 30px;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            z-index: 999;
+            transition: all 0.3s;
+        }
+        
+        #floatingInstallBtn:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5);
+        }
+        
+        /* ===== ESTILOS PARA MODO PWA INSTALADO ===== */
         @media all and (display-mode: standalone) {
             body {
                 padding-top: env(safe-area-inset-top);
@@ -521,1167 +619,460 @@
             .app-header {
                 padding-top: calc(12px + env(safe-area-inset-top, 0px));
             }
+            
+            .app-tabs {
+                top: calc(61px + env(safe-area-inset-top, 0px));
+            }
+            
+            #floatingInstallBtn,
+            .install-btn {
+                display: none !important;
+            }
+        }
+        
+        /* ===== SCROLLBAR PERSONALIZADA ===== */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #e2e8f0;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #2563eb;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #1d4ed8;
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="app-header">
-        <div class="header-content">
-            <div class="logo">
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-weight-hanging"></i>
+                    <h1>Conferente</h1>
+                </div>
+                <div class="header-info">
+                    <button class="install-btn" id="installBtn">
+                        <i class="fas fa-download"></i>
+                        Instalar
+                    </button>
+                    <div class="datetime">
+                        <span id="currentDate">01 Jan 2026</span>
+                        <span id="currentTime">16:25</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Tabs -->
+        <nav class="app-tabs">
+            <button class="tab-btn active" data-tab="pesar">
                 <i class="fas fa-weight-hanging"></i>
-                <h1>Conferente</h1>
-            </div>
-            <div class="header-info">
-                <button class="install-btn" id="installBtn">
-                    <i class="fas fa-download"></i>
-                    Instalar
-                </button>
-                <div class="datetime">
-                    <span id="currentDate">01 Jan 2026</span>
-                    <span id="currentTime">16:25</span>
-                </div>
-            </div>
-        </div>
-    </header>
+                <span>Pesar</span>
+            </button>
+            <button class="tab-btn" data-tab="ticket">
+                <i class="fas fa-receipt"></i>
+                <span>Ticket</span>
+            </button>
+            <button class="tab-btn" data-tab="historico">
+                <i class="fas fa-history"></i>
+                <span>Histórico</span>
+            </button>
+            <button class="tab-btn" data-tab="config">
+                <i class="fas fa-cog"></i>
+                <span>Config</span>
+            </button>
+        </nav>
 
-    <!-- Tabs -->
-    <nav class="app-tabs">
-        <button class="tab-btn active" data-tab="pesar">
-            <i class="fas fa-weight-hanging"></i>
-            <span>Pesar</span>
-        </button>
-        <button class="tab-btn" data-tab="ticket">
-            <i class="fas fa-receipt"></i>
-            <span>Ticket</span>
-        </button>
-        <button class="tab-btn" data-tab="historico">
-            <i class="fas fa-history"></i>
-            <span>Histórico</span>
-        </button>
-    </nav>
-
-    <!-- Contenido principal -->
-    <div class="main-content">
-        <!-- Pestaña 1: Pesar -->
-        <section class="tab-content active" id="tab-pesar">
-            <!-- Formulario -->
-            <div class="form-container">
-                <div class="form-title">
-                    <i class="fas fa-plus-circle"></i> Nova Pesagem
-                    <span id="productStatus" class="status-badge">
-                        <span class="status-dot"></span>
-                        <span>Novo produto</span>
-                    </span>
-                </div>
-                
-                <form id="pesagemForm">
-                    <!-- Producto -->
-                    <div class="form-group">
-                        <label for="product"><i class="fas fa-box"></i> Produto</label>
-                        <input type="text" id="product" placeholder="Nome do produto" autocomplete="off" list="productList">
-                        <datalist id="productList"></datalist>
-                        <small style="font-size: 12px; color: #64748b;">Produtos conhecidos autocompletam as taras</small>
+        <!-- Contenido principal -->
+        <div class="main-content">
+            <!-- Pestaña 1: Pesar -->
+            <section class="tab-content active" id="tab-pesar">
+                <!-- Formulario -->
+                <div class="form-container">
+                    <div class="form-title">
+                        <i class="fas fa-plus-circle"></i> Nova Pesagem
+                        <span id="productStatus" class="status-badge">
+                            <span class="status-dot"></span>
+                            <span>Novo produto</span>
+                        </span>
                     </div>
                     
-                    <!-- Fornecedor -->
-                    <div class="form-group">
-                        <label for="supplier"><i class="fas fa-truck"></i> Fornecedor</label>
-                        <input type="text" id="supplier" placeholder="Nome do fornecedor">
-                    </div>
-                    
-                    <!-- Pesos -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <form id="pesagemForm">
+                        <!-- Producto -->
                         <div class="form-group">
-                            <label for="grossWeight"><i class="fas fa-weight-hanging"></i> Peso Bruto (kg)</label>
-                            <input type="text" id="grossWeight" placeholder="15.5, 12.3, 18.7">
-                            <small style="font-size: 11px; color: #64748b;">Separar por vírgula para múltiplas</small>
-                        </div>
-                        <div class="form-group">
-                            <label for="invoiceWeight"><i class="fas fa-file-invoice"></i> Peso Nota (kg)</label>
-                            <input type="number" id="invoiceWeight" step="0.001" placeholder="Peso declarado">
-                        </div>
-                    </div>
-                    
-                    <!-- Caixas -->
-                    <div class="form-group">
-                        <label><i class="fas fa-cube"></i> Caixas</label>
-                        <div style="display: flex; gap: 10px;">
-                            <div style="flex: 1;">
-                                <small style="display: block; font-size: 11px; color: #64748b;">Quantidade</small>
-                                <input type="number" id="boxQuantity" value="0" min="0" style="padding: 8px;">
-                            </div>
-                            <div style="flex: 1;">
-                                <small style="display: block; font-size: 11px; color: #64748b;">Tara/Unid. (kg)</small>
-                                <input type="number" id="boxTara" step="0.001" placeholder="0.000" style="padding: 8px;">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Embalagens -->
-                    <div class="form-group">
-                        <label><i class="fas fa-layer-group"></i> Embalagens</label>
-                        <div style="display: flex; gap: 10px;">
-                            <div style="flex: 1;">
-                                <small style="display: block; font-size: 11px; color: #64748b;">Quantidade</small>
-                                <input type="number" id="packagingQuantity" value="0" min="0" style="padding: 8px;">
-                            </div>
-                            <div style="flex: 1;">
-                                <small style="display: block; font-size: 11px; color: #64748b;">Tara/Unid. (kg)</small>
-                                <input type="number" id="packagingTara" step="0.001" placeholder="0.000" style="padding: 8px;">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Totales de Tara - HORIZONTAL -->
-                    <div class="tara-totals">
-                        <div class="tara-item">
-                            <span class="tara-label">Total Caixas</span>
-                            <span class="tara-value" id="totalBoxTara">0.000 kg</span>
-                        </div>
-                        <div class="tara-item">
-                            <span class="tara-label">Total Embal.</span>
-                            <span class="tara-value" id="totalPackagingTara">0.000 kg</span>
-                        </div>
-                        <div class="tara-item">
-                            <span class="tara-label">Tara Total</span>
-                            <span class="tara-value" id="totalTara">0.000 kg</span>
-                        </div>
-                    </div>
-                    
-                    <!-- Botones de Acción -->
-                    <div class="buttons-grid">
-                        <button type="button" class="btn-secondary" id="clearForm">
-                            <i class="fas fa-eraser"></i> Limpar
-                        </button>
-                        <button type="submit" class="btn-primary">
-                            <i class="fas fa-plus"></i> Adicionar
-                        </button>
-                        <button type="button" class="btn-secondary" id="quickCalc">
-                            <i class="fas fa-calculator"></i> Calcular
-                        </button>
-                        <button type="button" class="btn-secondary" id="saveProduct">
-                            <i class="fas fa-save"></i> Salvar Prod.
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </section>
-        
-        <!-- Pestaña 2: Ticket -->
-        <section class="tab-content" id="tab-ticket">
-            <div class="ticket-section">
-                <div class="form-title">
-                    <i class="fas fa-receipt"></i> Ticket Atual
-                </div>
-                
-                <!-- Botones del ticket -->
-                <div class="buttons-grid">
-                    <button class="btn-secondary" id="printTicketBtn">
-                        <i class="fas fa-print"></i> Imprimir
-                    </button>
-                    <button class="btn-secondary" id="shareTicketBtn">
-                        <i class="fab fa-whatsapp"></i> WhatsApp
-                    </button>
-                    <button class="btn-secondary" id="exportTicketBtn">
-                        <i class="fas fa-file-export"></i> Exportar
-                    </button>
-                    <button class="btn-secondary" id="clearTicketBtn">
-                        <i class="fas fa-trash"></i> Limpar
-                    </button>
-                </div>
-                
-                <!-- Ticket -->
-                <div class="ticket-preview">
-                    <div class="ticket-header">
-                        <div style="font-weight: bold; font-size: 16px;">CONTROLE DE PESAGEM</div>
-                        <div style="font-size: 12px;">Ticket #<span id="ticketNumberCompact">001</span></div>
-                        <div style="font-size: 11px;" id="ticketDateCompact">03/01/2026</div>
-                    </div>
-                    
-                    <div class="ticket-body" id="ticketItemsCompact">
-                        <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px dashed #ccc;">
-                            <div style="font-weight: bold;">filé de peito</div>
-                            <div style="font-size: 12px; color: #64748b;">Margem</div>
-                            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-top: 5px;">
-                                <div>
-                                    <span>Bruto: 203.10kg</span><br>
-                                    <span>Nota: 200.00kg</span><br>
-                                    <span>Tara: 3.00kg</span>
-                                </div>
-                                <div style="text-align: right;">
-                                    <div>Líquido: 200.10kg</div>
-                                    <div class="diff-positive">(+0.10kg)</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="ticket-footer">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                            <span>Total Itens:</span>
-                            <span id="ticketTotalItems">1</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; font-weight: bold;">
-                            <span>TOTAL LÍQUIDO:</span>
-                            <span id="ticketTotalWeight">200.100 kg</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Opciones de impresión -->
-                <div style="margin-top: 20px;">
-                    <h4 style="margin-bottom: 10px; color: #1e293b;"><i class="fas fa-print"></i> Opções de Impressão</h4>
-                    <div class="print-options">
-                        <button class="btn-secondary" id="printThermalBtn">
-                            <i class="fas fa-receipt"></i> Ticket Térmico
-                        </button>
-                        <button class="btn-secondary" id="printFullBtn">
-                            <i class="fas fa-file-pdf"></i> Página Completa
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-        <!-- Pestaña 3: Histórico -->
-        <section class="tab-content" id="tab-historico">
-            <div>
-                <div class="form-title">
-                    <i class="fas fa-history"></i> Histórico de Pesagens
-                </div>
-                
-                <!-- Botones del histórico -->
-                <div class="buttons-grid">
-                    <button class="btn-secondary" id="filterTodayBtn">
-                        <i class="fas fa-calendar-day"></i> Hoje
-                    </button>
-                    <button class="btn-secondary" id="filterWeekBtn">
-                        <i class="fas fa-calendar-week"></i> Esta Semana
-                    </button>
-                    <button class="btn-secondary" id="filterAllBtn">
-                        <i class="fas fa-calendar-alt"></i> Todos
-                    </button>
-                    <button class="btn-secondary" id="exportHistoryBtn">
-                        <i class="fas fa-file-csv"></i> CSV
-                    </button>
-                </div>
-                
-                <!-- Lista del histórico -->
-                <div class="ticket-section" style="max-height: 500px; overflow-y: auto;" id="historyList">
-                    <div style="text-align: center; padding: 60px 0; color: #94a3b8;">
-                        <i class="fas fa-weight-hanging" style="font-size: 40px; margin-bottom: 10px;"></i>
-                        <div>Nenhuma pesagem no histórico</div>
-                    </div>
-                </div>
-                
-                <!-- Configuração -->
-                <div class="config-section">
-                    <h3 style="margin-bottom: 15px; color: #1e293b;">
-                        <i class="fas fa-cog"></i> Configurações
-                    </h3>
-                    
-                    <div style="display: grid; gap: 15px;">
-                        <div>
-                            <div style="font-size: 14px; color: #64748b; margin-bottom: 10px;">
-                                Pesagens: <span id="dataCount">1</span> | 
-                                Produtos: <span id="productCount">1</span>
-                            </div>
-                            <button class="btn-secondary" id="clearAllData" style="width: 100%;">
-                                <i class="fas fa-trash"></i> Limpar Todos os Dados
-                            </button>
+                            <label for="product"><i class="fas fa-box"></i> Produto</label>
+                            <input type="text" id="product" placeholder="Nome do produto" autocomplete="off" list="productList">
+                            <datalist id="productList"></datalist>
+                            <small style="font-size: 12px; color: #64748b;">Produtos conhecidos autocompletam as taras</small>
                         </div>
                         
-                        <div>
-                            <button class="btn-primary" id="exportAllData" style="width: 100%; margin-bottom: 10px;">
-                                <i class="fas fa-file-export"></i> Exportar Todos os Dados
+                        <!-- Fornecedor -->
+                        <div class="form-group">
+                            <label for="supplier"><i class="fas fa-truck"></i> Fornecedor</label>
+                            <input type="text" id="supplier" placeholder="Nome do fornecedor">
+                        </div>
+                        
+                        <!-- Pesos -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                            <div class="form-group">
+                                <label for="grossWeight"><i class="fas fa-weight-hanging"></i> Peso Bruto (kg)</label>
+                                <input type="text" id="grossWeight" placeholder="15.5, 12.3, 18.7">
+                                <small style="font-size: 11px; color: #64748b;">Separar por vírgula para múltiplas</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="invoiceWeight"><i class="fas fa-file-invoice"></i> Peso Nota (kg)</label>
+                                <input type="number" id="invoiceWeight" step="0.001" placeholder="Peso declarado">
+                            </div>
+                        </div>
+                        
+                        <!-- Caixas -->
+                        <div class="form-group">
+                            <label><i class="fas fa-cube"></i> Caixas</label>
+                            <div style="display: flex; gap: 10px;">
+                                <div style="flex: 1;">
+                                    <small style="display: block; font-size: 11px; color: #64748b;">Quantidade</small>
+                                    <input type="number" id="boxQuantity" value="0" min="0" style="padding: 8px;">
+                                </div>
+                                <div style="flex: 1;">
+                                    <small style="display: block; font-size: 11px; color: #64748b;">Tara/Unid. (kg)</small>
+                                    <input type="number" id="boxTara" step="0.001" placeholder="0.000" style="padding: 8px;">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Embalagens -->
+                        <div class="form-group">
+                            <label><i class="fas fa-layer-group"></i> Embalagens</label>
+                            <div style="display: flex; gap: 10px;">
+                                <div style="flex: 1;">
+                                    <small style="display: block; font-size: 11px; color: #64748b;">Quantidade</small>
+                                    <input type="number" id="packagingQuantity" value="0" min="0" style="padding: 8px;">
+                                </div>
+                                <div style="flex: 1;">
+                                    <small style="display: block; font-size: 11px; color: #64748b;">Tara/Unid. (kg)</small>
+                                    <input type="number" id="packagingTara" step="0.001" placeholder="0.000" style="padding: 8px;">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Totales de Tara - HORIZONTAL -->
+                        <div class="tara-totals">
+                            <div class="tara-item">
+                                <span class="tara-label">Total Caixas</span>
+                                <span class="tara-value" id="totalBoxTara">0.000 kg</span>
+                            </div>
+                            <div class="tara-item">
+                                <span class="tara-label">Total Embal.</span>
+                                <span class="tara-value" id="totalPackagingTara">0.000 kg</span>
+                            </div>
+                            <div class="tara-item">
+                                <span class="tara-label">Tara Total</span>
+                                <span class="tara-value" id="totalTara">0.000 kg</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Botones de Acción -->
+                        <div class="buttons-grid">
+                            <button type="button" class="btn-secondary" id="clearForm">
+                                <i class="fas fa-eraser"></i> Limpar
+                            </button>
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-plus"></i> Adicionar
+                            </button>
+                            <button type="button" class="btn-secondary" id="quickCalc">
+                                <i class="fas fa-calculator"></i> Calcular
+                            </button>
+                            <button type="button" class="btn-secondary" id="saveProduct">
+                                <i class="fas fa-save"></i> Salvar Prod.
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Stats Rápidos -->
+                <div class="form-container">
+                    <div class="form-title">
+                        <i class="fas fa-chart-line"></i> Hoje
+                    </div>
+                    <div class="tara-totals">
+                        <div class="tara-item">
+                            <span class="tara-label">Pesagens Hoje</span>
+                            <span class="tara-value" id="sessionCountCompact">0</span>
+                        </div>
+                        <div class="tara-item">
+                            <span class="tara-label">Total Líquido</span>
+                            <span class="tara-value" id="sessionNetCompact">0.000 kg</span>
+                        </div>
+                        <div class="tara-item">
+                            <span class="tara-label">Ticket Atual</span>
+                            <span class="tara-value">#<span id="ticketNumberCompact">001</span></span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Pestaña 2: Ticket -->
+            <section class="tab-content" id="tab-ticket">
+                <div class="ticket-section">
+                    <div class="form-title">
+                        <i class="fas fa-receipt"></i> Ticket Atual
+                    </div>
+                    
+                    <!-- Botones del ticket -->
+                    <div class="buttons-grid">
+                        <button class="btn-secondary" id="printTicketBtn">
+                            <i class="fas fa-print"></i> Imprimir
+                        </button>
+                        <button class="btn-secondary" id="shareTicketBtn">
+                            <i class="fab fa-whatsapp"></i> WhatsApp
+                        </button>
+                        <button class="btn-secondary" id="exportTicketBtn">
+                            <i class="fas fa-file-export"></i> Exportar
+                        </button>
+                        <button class="btn-secondary" id="clearTicketBtn">
+                            <i class="fas fa-trash"></i> Limpar
+                        </button>
+                    </div>
+                    
+                    <!-- Ticket -->
+                    <div class="ticket-preview">
+                        <div class="ticket-header">
+                            <div style="font-weight: bold; font-size: 16px;">CONTROLE DE PESAGEM</div>
+                            <div style="font-size: 12px;">Ticket #<span id="ticketNumberCompact2">001</span></div>
+                            <div style="font-size: 11px;" id="ticketDateCompact">03/01/2026</div>
+                        </div>
+                        
+                        <div class="ticket-body" id="ticketItemsCompact">
+                            <div style="text-align: center; padding: 30px 0; color: #94a3b8;">
+                                <i class="fas fa-receipt" style="font-size: 40px; margin-bottom: 10px;"></i>
+                                <div>Nenhuma pesagem registrada</div>
+                            </div>
+                        </div>
+                        
+                        <div class="ticket-footer">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span>Total Itens:</span>
+                                <span id="ticketTotalItems">0</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-weight: bold;">
+                                <span>TOTAL LÍQUIDO:</span>
+                                <span id="ticketTotalWeight">0.000 kg</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Opciones de impresión -->
+                    <div style="margin-top: 20px;">
+                        <h4 style="margin-bottom: 10px; color: #1e293b;"><i class="fas fa-print"></i> Opções de Impressão</h4>
+                        <div class="print-options">
+                            <button class="btn-secondary" id="printThermalBtn">
+                                <i class="fas fa-receipt"></i> Ticket Térmico
+                            </button>
+                            <button class="btn-secondary" id="printFullBtn">
+                                <i class="fas fa-file-pdf"></i> Página Completa
                             </button>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
+            
+            <!-- Pestaña 3: Histórico -->
+            <section class="tab-content" id="tab-historico">
+                <div>
+                    <div class="form-title">
+                        <i class="fas fa-history"></i> Histórico de Pesagens
+                    </div>
+                    
+                    <!-- Botones del histórico -->
+                    <div class="buttons-grid">
+                        <button class="btn-secondary" id="filterTodayBtn">
+                            <i class="fas fa-calendar-day"></i> Hoje
+                        </button>
+                        <button class="btn-secondary" id="filterWeekBtn">
+                            <i class="fas fa-calendar-week"></i> Esta Semana
+                        </button>
+                        <button class="btn-secondary" id="filterAllBtn">
+                            <i class="fas fa-calendar-alt"></i> Todos
+                        </button>
+                        <button class="btn-secondary" id="exportHistoryBtn">
+                            <i class="fas fa-file-csv"></i> CSV
+                        </button>
+                    </div>
+                    
+                    <!-- Lista del histórico -->
+                    <div class="ticket-section" style="max-height: 500px; overflow-y: auto;" id="historyList">
+                        <div style="text-align: center; padding: 60px 0; color: #94a3b8;">
+                            <i class="fas fa-weight-hanging" style="font-size: 40px; margin-bottom: 10px;"></i>
+                            <div>Nenhuma pesagem no histórico</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Pestaña 4: Configuração -->
+            <section class="tab-content" id="tab-config">
+                <div class="config-section">
+                    <h3 style="margin-bottom: 15px; color: #1e293b;">
+                        <i class="fas fa-cog"></i> Configurações da Aplicação
+                    </h3>
+                    
+                    <div style="display: grid; gap: 20px;">
+                        <!-- Informações -->
+                        <div class="form-container">
+                            <h4 style="margin-bottom: 15px; color: #2563eb;">
+                                <i class="fas fa-info-circle"></i> Informações
+                            </h4>
+                            <div class="tara-totals">
+                                <div class="tara-item">
+                                    <span class="tara-label">Pesagens</span>
+                                    <span class="tara-value" id="dataCount">0</span>
+                                </div>
+                                <div class="tara-item">
+                                    <span class="tara-label">Produtos</span>
+                                    <span class="tara-value" id="productCount">0</span>
+                                </div>
+                                <div class="tara-item">
+                                    <span class="tara-label">Armazenamento</span>
+                                    <span class="tara-value" id="storageUsed">0 KB</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Gerenciamento de Dados -->
+                        <div class="form-container">
+                            <h4 style="margin-bottom: 15px; color: #2563eb;">
+                                <i class="fas fa-database"></i> Gerenciamento de Dados
+                            </h4>
+                            <div class="buttons-grid">
+                                <button class="btn-secondary" id="exportAllData">
+                                    <i class="fas fa-file-export"></i> Exportar Tudo
+                                </button>
+                                <button class="btn-secondary" id="importDataBtn">
+                                    <i class="fas fa-file-import"></i> Importar
+                                </button>
+                                <button class="btn-secondary" id="clearAllData">
+                                    <i class="fas fa-trash"></i> Limpar Tudo
+                                </button>
+                                <button class="btn-secondary" id="backupDataBtn">
+                                    <i class="fas fa-save"></i> Backup
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Instalação PWA -->
+                        <div class="form-container">
+                            <h4 style="margin-bottom: 15px; color: #2563eb;">
+                                <i class="fas fa-mobile-alt"></i> Instalação do App
+                            </h4>
+                            <div class="buttons-grid">
+                                <button class="btn-primary" id="installAppBtn">
+                                    <i class="fas fa-download"></i> Instalar App
+                                </button>
+                                <button class="btn-secondary" id="createAPKBtn">
+                                    <i class="fas fa-android"></i> Criar APK
+                                </button>
+                                <button class="btn-secondary" id="checkUpdateBtn">
+                                    <i class="fas fa-sync"></i> Verificar Atualizações
+                                </button>
+                                <button class="btn-secondary" onclick="window.open('generate-apk.html', '_blank')">
+                                    <i class="fas fa-question-circle"></i> Ajuda
+                                </button>
+                            </div>
+                            <p style="margin-top: 15px; font-size: 12px; color: #64748b;">
+                                <i class="fas fa-info-circle"></i> Para melhor experiência, instale o app no seu dispositivo.
+                            </p>
+                        </div>
+                        
+                        <!-- Sobre -->
+                        <div class="form-container">
+                            <h4 style="margin-bottom: 15px; color: #2563eb;">
+                                <i class="fas fa-code"></i> Sobre
+                            </h4>
+                            <div style="text-align: center; padding: 15px;">
+                                <div style="font-size: 14px; color: #64748b; margin-bottom: 10px;">
+                                    <strong>Controle de Pesagem</strong><br>
+                                    Versão 1.0.0
+                                </div>
+                                <div style="font-size: 12px; color: #94a3b8;">
+                                    Desenvolvido para controle de pesagem em armazém<br>
+                                    © 2026 - Todos os direitos reservados
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
     </div>
+
+    <!-- Botón flotante de instalación -->
+    <button id="floatingInstallBtn">
+        <i class="fas fa-download"></i>
+    </button>
 
     <!-- Toast Container -->
     <div id="toastContainer"></div>
 
+    <!-- PWA Install Prompt -->
+    <div id="pwaInstallPrompt" style="display: none;">
+        <i class="fas fa-mobile-alt" style="font-size: 28px;"></i>
+        <div class="prompt-content">
+            <strong>Instalar Conferente</strong>
+            <small>Instale o app para uma melhor experiência</small>
+        </div>
+        <button id="installPromptBtn">Instalar</button>
+        <button class="close-prompt" id="closePromptBtn">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
     <!-- JavaScript -->
+    <script src="app.js"></script>
     <script>
-        // ===== APP COMPLETA =====
-        
-        let products = {};
-        let weighings = [];
-        let deferredPrompt; // Para PWA
-        
+        // Script adicional para PWA
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 App iniciada');
+            // Botón flotante de instalación
+            const floatingInstallBtn = document.getElementById('floatingInstallBtn');
+            const installPrompt = document.getElementById('pwaInstallPrompt');
+            const installPromptBtn = document.getElementById('installPromptBtn');
+            const closePromptBtn = document.getElementById('closePromptBtn');
             
-            // Cargar datos
-            loadData();
-            
-            // Configurar navegación
-            setupNavigation();
-            
-            // Configurar formularios
-            setupForms();
-            
-            // Configurar botones
-            setupButtons();
-            
-            // Configurar PWA
-            setupPWA();
-            
-            // Configurar fecha/hora
-            updateDateTime();
-            setInterval(updateDateTime, 60000);
-            
-            // Actualizar UI
-            updateUI();
-            
-            console.log('✅ App lista para usar');
-        });
-        
-        // ===== PWA FUNCTIONALITY =====
-        
-        function setupPWA() {
-            // Evento para detectar cuando la app puede ser instalada
-            window.addEventListener('beforeinstallprompt', (e) => {
-                console.log('📱 PWA: beforeinstallprompt event fired');
-                // Prevenir que Chrome muestre el prompt automático
-                e.preventDefault();
-                // Guardar el evento para usarlo después
-                deferredPrompt = e;
-                // Mostrar el botón de instalación
-                const installBtn = document.getElementById('installBtn');
-                if (installBtn) {
-                    installBtn.style.display = 'flex';
-                    installBtn.addEventListener('click', installPWA);
-                }
+            // Mostrar/ocultar botón flotante según soporte PWA
+            if ('beforeinstallprompt' in window) {
+                floatingInstallBtn.style.display = 'flex';
                 
-                // Mostrar toast informativo
-                showToast('Aplicação pode ser instalada como app!', 'info');
-            });
-            
-            // Evento cuando la app se instala
-            window.addEventListener('appinstalled', () => {
-                console.log('✅ PWA instalada con éxito');
-                deferredPrompt = null;
-                // Ocultar el botón de instalación
-                const installBtn = document.getElementById('installBtn');
-                if (installBtn) {
-                    installBtn.style.display = 'none';
-                }
-                showToast('Aplicação instalada com sucesso!', 'success');
-            });
-            
-            // Verificar si ya está instalada como PWA
-            if (window.matchMedia('(display-mode: standalone)').matches) {
-                console.log('📱 App ejecutándose como PWA instalada');
-                const installBtn = document.getElementById('installBtn');
-                if (installBtn) {
-                    installBtn.style.display = 'none';
-                }
-            }
-            
-            // Service Worker registration (si existe el archivo)
-            if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('/sw.js').then(registration => {
-                        console.log('✅ ServiceWorker registrado con ámbito:', registration.scope);
-                    }).catch(error => {
-                        console.log('❌ Error registrando ServiceWorker:', error);
-                    });
+                floatingInstallBtn.addEventListener('click', function() {
+                    installPrompt.style.display = 'flex';
                 });
-            }
-        }
-        
-        function installPWA() {
-            if (!deferredPrompt) {
-                showToast('La aplicación ya está instalada o no se puede instalar', 'warning');
-                return;
-            }
-            
-            // Mostrar el prompt de instalación
-            deferredPrompt.prompt();
-            
-            // Esperar a que el usuario responda
-            deferredPrompt.userChoice.then((choiceResult) => {
-                if (choiceResult.outcome === 'accepted') {
-                    console.log('✅ Usuario aceptó la instalación');
-                } else {
-                    console.log('❌ Usuario rechazó la instalación');
-                }
-                deferredPrompt = null;
                 
-                // Ocultar el botón de instalación
-                const installBtn = document.getElementById('installBtn');
-                if (installBtn) {
-                    installBtn.style.display = 'none';
-                }
-            });
-        }
-        
-        // ===== FUNCIONES BÁSICAS =====
-        
-        function loadData() {
-            try {
-                products = JSON.parse(localStorage.getItem('products')) || {};
-                weighings = JSON.parse(localStorage.getItem('weighings')) || [
-                    {
-                        id: 1,
-                        product: "filé de peito",
-                        supplier: "Margem",
-                        boxQuantity: 0,
-                        boxTara: 0,
-                        packagingQuantity: 0,
-                        packagingTara: 0,
-                        totalTara: 3.00,
-                        grossWeight: 203.10,
-                        netWeight: 200.10,
-                        invoiceWeight: 200.00,
-                        difference: 0.10,
-                        timestamp: Date.now(),
-                        dateTime: new Date().toLocaleString('pt-BR')
+                closePromptBtn.addEventListener('click', function() {
+                    installPrompt.style.display = 'none';
+                });
+                
+                installPromptBtn.addEventListener('click', function() {
+                    if (window.deferredPrompt) {
+                        window.deferredPrompt.prompt();
+                        installPrompt.style.display = 'none';
                     }
-                ];
-                console.log(`📊 Datos cargados: ${weighings.length} pesagens`);
-            } catch (e) {
-                console.error('Error cargando datos:', e);
-                products = {};
-                weighings = [];
-            }
-        }
-        
-        function saveData() {
-            try {
-                localStorage.setItem('products', JSON.stringify(products));
-                localStorage.setItem('weighings', JSON.stringify(weighings));
-            } catch (e) {
-                console.error('Error guardando datos:', e);
-                showToast('Erro ao salvar dados', 'error');
-            }
-        }
-        
-        // ===== NAVEGACIÓN =====
-        
-        function setupNavigation() {
-            // Configurar tabs
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    // Actualizar tab activo
-                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    // Ocultar todos los contenidos y mostrar el activo
-                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                    document.getElementById(`tab-${this.dataset.tab}`).classList.add('active');
-                    
-                    // Actualizar datos del tab
-                    updateTabData(this.dataset.tab);
                 });
-            });
-        }
-        
-        function updateTabData(tabId) {
-            switch(tabId) {
-                case 'pesar':
-                    updatePesagemTab();
-                    break;
-                case 'ticket':
-                    updateTicketTab();
-                    break;
-                case 'historico':
-                    updateHistoricoTab();
-                    break;
-            }
-        }
-        
-        // ===== FORMULARIOS =====
-        
-        function setupForms() {
-            // Producto input
-            document.getElementById('product')?.addEventListener('input', handleProductInput);
-            
-            // Inputs de taras
-            ['boxQuantity', 'boxTara', 'packagingQuantity', 'packagingTara'].forEach(id => {
-                document.getElementById(id)?.addEventListener('input', calculateTaras);
-            });
-            
-            // Form submit
-            document.getElementById('pesagemForm')?.addEventListener('submit', handleFormSubmit);
-        }
-        
-        function handleProductInput() {
-            const productName = document.getElementById('product').value.trim();
-            const statusDot = document.querySelector('#productStatus .status-dot');
-            const statusText = document.querySelector('#productStatus span:last-child');
-            
-            if (!productName) {
-                statusDot.className = 'status-dot';
-                statusText.textContent = 'Novo produto';
-                return;
             }
             
-            if (products[productName]) {
-                document.getElementById('boxTara').value = products[productName].boxTara || '';
-                document.getElementById('packagingTara').value = products[productName].packagingTara || '';
-                statusDot.className = 'status-dot known';
-                statusText.textContent = 'Produto conhecido';
-                showToast('Taras preenchidas automaticamente', 'success');
-            } else {
-                document.getElementById('boxTara').value = '';
-                document.getElementById('packagingTara').value = '';
-                statusDot.className = 'status-dot';
-                statusText.textContent = 'Novo produto';
+            // Detectar si ya está instalada como PWA
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                floatingInstallBtn.style.display = 'none';
+                document.getElementById('installBtn').style.display = 'none';
             }
-            
-            calculateTaras();
-        }
-        
-        function calculateTaras() {
-            const boxQty = parseFloat(document.getElementById('boxQuantity').value) || 0;
-            const boxTara = parseFloat(document.getElementById('boxTara').value) || 0;
-            const packagingQty = parseFloat(document.getElementById('packagingQuantity').value) || 0;
-            const packagingTara = parseFloat(document.getElementById('packagingTara').value) || 0;
-            
-            const totalBoxTara = boxQty * boxTara;
-            const totalPackagingTara = packagingQty * packagingTara;
-            const totalTara = totalBoxTara + totalPackagingTara;
-            
-            document.getElementById('totalBoxTara').textContent = totalBoxTara.toFixed(3) + ' kg';
-            document.getElementById('totalPackagingTara').textContent = totalPackagingTara.toFixed(3) + ' kg';
-            document.getElementById('totalTara').textContent = totalTara.toFixed(3) + ' kg';
-            
-            return { totalBoxTara, totalPackagingTara, totalTara };
-        }
-        
-        function handleFormSubmit(e) {
-            e.preventDefault();
-            addWeighing();
-        }
-        
-        function addWeighing() {
-            // Obtener valores del formulario
-            const productName = document.getElementById('product').value.trim();
-            const grossWeightInput = document.getElementById('grossWeight').value.trim();
-            
-            // Validaciones básicas
-            if (!productName) {
-                showToast('Por favor, insira o nome do produto', 'error');
-                return;
-            }
-            
-            if (!grossWeightInput) {
-                showToast('Por favor, insira o peso bruto', 'error');
-                return;
-            }
-            
-            // Procesar pesos
-            const weightValues = grossWeightInput
-                .split(/[,;\s]+/)
-                .map(w => parseFloat(w.replace(',', '.')))
-                .filter(w => !isNaN(w) && w > 0);
-            
-            if (weightValues.length === 0) {
-                showToast('Nenhum peso bruto válido encontrado', 'error');
-                return;
-            }
-            
-            // Calcular taras
-            const boxQty = parseFloat(document.getElementById('boxQuantity').value) || 0;
-            const boxTara = parseFloat(document.getElementById('boxTara').value) || 0;
-            const packagingQty = parseFloat(document.getElementById('packagingQuantity').value) || 0;
-            const packagingTara = parseFloat(document.getElementById('packagingTara').value) || 0;
-            const totalTara = (boxQty * boxTara) + (packagingQty * packagingTara);
-            
-            // Crear registros para cada peso
-            weightValues.forEach(grossWeight => {
-                const netWeight = grossWeight - totalTara;
-                const invoiceWeight = parseFloat(document.getElementById('invoiceWeight').value) || 0;
-                const difference = invoiceWeight > 0 ? netWeight - invoiceWeight : null;
-                
-                const weighing = {
-                    id: Date.now() + Math.random(),
-                    product: productName,
-                    supplier: document.getElementById('supplier').value.trim() || '',
-                    boxQuantity: boxQty,
-                    boxTara: boxTara,
-                    packagingQuantity: packagingQty,
-                    packagingTara: packagingTara,
-                    totalTara: totalTara,
-                    grossWeight: grossWeight,
-                    netWeight: netWeight,
-                    invoiceWeight: invoiceWeight,
-                    difference: difference,
-                    timestamp: Date.now(),
-                    dateTime: new Date().toLocaleString('pt-BR')
-                };
-                
-                weighings.unshift(weighing);
-            });
-            
-            // Guardar producto si es nuevo
-            if (!products[productName]) {
-                products[productName] = {
-                    boxTara: boxTara,
-                    packagingTara: packagingTara,
-                    lastUsed: Date.now()
-                };
-                updateProductList();
-            }
-            
-            // Guardar datos
-            saveData();
-            
-            // Actualizar UI
-            updateUI();
-            
-            // Limpiar formulario
-            clearForm();
-            
-            // Mostrar mensaje de éxito
-            showToast(`${weightValues.length} pesagem(ns) adicionada(s) com sucesso!`, 'success');
-        }
-        
-        // ===== BOTONES =====
-        
-        function setupButtons() {
-            // Botones de limpiar
-            document.getElementById('clearForm')?.addEventListener('click', clearForm);
-            
-            // Botones de calcular
-            document.getElementById('quickCalc')?.addEventListener('click', () => {
-                calculateTaras();
-                showToast('Cálculos atualizados', 'info');
-            });
-            
-            // Botones de salvar producto
-            document.getElementById('saveProduct')?.addEventListener('click', saveCurrentProduct);
-            
-            // Botones de ticket
-            document.getElementById('printTicketBtn')?.addEventListener('click', printThermalTicket);
-            document.getElementById('shareTicketBtn')?.addEventListener('click', shareWhatsApp);
-            document.getElementById('exportTicketBtn')?.addEventListener('click', exportToCSV);
-            document.getElementById('clearTicketBtn')?.addEventListener('click', clearAllWeighings);
-            document.getElementById('printThermalBtn')?.addEventListener('click', printThermalTicket);
-            document.getElementById('printFullBtn')?.addEventListener('click', printFullPage);
-            
-            // Botones de histórico
-            document.getElementById('exportHistoryBtn')?.addEventListener('click', exportToCSV);
-            document.getElementById('clearAllData')?.addEventListener('click', clearAllData);
-            document.getElementById('exportAllData')?.addEventListener('click', exportToCSV);
-        }
-        
-        // ===== FUNCIONES DE UI =====
-        
-        function updateUI() {
-            updateTicketTab();
-            updateHistoricoTab();
-            updateConfigData();
-        }
-        
-        function updatePesagemTab() {
-            // Actualizar lista de productos
-            updateProductList();
-        }
-        
-        function updateTicketTab() {
-            const recentWeighings = weighings.slice(0, 10);
-            const totalNetTicket = recentWeighings.reduce((sum, w) => sum + w.netWeight, 0);
-            
-            // Actualizar número de ticket y fecha
-            document.getElementById('ticketNumberCompact').textContent = String(weighings.length).padStart(3, '0');
-            document.getElementById('ticketDateCompact').textContent = new Date().toLocaleDateString('pt-BR');
-            
-            // Actualizar items del ticket
-            const ticketItemsEl = document.getElementById('ticketItemsCompact');
-            if (recentWeighings.length === 0) {
-                ticketItemsEl.innerHTML = `
-                    <div style="text-align: center; padding: 40px 0; color: #94a3b8;">
-                        <i class="fas fa-receipt" style="font-size: 40px; margin-bottom: 10px;"></i>
-                        <div>Nenhuma pesagem registrada</div>
-                    </div>
-                `;
-            } else {
-                let html = '';
-                recentWeighings.forEach(w => {
-                    const diffClass = w.difference >= 0 ? 'diff-positive' : 'diff-negative';
-                    const diffText = w.difference !== null ? 
-                        `(${w.difference >= 0 ? '+' : ''}${w.difference.toFixed(2)}kg)` : '';
-                    
-                    html += `
-                        <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px dashed #ccc;">
-                            <div style="font-weight: bold;">${w.product}</div>
-                            <div style="font-size: 12px; color: #64748b;">${w.supplier || '—'}</div>
-                            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-top: 5px;">
-                                <div>
-                                    <span>Bruto: ${w.grossWeight.toFixed(2)}kg</span><br>
-                                    <span>Nota: ${w.invoiceWeight > 0 ? w.invoiceWeight.toFixed(2) : '—'}kg</span><br>
-                                    <span>Tara: ${w.totalTara.toFixed(2)}kg</span>
-                                </div>
-                                <div style="text-align: right;">
-                                    <div>Líquido: ${w.netWeight.toFixed(2)}kg</div>
-                                    ${diffText ? `<div class="${diffClass}">${diffText}</div>` : ''}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-                ticketItemsEl.innerHTML = html;
-            }
-            
-            // Actualizar totales
-            document.getElementById('ticketTotalItems').textContent = recentWeighings.length;
-            document.getElementById('ticketTotalWeight').textContent = totalNetTicket.toFixed(3) + ' kg';
-        }
-        
-        function updateHistoricoTab() {
-            const recentWeighings = weighings.slice(0, 20);
-            const historyListEl = document.getElementById('historyList');
-            
-            if (weighings.length === 0) {
-                historyListEl.innerHTML = `
-                    <div style="text-align: center; padding: 60px 0; color: #94a3b8;">
-                        <i class="fas fa-weight-hanging" style="font-size: 40px; margin-bottom: 10px;"></i>
-                        <div>Nenhuma pesagem no histórico</div>
-                    </div>
-                `;
-                return;
-            }
-            
-            let html = '';
-            recentWeighings.forEach(w => {
-                const date = new Date(w.timestamp);
-                const timeStr = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-                const dateStr = date.toLocaleDateString('pt-BR');
-                
-                const diffClass = w.difference >= 0 ? 'diff-positive' : 'diff-negative';
-                const diffText = w.difference !== null ? 
-                    `${w.difference >= 0 ? '+' : ''}${w.difference.toFixed(2)}kg` : '—';
-                
-                html += `
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; padding: 12px; border-bottom: 1px solid #e2e8f0;">
-                        <div style="flex: 1;">
-                            <div style="font-weight: 500; margin-bottom: 4px;">${w.product}</div>
-                            <div style="font-size: 11px; color: #64748b; margin-bottom: 6px;">
-                                ${w.supplier || '—'} • ${dateStr} ${timeStr}
-                            </div>
-                            <div style="font-size: 12px;">
-                                <span>Bruto: ${w.grossWeight.toFixed(2)}kg</span> | 
-                                <span>Nota: ${w.invoiceWeight > 0 ? w.invoiceWeight.toFixed(2) : '—'}kg</span><br>
-                                <span>Tara: ${w.totalTara.toFixed(2)}kg</span>
-                            </div>
-                        </div>
-                        <div style="text-align: right;">
-                            <div style="font-family: 'Roboto Mono', monospace; font-weight: 600; font-size: 14px;">
-                                ${w.netWeight.toFixed(2)}kg
-                            </div>
-                            <div style="font-size: 12px;" class="${diffClass}">
-                                ${diffText}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            historyListEl.innerHTML = html;
-        }
-        
-        function updateConfigData() {
-            document.getElementById('dataCount').textContent = weighings.length;
-            document.getElementById('productCount').textContent = Object.keys(products).length;
-        }
-        
-        function updateProductList() {
-            const productListEl = document.getElementById('productList');
-            productListEl.innerHTML = '';
-            Object.keys(products)
-                .sort()
-                .forEach(product => {
-                    const option = document.createElement('option');
-                    option.value = product;
-                    productListEl.appendChild(option);
-                });
-        }
-        
-        function updateDateTime() {
-            const now = new Date();
-            document.getElementById('currentDate').textContent = now.toLocaleDateString('pt-BR', {
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric'
-            });
-            document.getElementById('currentTime').textContent = now.toLocaleTimeString('pt-BR', {
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        }
-        
-        // ===== ACCIONES =====
-        
-        function clearForm() {
-            document.getElementById('product').value = '';
-            document.getElementById('supplier').value = '';
-            document.getElementById('boxQuantity').value = '0';
-            document.getElementById('boxTara').value = '';
-            document.getElementById('packagingQuantity').value = '0';
-            document.getElementById('packagingTara').value = '';
-            document.getElementById('grossWeight').value = '';
-            document.getElementById('invoiceWeight').value = '';
-            
-            const statusDot = document.querySelector('#productStatus .status-dot');
-            const statusText = document.querySelector('#productStatus span:last-child');
-            statusDot.className = 'status-dot';
-            statusText.textContent = 'Novo produto';
-            
-            calculateTaras();
-            showToast('Formulário limpo', 'info');
-        }
-        
-        function saveCurrentProduct() {
-            const productName = document.getElementById('product').value.trim();
-            if (!productName) {
-                showToast('Digite o nome do produto primeiro', 'warning');
-                return;
-            }
-            
-            const boxTara = parseFloat(document.getElementById('boxTara').value) || 0;
-            const packagingTara = parseFloat(document.getElementById('packagingTara').value) || 0;
-            
-            products[productName] = {
-                boxTara: boxTara,
-                packagingTara: packagingTara,
-                lastUsed: Date.now()
-            };
-            
-            saveData();
-            updateProductList();
-            
-            const statusDot = document.querySelector('#productStatus .status-dot');
-            const statusText = document.querySelector('#productStatus span:last-child');
-            statusDot.className = 'status-dot known';
-            statusText.textContent = 'Produto salvo';
-            showToast(`"${productName}" salvo com sucesso!`, 'success');
-        }
-        
-        function clearAllWeighings() {
-            if (weighings.length === 0) {
-                showToast('Nenhuma pesagem para limpar', 'warning');
-                return;
-            }
-            
-            if (confirm(`Limpar todas as ${weighings.length} pesagens?`)) {
-                weighings = [];
-                saveData();
-                updateUI();
-                showToast('Todas as pesagens foram limpas', 'success');
-            }
-        }
-        
-        function clearAllData() {
-            if (confirm('⚠️ ATENÇÃO! Isso vai apagar TODOS os dados. Tem certeza?')) {
-                localStorage.clear();
-                products = {};
-                weighings = [];
-                updateUI();
-                updateProductList();
-                showToast('Todos os dados foram apagados', 'success');
-            }
-        }
-        
-        // ===== IMPRESIÓN =====
-        
-        function printThermalTicket() {
-            if (weighings.length === 0) {
-                showToast('Nenhuma pesagem para imprimir', 'warning');
-                return;
-            }
-            
-            const recentWeighings = weighings.slice(0, 10);
-            const totalNet = recentWeighings.reduce((sum, w) => sum + w.netWeight, 0);
-            const totalTara = recentWeighings.reduce((sum, w) => sum + w.totalTara, 0);
-            
-            const printContent = `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Ticket de Pesagem</title>
-                    <style>
-                        @media print {
-                            @page { margin: 0; size: 80mm auto; }
-                            body { margin: 5mm; padding: 0; width: 70mm; font-family: 'Courier New', monospace; font-size: 12px; }
-                        }
-                        body { margin: 5mm; padding: 0; width: 70mm; font-family: 'Courier New', monospace; font-size: 12px; }
-                        .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 5px; margin-bottom: 10px; }
-                        .item { margin: 5px 0; padding: 5px 0; border-bottom: 1px dashed #ccc; }
-                        .footer { margin-top: 10px; border-top: 2px solid #000; padding-top: 10px; text-align: center; }
-                    </style>
-                </head>
-                <body>
-                    <div class="header">
-                        <h3>CONTROLE DE PESAGEM</h3>
-                        <p>${new Date().toLocaleDateString('pt-BR')}</p>
-                        <p>Ticket #${String(weighings.length).padStart(3, '0')}</p>
-                    </div>
-                    
-                    ${recentWeighings.map(w => {
-                        const diffText = w.difference !== null ? 
-                            ` (${w.difference >= 0 ? '+' : ''}${w.difference.toFixed(2)}kg)` : '';
-                        
-                        return `
-                            <div class="item">
-                                <div><strong>${w.product}</strong></div>
-                                <div style="font-size: 11px;">${w.supplier || '—'}</div>
-                                <div style="display: flex; justify-content: space-between; font-size: 11px;">
-                                    <span>Bruto: ${w.grossWeight.toFixed(2)}kg</span>
-                                    ${w.invoiceWeight > 0 ? `<span>Nota: ${w.invoiceWeight.toFixed(2)}kg</span>` : ''}
-                                </div>
-                                <div style="font-size: 11px;">Tara: ${w.totalTara.toFixed(2)}kg</div>
-                                <div style="text-align: right; font-weight: bold;">
-                                    Líquido: ${w.netWeight.toFixed(2)}kg${diffText}
-                                </div>
-                            </div>
-                        `;
-                    }).join('')}
-                    
-                    <div class="footer">
-                        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px;">
-                            <span>Total Tara:</span>
-                            <span>${totalTara.toFixed(2)} kg</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 5px;">
-                            <span>Total Itens:</span>
-                            <span>${recentWeighings.length}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 15px;">
-                            <span>Total Líquido:</span>
-                            <span>${totalNet.toFixed(2)} kg</span>
-                        </div>
-                        <div style="border-top: 1px solid #000; padding-top: 10px; text-align: center;">
-                            __________________________
-                            <div style="font-size: 10px; margin-top: 5px;">Responsável</div>
-                        </div>
-                    </div>
-                    
-                    <script>
-                        setTimeout(() => window.print(), 300);
-                        window.onafterprint = () => setTimeout(() => window.close(), 500);
-                    <\/script>
-                </body>
-                </html>
-            `;
-            
-            const printWindow = window.open('', '_blank', 'width=400,height=600');
-            printWindow.document.write(printContent);
-            printWindow.document.close();
-        }
-        
-        function printFullPage() {
-            if (weighings.length === 0) {
-                showToast('Nenhuma pesagem para imprimir', 'warning');
-                return;
-            }
-            
-            const recentWeighings = weighings.slice(0, 50);
-            const totalNet = recentWeighings.reduce((sum, w) => sum + w.netWeight, 0);
-            const totalTara = recentWeighings.reduce((sum, w) => sum + w.totalTara, 0);
-            
-            const printContent = `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Relatório de Pesagem</title>
-                    <style>
-                        @media print { @page { margin: 15mm; } }
-                        body { font-family: 'Inter', sans-serif; line-height: 1.6; color: #333; max-width: 210mm; margin: 0 auto; padding: 20px; }
-                        .header { text-align: center; border-bottom: 3px solid #2563eb; padding-bottom: 20px; margin-bottom: 30px; }
-                        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-                        th { background: #2563eb; color: white; padding: 12px 8px; text-align: left; }
-                        td { padding: 10px 8px; border-bottom: 1px solid #e2e8f0; }
-                        .diff-positive { color: #10b981; }
-                        .diff-negative { color: #ef4444; }
-                        .summary { display: flex; justify-content: space-between; margin: 20px 0; padding: 15px; background: #f8fafc; border-radius: 8px; }
-                    </style>
-                </head>
-                <body>
-                    <div class="header">
-                        <h1>CONTROLE DE PESAGEM</h1>
-                        <p>Relatório Completo - ${new Date().toLocaleDateString('pt-BR')}</p>
-                        <p>Ticket #${String(weighings.length).padStart(3, '0')}</p>
-                    </div>
-                    
-                    <div class="summary">
-                        <div>
-                            <div style="font-size: 14px; color: #64748b;">Total Itens</div>
-                            <div style="font-size: 24px; font-weight: bold; color: #2563eb;">${recentWeighings.length}</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 14px; color: #64748b;">Tara Total</div>
-                            <div style="font-size: 24px; font-weight: bold; color: #2563eb;">${totalTara.toFixed(2)} kg</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 14px; color: #64748b;">Peso Líquido Total</div>
-                            <div style="font-size: 24px; font-weight: bold; color: #2563eb;">${totalNet.toFixed(2)} kg</div>
-                        </div>
-                    </div>
-                    
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Produto</th>
-                                <th>Fornecedor</th>
-                                <th>Bruto</th>
-                                <th>Nota</th>
-                                <th>Tara</th>
-                                <th>Líquido</th>
-                                <th>Diferença</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${recentWeighings.map(w => {
-                                const diffClass = w.difference >= 0 ? 'diff-positive' : 'diff-negative';
-                                const diffText = w.difference !== null ? 
-                                    `${w.difference >= 0 ? '+' : ''}${w.difference.toFixed(2)}kg` : '—';
-                                
-                                return `
-                                    <tr>
-                                        <td>${w.product}</td>
-                                        <td>${w.supplier || '—'}</td>
-                                        <td>${w.grossWeight.toFixed(2)}kg</td>
-                                        <td>${w.invoiceWeight > 0 ? w.invoiceWeight.toFixed(2) + 'kg' : '—'}</td>
-                                        <td>${w.totalTara.toFixed(2)}kg</td>
-                                        <td><strong>${w.netWeight.toFixed(2)}kg</strong></td>
-                                        <td class="${diffClass}">${diffText}</td>
-                                    </tr>
-                                `;
-                            }).join('')}
-                        </tbody>
-                        <tfoot>
-                            <tr style="background: #e0f2fe; font-weight: bold;">
-                                <td colspan="4">TOTAL</td>
-                                <td>${totalTara.toFixed(2)}kg</td>
-                                <td>${totalNet.toFixed(2)}kg</td>
-                                <td>—</td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                    
-                    <script>
-                        setTimeout(() => window.print(), 500);
-                        window.onafterprint = () => window.close();
-                    <\/script>
-                </body>
-                </html>
-            `;
-            
-            const printWindow = window.open('', '_blank', 'width=1200,height=800');
-            printWindow.document.write(printContent);
-            printWindow.document.close();
-        }
-        
-        // ===== WHATSAPP =====
-        
-        function shareWhatsApp() {
-            if (weighings.length === 0) {
-                showToast('Nenhuma pesagem para compartilhar', 'warning');
-                return;
-            }
-            
-            const recentWeighings = weighings.slice(0, 5);
-            const totalNet = recentWeighings.reduce((sum, w) => sum + w.netWeight, 0);
-            const totalTara = recentWeighings.reduce((sum, w) => sum + w.totalTara, 0);
-            
-            let message = `*CONTROLE DE PESAGEM*\n`;
-            message += `*Data:* ${new Date().toLocaleDateString('pt-BR')}\n`;
-            message += `*Ticket:* #${String(weighings.length).padStart(3, '0')}\n`;
-            message += `*Itens Hoje:* ${recentWeighings.length}\n`;
-            message += `*Tara Total:* ${totalTara.toFixed(2)}kg\n\n`;
-            
-            recentWeighings.forEach(w => {
-                message += `*${w.product}*\n`;
-                message += `Fornecedor: ${w.supplier || '—'}\n`;
-                message += `Bruto: ${w.grossWeight.toFixed(2)}kg\n`;
-                message += `Nota: ${w.invoiceWeight > 0 ? w.invoiceWeight.toFixed(2) : '—'}kg\n`;
-                message += `Tara: ${w.totalTara.toFixed(2)}kg\n`;
-                message += `Líquido: ${w.netWeight.toFixed(2)}kg\n`;
-                if (w.difference !== null) {
-                    message += `Diferença: ${w.difference >= 0 ? '+' : ''}${w.difference.toFixed(2)}kg\n`;
-                }
-                message += `\n`;
-            });
-            
-            message += `*TOTAL LÍQUIDO:* ${totalNet.toFixed(2)} kg\n`;
-            message += `_Enviado via Controle de Pesagem_`;
-            
-            const encoded = encodeURIComponent(message);
-            window.open(`https://wa.me/?text=${encoded}`, '_blank');
-        }
-        
-        // ===== EXPORTACIÓN =====
-        
-        function exportToCSV() {
-            if (weighings.length === 0) {
-                showToast('Nenhuma pesagem para exportar', 'warning');
-                return;
-            }
-            
-            const headers = ['Produto', 'Fornecedor', 'Caixas', 'Tara Caixa', 'Embalagens', 'Tara Embalagem', 'Tara Total', 'Peso Bruto', 'Peso Líquido', 'Peso Nota', 'Diferença', 'Data/Hora'];
-            
-            const csvRows = [
-                headers.join(';'),
-                ...weighings.map(w => [
-                    `"${w.product}"`,
-                    `"${w.supplier || ''}"`,
-                    w.boxQuantity,
-                    w.boxTara.toFixed(3).replace('.', ','),
-                    w.packagingQuantity,
-                    w.packagingTara.toFixed(3).replace('.', ','),
-                    w.totalTara.toFixed(3).replace('.', ','),
-                    w.grossWeight.toFixed(3).replace('.', ','),
-                    w.netWeight.toFixed(3).replace('.', ','),
-                    (w.invoiceWeight || 0).toFixed(3).replace('.', ','),
-                    (w.difference || 0).toFixed(3).replace('.', ','),
-                    `"${w.dateTime}"`
-                ].join(';'))
-            ];
-            
-            const csvString = '\uFEFF' + csvRows.join('\n');
-            const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-            
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `pesagem_${new Date().toISOString().split('T')[0]}.csv`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(link.href);
-            
-            showToast('CSV exportado com sucesso', 'success');
-        }
-        
-        // ===== TOAST =====
-        
-        function showToast(message, type = 'info') {
-            const container = document.getElementById('toastContainer');
-            if (!container) return;
-            
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.innerHTML = `
-                <i class="fas fa-${type === 'success' ? 'check-circle' : 
-                                  type === 'error' ? 'exclamation-circle' : 
-                                  type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
-                <span>${message}</span>
-            `;
-            
-            container.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.style.animation = 'slideIn 0.3s ease reverse';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
+        });
     </script>
 </body>
 </html>

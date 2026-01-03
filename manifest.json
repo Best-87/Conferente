@@ -2,25 +2,94 @@
   "name": "Controle de Pesagem",
   "short_name": "Pesagem",
   "start_url": "./index.html",
-  "scope": "./",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#2563eb",
   "theme_color": "#2563eb",
   "description": "Sistema de controle de pesagem para armazém",
-  "orientation": "portrait",
-  "categories": ["business", "productivity"],
+  "orientation": "portrait-primary",
+  "categories": ["business", "productivity", "utilities"],
+  "prefer_related_applications": false,
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "icon-512.png",
+      "src": "icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshots/screenshot1.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Tela principal de pesagem"
+    },
+    {
+      "src": "screenshots/screenshot2.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Histórico de pesagens"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nova Pesagem",
+      "short_name": "Pesar",
+      "description": "Adicionar nova pesagem",
+      "url": "./index.html?tab=pesar",
+      "icons": [{ "src": "icons/shortcut-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Ver Ticket",
+      "short_name": "Ticket",
+      "description": "Visualizar ticket atual",
+      "url": "./index.html?tab=ticket",
+      "icons": [{ "src": "icons/shortcut-96x96.png", "sizes": "96x96" }]
     }
   ]
 }

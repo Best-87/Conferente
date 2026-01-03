@@ -1,0 +1,25 @@
+{
+  "name": "controle-pesagem",
+  "version": "1.0.0",
+  "description": "Sistema de controle de pesagem para armazém",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server -c-1 -p 8080",
+    "generate-icons": "node create-icons.js",
+    "deploy": "node deploy.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "pesagem",
+    "armazém",
+    "controle",
+    "pwa",
+    "android"
+  ],
+  "author": "Tu Nombre",
+  "license": "MIT",
+  "dependencies": {
+    "canvas": "^2.11.2"
+  },
+  "devDependencies": {}
+}
