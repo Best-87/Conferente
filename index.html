@@ -206,22 +206,47 @@
             border-radius: 2px;
         }
         
-        /* ===== CONTENIDO PRINCIPAL SIN SCROLL ===== */
+        /* ===== CONTENIDO PRINCIPAL ===== */
         .main-content {
             flex: 1;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
             width: 100%;
         }
         
         .tab-content {
             display: none;
-            height: 100%;
+            flex: 1;
+            flex-direction: column;
+            overflow: hidden;
         }
         
         .tab-content.active {
-            display: block;
+            display: flex;
+        }
+        
+        /* ===== PESTAÑA PESAR (igual) ===== */
+        .pesar-content {
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 12px;
+        }
+        
+        /* ===== PESTAÑA TICKET (igual) ===== */
+        .ticket-content {
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 12px;
+        }
+        
+        /* ===== PESTAÑA HISTORICO - MODIFICADA ===== */
+        .historico-content {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+            padding: 12px;
         }
         
         /* ===== FORMULARIO COMPACTO ===== */
@@ -232,8 +257,6 @@
             border: 1px solid var(--border);
             box-shadow: var(--shadow-sm);
             margin-bottom: 12px;
-            /* AÑADIDO: Eliminar margin-bottom para evitar scroll */
-            margin-bottom: 0;
         }
         
         .form-title {
@@ -436,8 +459,6 @@
             grid-template-columns: repeat(4, 1fr);
             gap: 8px;
             margin-top: 12px;
-            /* AÑADIDO: Reducir el margen superior para evitar scroll */
-            margin-top: 8px;
         }
         
         .btn-icon-action {
@@ -521,24 +542,47 @@
             font-weight: 700;
         }
         
-        /* ===== HISTORIAL MEJORADO ===== */
+        /* ===== HISTORIAL A PANTALLA COMPLETA - MODIFICADO ===== */
+        .history-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        
+        .history-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-shrink: 0;
+        }
+        
         .history-container {
+            flex: 1;
             background: var(--surface);
             border-radius: var(--radius-md);
             border: 1px solid var(--border);
-            padding: 12px;
-            margin-top: 12px;
-            max-height: 400px;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .history-scroll-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
         }
         
         .history-item {
             background: var(--background);
             border-radius: var(--radius-sm);
-            padding: 12px;
+            padding: 14px;
             margin-bottom: 10px;
             border-left: 4px solid var(--primary);
             border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
         }
         
         .history-item-header {
@@ -550,46 +594,72 @@
         
         .history-product {
             font-weight: 600;
-            font-size: 13px;
+            font-size: 14px;
             color: var(--text-primary);
         }
         
         .history-date {
-            font-size: 10px;
+            font-size: 11px;
             color: var(--text-secondary);
             font-family: 'Roboto Mono', monospace;
+            background: var(--surface);
+            padding: 2px 6px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
         }
         
         .history-details {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-            font-size: 11px;
+            gap: 10px;
+            font-size: 12px;
         }
         
         .history-detail {
             display: flex;
             justify-content: space-between;
-            padding: 4px 0;
+            padding: 6px 0;
             border-bottom: 1px dashed var(--border);
         }
         
         .history-detail-label {
             color: var(--text-secondary);
+            font-weight: 500;
         }
         
         .history-detail-value {
-            font-weight: 500;
+            font-weight: 600;
             font-family: 'Roboto Mono', monospace;
         }
         
         .history-supplier {
-            font-size: 10px;
+            font-size: 11px;
             color: var(--text-secondary);
-            margin-top: 6px;
+            margin: 8px 0;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
+            padding: 4px 8px;
+            background: var(--surface);
+            border-radius: 6px;
+            border: 1px solid var(--border);
+        }
+        
+        .no-history {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 40px 20px;
+            color: var(--text-tertiary);
+            text-align: center;
+        }
+        
+        .no-history i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
         }
         
         /* ===== RESPONSIVE COMPACTO ===== */
@@ -629,14 +699,15 @@
                 font-size: 16px;
             }
             
-            .main-content {
+            .main-content,
+            .pesar-content,
+            .ticket-content,
+            .historico-content {
                 padding: 10px;
             }
             
             .form-container {
                 padding: 12px;
-                /* AÑADIDO: También en móvil */
-                margin-bottom: 0;
             }
             
             .form-title {
@@ -672,8 +743,6 @@
             
             .action-buttons-horizontal {
                 gap: 6px;
-                /* AÑADIDO: También en móvil */
-                margin-top: 6px;
             }
             
             .btn-icon-action {
@@ -683,6 +752,10 @@
             
             .history-details {
                 grid-template-columns: 1fr;
+            }
+            
+            .history-buttons {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
         
@@ -706,6 +779,10 @@
             .tara-item {
                 flex: 1 0 calc(50% - 6px);
                 margin-bottom: 4px;
+            }
+            
+            .history-buttons {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
         
@@ -811,173 +888,180 @@
         <div class="main-content">
             <!-- Pestaña 1: Pesar - Todo en pantalla sin scroll -->
             <section class="tab-content active" id="tab-pesar">
-                <div class="form-container">
-                    <div class="form-title">
-                        <i class="fas fa-plus-circle"></i>
-                        Nova Pesagem
-                        <div id="productStatus" class="status-badge">
-                            <span class="status-dot"></span>
-                            <span>Novo produto</span>
+                <div class="pesar-content">
+                    <div class="form-container">
+                        <div class="form-title">
+                            <i class="fas fa-plus-circle"></i>
+                            Nova Pesagem
+                            <div id="productStatus" class="status-badge">
+                                <span class="status-dot"></span>
+                                <span>Novo produto</span>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <form id="pesagemForm">
-                        <!-- Fornecedor y Producto EN LÍNEA HORIZONTAL -->
-                        <div class="supplier-product-row">
-                            <div class="horizontal-group">
-                                <label for="supplier"><i class="fas fa-truck"></i> Fornecedor</label>
-                                <input type="text" id="supplier" placeholder="Nome do fornecedor" list="supplierList">
-                                <datalist id="supplierList"></datalist>
+                        
+                        <form id="pesagemForm">
+                            <!-- Fornecedor y Producto EN LÍNEA HORIZONTAL -->
+                            <div class="supplier-product-row">
+                                <div class="horizontal-group">
+                                    <label for="supplier"><i class="fas fa-truck"></i> Fornecedor</label>
+                                    <input type="text" id="supplier" placeholder="Nome do fornecedor" list="supplierList">
+                                    <datalist id="supplierList"></datalist>
+                                </div>
+                                
+                                <div class="horizontal-group">
+                                    <label for="product"><i class="fas fa-box"></i> Produto</label>
+                                    <input type="text" id="product" placeholder="Nome do produto" autocomplete="off" list="productList">
+                                    <datalist id="productList"></datalist>
+                                </div>
                             </div>
                             
-                            <div class="horizontal-group">
-                                <label for="product"><i class="fas fa-box"></i> Produto</label>
-                                <input type="text" id="product" placeholder="Nome do produto" autocomplete="off" list="productList">
-                                <datalist id="productList"></datalist>
-                            </div>
-                        </div>
-                        
-                        <!-- Pesos EN LÍNEA HORIZONTAL -->
-                        <div class="weights-row">
-                            <div class="horizontal-group">
-                                <label for="grossWeight"><i class="fas fa-weight-hanging"></i> Peso Bruto (kg)</label>
-                                <input type="text" id="grossWeight" placeholder="Ex: 15.5, 12.3">
-                                <small class="hint">Separar por vírgula</small>
-                            </div>
-                            <div class="horizontal-group">
-                                <label for="invoiceWeight"><i class="fas fa-file-invoice"></i> Peso Nota (kg)</label>
-                                <input type="number" id="invoiceWeight" step="0.001" placeholder="Peso declarado">
-                            </div>
-                        </div>
-                        
-                        <!-- Caixas -->
-                        <div class="form-group">
-                            <label><i class="fas fa-cube"></i> Caixas</label>
-                            <div class="input-row">
-                                <div class="input-half">
-                                    <small>Quantidade</small>
-                                    <input type="number" id="boxQuantity" value="0" min="0">
+                            <!-- Pesos EN LÍNEA HORIZONTAL -->
+                            <div class="weights-row">
+                                <div class="horizontal-group">
+                                    <label for="grossWeight"><i class="fas fa-weight-hanging"></i> Peso Bruto (kg)</label>
+                                    <input type="text" id="grossWeight" placeholder="Ex: 15.5, 12.3">
+                                    <small class="hint">Separar por vírgula</small>
                                 </div>
-                                <div class="input-half">
-                                    <small>Tara/Unid. (kg)</small>
-                                    <input type="number" id="boxTara" step="0.001" placeholder="0.000">
+                                <div class="horizontal-group">
+                                    <label for="invoiceWeight"><i class="fas fa-file-invoice"></i> Peso Nota (kg)</label>
+                                    <input type="number" id="invoiceWeight" step="0.001" placeholder="Peso declarado">
                                 </div>
                             </div>
-                        </div>
-                        
-                        <!-- Embalagens -->
-                        <div class="form-group">
-                            <label><i class="fas fa-layer-group"></i> Embalagens</label>
-                            <div class="input-row">
-                                <div class="input-half">
-                                    <small>Quantidade</small>
-                                    <input type="number" id="packagingQuantity" value="0" min="0">
+                            
+                            <!-- Caixas -->
+                            <div class="form-group">
+                                <label><i class="fas fa-cube"></i> Caixas</label>
+                                <div class="input-row">
+                                    <div class="input-half">
+                                        <small>Quantidade</small>
+                                        <input type="number" id="boxQuantity" value="0" min="0">
+                                    </div>
+                                    <div class="input-half">
+                                        <small>Tara/Unid. (kg)</small>
+                                        <input type="number" id="boxTara" step="0.001" placeholder="0.000">
+                                    </div>
                                 </div>
-                                <div class="input-half">
-                                    <small>Tara/Unid. (kg)</small>
-                                    <input type="number" id="packagingTara" step="0.001" placeholder="0.000">
+                            </div>
+                            
+                            <!-- Embalagens -->
+                            <div class="form-group">
+                                <label><i class="fas fa-layer-group"></i> Embalagens</label>
+                                <div class="input-row">
+                                    <div class="input-half">
+                                        <small>Quantidade</small>
+                                        <input type="number" id="packagingQuantity" value="0" min="0">
+                                    </div>
+                                    <div class="input-half">
+                                        <small>Tara/Unid. (kg)</small>
+                                        <input type="number" id="packagingTara" step="0.001" placeholder="0.000">
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <!-- Totales de Tara -->
-                        <div class="tara-totals">
-                            <div class="tara-item">
-                                <span class="tara-label">Total Caixas</span>
-                                <span class="tara-value" id="totalBoxTara">0.000 kg</span>
+                            
+                            <!-- Totales de Tara -->
+                            <div class="tara-totals">
+                                <div class="tara-item">
+                                    <span class="tara-label">Total Caixas</span>
+                                    <span class="tara-value" id="totalBoxTara">0.000 kg</span>
+                                </div>
+                                <div class="tara-item">
+                                    <span class="tara-label">Total Embal.</span>
+                                    <span class="tara-value" id="totalPackagingTara">0.000 kg</span>
+                                </div>
+                                <div class="tara-item">
+                                    <span class="tara-label">Tara Total</span>
+                                    <span class="tara-value" id="totalTara">0.000 kg</span>
+                                </div>
                             </div>
-                            <div class="tara-item">
-                                <span class="tara-label">Total Embal.</span>
-                                <span class="tara-value" id="totalPackagingTara">0.000 kg</span>
+                            
+                            <!-- Botones de Acción -->
+                            <div class="action-buttons-horizontal">
+                                <button type="button" class="btn-icon-action" id="clearForm" title="Limpar">
+                                    <i class="fas fa-eraser"></i>
+                                </button>
+                                <button type="submit" class="btn-icon-action primary" title="Adicionar">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                                <button type="button" class="btn-icon-action" id="quickCalc" title="Calcular">
+                                    <i class="fas fa-calculator"></i>
+                                </button>
+                                <button type="button" class="btn-icon-action" id="saveProduct" title="Salvar Produto">
+                                    <i class="fas fa-save"></i>
+                                </button>
                             </div>
-                            <div class="tara-item">
-                                <span class="tara-label">Tara Total</span>
-                                <span class="tara-value" id="totalTara">0.000 kg</span>
-                            </div>
-                        </div>
-                        
-                        <!-- Botones de Acción -->
-                        <div class="action-buttons-horizontal">
-                            <button type="button" class="btn-icon-action" id="clearForm" title="Limpar">
-                                <i class="fas fa-eraser"></i>
-                            </button>
-                            <button type="submit" class="btn-icon-action primary" title="Adicionar">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                            <button type="button" class="btn-icon-action" id="quickCalc" title="Calcular">
-                                <i class="fas fa-calculator"></i>
-                            </button>
-                            <button type="button" class="btn-icon-action" id="saveProduct" title="Salvar Produto">
-                                <i class="fas fa-save"></i>
-                            </button>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </section>
             
             <!-- Pestaña 2: Ticket compacto -->
             <section class="tab-content" id="tab-ticket">
-                <div class="ticket-section">
-                    <div class="form-title">
-                        <i class="fas fa-receipt"></i>
-                        Ticket Atual
-                    </div>
-                    
-                    <!-- Botones del ticket -->
-                    <div class="action-buttons-horizontal">
-                        <button class="btn-icon-action" id="printTicketBtn" title="Imprimir">
-                            <i class="fas fa-print"></i>
-                        </button>
-                        <button class="btn-icon-action" id="shareTicketBtn" title="WhatsApp">
-                            <i class="fab fa-whatsapp"></i>
-                        </button>
-                        <button class="btn-icon-action" id="exportTicketBtn" title="Exportar">
-                            <i class="fas fa-file-export"></i>
-                        </button>
-                        <button class="btn-icon-action" id="clearTicketBtn" title="Limpar">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                    
-                    <!-- Ticket compacto MEJORADO -->
-                    <div class="ticket-preview">
-                        <div class="ticket-header">
-                            <div>CONTROLE DE PESAGEM</div>
-                            <div>Ticket #<span id="ticketNumberCompact2">001</span></div>
-                            <div id="ticketDateCompact">03/01/2026</div>
+                <div class="ticket-content">
+                    <div class="ticket-section">
+                        <div class="form-title">
+                            <i class="fas fa-receipt"></i>
+                            Ticket Atual
                         </div>
                         
-                        <div class="ticket-body" id="ticketItemsCompact">
-                            <div style="text-align: center; padding: 20px 0; color: var(--text-tertiary);">
-                                <i class="fas fa-receipt" style="font-size: 24px; margin-bottom: 8px; opacity: 0.5;"></i>
-                                <div style="font-size: 12px;">Nenhuma pesagem registrada</div>
-                            </div>
+                        <!-- Botones del ticket -->
+                        <div class="action-buttons-horizontal">
+                            <button class="btn-icon-action" id="printTicketBtn" title="Imprimir">
+                                <i class="fas fa-print"></i>
+                            </button>
+                            <button class="btn-icon-action" id="shareTicketBtn" title="WhatsApp">
+                                <i class="fab fa-whatsapp"></i>
+                            </button>
+                            <button class="btn-icon-action" id="exportTicketBtn" title="Exportar">
+                                <i class="fas fa-file-export"></i>
+                            </button>
+                            <button class="btn-icon-action" id="clearTicketBtn" title="Limpar">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </div>
                         
-                        <div class="ticket-footer" style="margin-top: 12px; padding-top: 8px; border-top: 1px solid var(--border);">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 11px;">
-                                <span style="color: var(--text-secondary);">Total Itens:</span>
-                                <span id="ticketTotalItems" style="font-weight: 700;">0</span>
+                        <!-- Ticket compacto MEJORADO -->
+                        <div class="ticket-preview">
+                            <div class="ticket-header">
+                                <div>CONTROLE DE PESAGEM</div>
+                                <div>Ticket #<span id="ticketNumberCompact2">001</span></div>
+                                <div id="ticketDateCompact">03/01/2026</div>
                             </div>
-                            <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 13px;">
-                                <span style="color: var(--text-primary);">TOTAL LÍQUIDO:</span>
-                                <span id="ticketTotalWeight" style="color: var(--primary);">0.000 kg</span>
+                            
+                            <div class="ticket-body" id="ticketItemsCompact">
+                                <div style="text-align: center; padding: 20px 0; color: var(--text-tertiary);">
+                                    <i class="fas fa-receipt" style="font-size: 24px; margin-bottom: 8px; opacity: 0.5;"></i>
+                                    <div style="font-size: 12px;">Nenhuma pesagem registrada</div>
+                                </div>
+                            </div>
+                            
+                            <div class="ticket-footer" style="margin-top: 12px; padding-top: 8px; border-top: 1px solid var(--border);">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 11px;">
+                                    <span style="color: var(--text-secondary);">Total Itens:</span>
+                                    <span id="ticketTotalItems" style="font-weight: 700;">0</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 13px;">
+                                    <span style="color: var(--text-primary);">TOTAL LÍQUIDO:</span>
+                                    <span id="ticketTotalWeight" style="color: var(--primary);">0.000 kg</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
             
-            <!-- Pestaña 3: Histórico compacto MEJORADO -->
+            <!-- Pestaña 3: Histórico A PANTALLA COMPLETA -->
             <section class="tab-content" id="tab-historico">
-                <div>
-                    <div class="form-title">
-                        <i class="fas fa-history"></i>
-                        Histórico de Pesagens
+                <div class="historico-content">
+                    <!-- Header del histórico -->
+                    <div class="history-header">
+                        <div class="form-title">
+                            <i class="fas fa-history"></i>
+                            Histórico de Pesagens
+                        </div>
                     </div>
                     
                     <!-- Botones del histórico -->
-                    <div class="action-buttons-horizontal">
+                    <div class="history-buttons">
                         <button class="btn-icon-action" id="filterTodayBtn" title="Hoje">
                             <i class="fas fa-calendar-day"></i>
                         </button>
@@ -992,11 +1076,16 @@
                         </button>
                     </div>
                     
-                    <!-- Lista del histórico MEJORADA -->
-                    <div id="historyList" class="history-container">
-                        <div style="text-align: center; padding: 40px 0; color: var(--text-tertiary);">
-                            <i class="fas fa-weight-hanging" style="font-size: 32px; margin-bottom: 12px; opacity: 0.5;"></i>
-                            <div style="font-size: 12px;">Nenhuma pesagem no histórico</div>
+                    <!-- Contenedor del histórico (ocupará todo el espacio restante) -->
+                    <div class="history-container">
+                        <div class="history-scroll-area" id="historyList">
+                            <div class="no-history">
+                                <i class="fas fa-weight-hanging"></i>
+                                <div style="font-size: 14px; margin-bottom: 8px;">Nenhuma pesagem no histórico</div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">
+                                    Adicione pesagens na aba "Pesar"
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1007,7 +1096,7 @@
     <!-- Toast Container -->
     <div id="toastContainer"></div>
 
-    <!-- JavaScript ACTUALIZADO CON TARAS POR FORNECEDOR-PRODUTO -->
+    <!-- JavaScript ACTUALIZADO CON HISTORIAL A PANTALLA COMPLETA -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Elementos del DOM para cálculos
@@ -1572,7 +1661,7 @@
                 showToast('Histórico exportado como CSV', 'success');
             });
             
-            // ===== FUNCIÓN MEJORADA PARA CARGAR HISTORIAL =====
+            // ===== FUNCIÓN MEJORADA PARA CARGAR HISTORIAL A PANTALLA COMPLETA =====
             function loadHistoryWithColors(filter = 'all') {
                 try {
                     const weighings = JSON.parse(localStorage.getItem('weighings')) || [];
@@ -1598,9 +1687,12 @@
                     
                     if (filteredWeighings.length === 0) {
                         historyList.innerHTML = `
-                            <div style="text-align: center; padding: 40px 0; color: var(--text-tertiary);">
-                                <i class="fas fa-weight-hanging" style="font-size: 32px; margin-bottom: 12px; opacity: 0.5;"></i>
-                                <div style="font-size: 12px;">Nenhuma pesagem no histórico ${filter !== 'all' ? `(${filter})` : ''}</div>
+                            <div class="no-history">
+                                <i class="fas fa-weight-hanging"></i>
+                                <div style="font-size: 14px; margin-bottom: 8px;">Nenhuma pesagem no histórico ${filter !== 'all' ? `(${filter})` : ''}</div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">
+                                    Adicione pesagens na aba "Pesar"
+                                </div>
                             </div>
                         `;
                         return;
@@ -1661,9 +1753,12 @@
                 } catch (e) {
                     console.error('Error cargando histórico:', e);
                     historyList.innerHTML = `
-                        <div style="text-align: center; padding: 40px 0; color: var(--error);">
-                            <i class="fas fa-exclamation-triangle" style="font-size: 32px; margin-bottom: 12px;"></i>
-                            <div style="font-size: 12px;">Erro ao carregar histórico</div>
+                        <div class="no-history">
+                            <i class="fas fa-exclamation-triangle" style="color: var(--error);"></i>
+                            <div style="font-size: 14px; margin-bottom: 8px; color: var(--error);">Erro ao carregar histórico</div>
+                            <div style="font-size: 12px; color: var(--text-secondary);">
+                                Recarregue a página e tente novamente
+                            </div>
                         </div>
                     `;
                 }
