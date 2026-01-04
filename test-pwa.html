@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test PWA Wilder</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .success { color: green; }
+        .error { color: red; }
+        .warning { color: orange; }
+    </style>
+</head>
+<body>
+    <h1>✅ Test PWA Wilder - Verificaciones</h1>
+    
+    <div id="results">
+        <h2>Verificando...</h2>
+        <div id="manifest-status">Manifest: Verificando...</div>
+        <div id="icons-status">Iconos: Verificando...</div>
+        <div id="sw-status">Service Worker: Verificando...</div>
+        <div id="screenshots-status">Screenshots: Verificando...</div>
+    </div>
+    
+    <script>
+        async function testPWA() {
+            const results = document.getElementById('results');
+            
+            // 1. Verificar Manifest
+            try {
+                const manifest = document.querySelector('link[rel="manifest"]');
+                if (manifest) {
+                    const response = await fetch(manifest.href);
+                    const data = await response.json();
+                    
+                    // Verificar iconos
+                    if (data.icons && data.icons.length >= 5) {
+                        document.getElementById('icons-status').innerHTML = 
+                            `<span class="success">✅ Iconos: ${data.icons.length} tamaños encontrados</span>`;
+                    } else {
+                        document.getElementById('icons-status').innerHTML = 
+                            `<span class="error">❌ Iconos: Solo ${data.icons?.length || 0} tamaños (necesitas mínimo 5)</span>`;
+                    }
+                    
+                    // Verificar screenshots
+                    if (data.screenshots && data.screenshots.length >= 3) {
+                        document.getElementById('screenshots-status').innerHTML = 
+                            `<span class="success">✅ Screenshots: ${data.screenshots.length} encontrados</span>`;
+                    } else {
+                        document.getElementById('screenshots-status').innerHTML = 
+                            `<span class="warning">⚠️ Screenshots: Solo ${data.screenshots?.length || 0} (recomendado 3)</span>`;
+                    }
+                    
+                    document.getElementById('manifest-status').innerHTML = 
+                        `<span class="success">✅ Manifest encontrado y válido</span>`;
+                }
+            } catch (e) {
+                document.getElementById('manifest-status').innerHTML = 
+                    `<span class="error">❌ Error con manifest: ${e.message}</span>`;
+            }
+            
+            // 2. Verificar Service Worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistration().then(reg => {
+                    if (reg) {
+                        document.getElementById('sw-status').innerHTML = 
+                            `<span class="success">✅ Service Worker registrado: ${reg.scope}</span>`;
+                    } else {
+                        document.getElementById('sw-status').innerHTML = 
+                            `<span class="warning">⚠️ Service Worker no registrado</span>`;
+                    }
+                });
+            } else {
+                document.getElementById('sw-status').innerHTML = 
+                    `<span class="error">❌ Service Worker no soportado</span>`;
+            }
+        }
+        
+        // Ejecutar test
+        window.addEventListener('load', testPWA);
+    </script>
+</body>
+</html>

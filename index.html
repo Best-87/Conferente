@@ -1070,6 +1070,19 @@
                 document.getElementById('installBtn').style.display = 'none';
             }
         });
+        
+        // ✅ REGISTRO DEL SERVICE WORKER (NUEVO)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(function(registration) {
+                        console.log('✅ Service Worker registrado con éxito:', registration.scope);
+                    })
+                    .catch(function(error) {
+                        console.log('❌ Error registrando Service Worker:', error);
+                    });
+            });
+        }
     </script>
 </body>
 </html>
