@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instalar App - Controle de Pesagem</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #2563eb;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 40px;
+            font-size: 16px;
+        }
+        
+        .step {
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 2px solid #e2e8f0;
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+        }
+        
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: #2563eb;
+            color: white;
+            border-radius: 50%;
+            font-size: 20px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        
+        .step-content h3 {
+            color: #1e293b;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .step-content p {
+            color: #475569;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .badge {
+            display: inline-block;
+            background: #2563eb;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .install-btn {
+            display: block;
+            width: 100%;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            margin: 30px 0;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .install-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .feature {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .feature i {
+            font-size: 30px;
+            color: #2563eb;
+            margin-bottom: 15px;
+        }
+        
+        .feature h4 {
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px 20px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .step {
+                flex-direction: column;
+                padding: 20px 15px;
+            }
+            
+            .step-number {
+                width: 35px;
+                height: 35px;
+                font-size: 18px;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-mobile-alt"></i> Instalar App no Celular</h1>
+        <p class="subtitle">Transforme esta página em um aplicativo nativo no seu Android</p>
+        
+        <div class="feature-grid">
+            <div class="feature">
+                <i class="fas fa-bolt"></i>
+                <h4>Rápido</h4>
+                <p>Carrega instantaneamente</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-wifi-slash"></i>
+                <h4>Offline</h4>
+                <p>Funciona sem internet</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-bell"></i>
+                <h4>Notificações</h4>
+                <p>Alertas importantes</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-sync-alt"></i>
+                <h4>Atualizações</h4>
+                <p>Sempre na versão mais recente</p>
+            </div>
+        </div>
+        
+        <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <h3>Abra no Google Chrome</h3>
+                <p>Certifique-se de estar usando o navegador <strong>Google Chrome</strong> no seu celular Android.</p>
+                <span class="badge">Android</span>
+                <span class="badge">Chrome</span>
+            </div>
+        </div>
+        
+        <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <h3>Procure o menu "Instalar"</h3>
+                <p>Toque nos 3 pontinhos no canto superior direito e procure a opção:</p>
+                <p><strong>"Instalar aplicativo"</strong> ou <strong>"Adicionar à tela inicial"</strong></p>
+            </div>
+        </div>
+        
+        <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+                <h3>Confirme a instalação</h3>
+                <p>Toque em "Instalar" quando aparecer a confirmação. O aplicativo será baixado e instalado automaticamente.</p>
+                <p><i class="fas fa-clock"></i> Demora apenas alguns segundos.</p>
+            </div>
+        </div>
+        
+        <div class="step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+                <h3>Use como app normal</h3>
+                <p>Encontre o ícone <i class="fas fa-weight-hanging"></i> na tela inicial ou no menu de aplicativos.</p>
+                <p>Toque para abrir e use como qualquer outro aplicativo nativo!</p>
+            </div>
+        </div>
+        
+        <a href="index.html" class="install-btn">
+            <i class="fas fa-rocket"></i> Voltar para o App e Instalar
+        </a>
+        
+        <div style="background: #f0f9ff; padding: 20px; border-radius: 12px; margin-top: 30px;">
+            <h3><i class="fas fa-question-circle"></i> Problemas comuns:</h3>
+            <ul style="margin: 15px 0 0 20px; color: #475569;">
+                <li><strong>Não aparece "Instalar app"?</strong> Atualize o Google Chrome</li>
+                <li><strong>Não funciona?</strong> Certifique-se que está em <strong>https://</strong></li>
+                <li><strong>Sem espaço?</strong> O app ocupa menos de 1MB</li>
+                <li><strong>Ícone não aparece?</strong> Reinicie o celular após instalar</li>
+            </ul>
+        </div>
+        
+        <div style="text-align: center; margin-top: 40px; color: #64748b;">
+            <p><i class="fas fa-check-circle"></i> App otimizado para Android 8+</p>
+            <p style="font-size: 12px; margin-top: 10px;">Versão PWA - Não requer Play Store</p>
+        </div>
+    </div>
+    
+    <script>
+        // Detectar si está en móvil
+        if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+            document.querySelector('.install-btn').innerHTML = '<i class="fas fa-mobile-alt"></i> Abrir no Celular para Instalar';
+        }
+        
+        // Verificar si ya está instalado como PWA
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            document.querySelector('.install-btn').innerHTML = '<i class="fas fa-check"></i> App já instalado!';
+            document.querySelector('.install-btn').style.background = '#10b981';
+        }
+    </script>
+</body>
+</html>

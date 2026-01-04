@@ -1,15 +1,14 @@
-const APP_VERSION = '1.0.0';
-const CACHE_NAME = `pesagem-${APP_VERSION}`;
+const APP_VERSION = '1.1.0';
+const CACHE_NAME = `pesagem-v${APP_VERSION}`;
 
 const CORE_ASSETS = [
   './',
   './index.html',
-  './offline.html',
-  './style.css',
-  './app.js',
   './manifest.json',
-  'https://raw.githubusercontent.com/Best-87/Conferente/main/icons/icon-192x192.png',
-  'https://raw.githubusercontent.com/Best-87/Conferente/main/icons/icon-512x512.png'
+  './icon.png',
+  './icon-192.png',
+  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
+  'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap'
 ];
 
 self.addEventListener('install', event => {
@@ -53,52 +52,59 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  if (!event.request.url.startsWith('http') || event.request.method !== 'GET') {
+  // Solo manejar solicitudes GET y HTTP/HTTPS
+  if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) {
+    return;
+  }
+  
+  // Para solicitudes de la API, siempre ir a la red primero
+  if (event.request.url.includes('/api/')) {
+    event.respondWith(fetch(event.request));
     return;
   }
   
   event.respondWith(
     caches.match(event.request)
       .then(cachedResponse => {
-        if (cachedResponse) {
-          updateCache(event.request);
+        // Si está en caché y es un archivo estático, devolverlo
+        if (cachedResponse && 
+            (event.request.url.includes('cdnjs.cloudflare.com') || 
+             event.request.url.includes('fonts.googleapis.com') ||
+             event.request.url.endsWith('.css') ||
+             event.request.url.endsWith('.js') ||
+             event.request.url.endsWith('.png') ||
+             event.request.url.endsWith('.json'))) {
           return cachedResponse;
         }
         
+        // Ir a la red para otros recursos
         return fetch(event.request)
           .then(networkResponse => {
-            if (networkResponse.ok) {
-              const cache = caches.open(CACHE_NAME);
-              cache.then(c => c.put(event.request, networkResponse.clone()));
+            // Solo cachear respuestas exitosas y del mismo origen
+            if (networkResponse.ok && 
+                event.request.url.startsWith(self.location.origin)) {
+              const responseToCache = networkResponse.clone();
+              caches.open(CACHE_NAME)
+                .then(cache => cache.put(event.request, responseToCache));
             }
             return networkResponse;
           })
           .catch(error => {
-            if (event.request.headers.get('Accept').includes('text/html')) {
-              return caches.match('./offline.html');
+            // Si falla la red y no tenemos caché, devolver offline page
+            if (event.request.destination === 'document') {
+              return caches.match('./index.html');
             }
-            
-            return new Response('Recurso no disponible offline', {
+            return new Response('App offline', {
               status: 503,
-              statusText: 'Service Unavailable'
+              statusText: 'Service Unavailable',
+              headers: new Headers({
+                'Content-Type': 'text/plain'
+              })
             });
           });
       })
   );
 });
-
-async function updateCache(request) {
-  try {
-    const networkResponse = await fetch(request);
-    
-    if (networkResponse.ok) {
-      const cache = await caches.open(CACHE_NAME);
-      cache.put(request, networkResponse.clone());
-    }
-  } catch (error) {
-    console.log('[SW] Fallo al actualizar caché:', error);
-  }
-}
 
 self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
@@ -106,39 +112,25 @@ self.addEventListener('message', event => {
   }
 });
 
-self.addEventListener('push', event => {
-  if (!event.data) return;
-  
-  const data = event.data.json();
-  const title = data.title || 'Controle de Pesagem';
-  const options = {
-    body: data.body || 'Nova notificação',
-    icon: 'https://raw.githubusercontent.com/Best-87/Conferente/main/icons/icon-192x192.png',
-    data: {
-      url: data.url || './index.html'
-    }
-  };
-  
-  event.waitUntil(
-    self.registration.showNotification(title, options)
-  );
+// Manejar actualizaciones automáticas
+self.addEventListener('periodicsync', event => {
+  if (event.tag === 'update-cache') {
+    event.waitUntil(updateCache());
+  }
 });
 
-self.addEventListener('notificationclick', event => {
-  event.notification.close();
+async function updateCache() {
+  const cache = await caches.open(CACHE_NAME);
+  const requests = await cache.keys();
   
-  event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true })
-      .then(clientList => {
-        for (const client of clientList) {
-          if (client.url === event.notification.data.url && 'focus' in client) {
-            return client.focus();
-          }
-        }
-        
-        if (clients.openWindow) {
-          return clients.openWindow(event.notification.data.url);
-        }
-      })
-  );
-});
+  for (const request of requests) {
+    try {
+      const networkResponse = await fetch(request);
+      if (networkResponse.ok) {
+        await cache.put(request, networkResponse);
+      }
+    } catch (error) {
+      console.log('[SW] No se pudo actualizar:', request.url);
+    }
+  }
+}

@@ -5,27 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Conferente | Armazém</title>
     
-    <!-- PWA Metadata COMPLETO -->
+    <!-- ==== PWA METADATA SIMPLIFICADO ==== -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2563eb">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Conferente">
+    <meta name="apple-mobile-web-app-title" content="Pesagem">
     <meta name="description" content="Sistema de controle de pesagem para armazém">
-    <meta name="application-name" content="Conferente">
+    <meta name="application-name" content="Pesagem">
     
-    <!-- Icons corregidos -->
-    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/Best-87/Conferente/main/icons/icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="https://raw.githubusercontent.com/Best-87/Conferente/main/icons/icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="https://raw.githubusercontent.com/Best-87/Conferente/main/icons/icon-144x144.png">
-    <link rel="apple-touch-icon" sizes="192x192" href="https://raw.githubusercontent.com/Best-87/Conferente/main/icons/icon-192x192.png">
+    <!-- Iconos LOCALES -->
+    <link rel="icon" type="image/png" href="icon.png">
+    <link rel="apple-touch-icon" href="icon.png">
+    <meta name="msapplication-TileImage" content="icon.png">
+    <meta name="msapplication-TileColor" content="#2563eb">
     
     <!-- Styles & Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
     
     <style>
-        /* ===== RESET Y BASE ===== */
+        /* ===== VARIABLES Y RESET ===== */
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #dbeafe;
+            --secondary: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --background: #f8fafc;
+            --surface: #ffffff;
+            --border: #e2e8f0;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-tertiary: #94a3b8;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+        }
+        
         * {
             margin: 0;
             padding: 0;
@@ -36,7 +57,7 @@
         html, body {
             height: 100%;
             width: 100%;
-            overflow-x: hidden;
+            overflow: hidden;
             -webkit-text-size-adjust: 100%;
             -moz-text-size-adjust: 100%;
             -ms-text-size-adjust: 100%;
@@ -45,18 +66,14 @@
         
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: #f8fafc;
-            color: #1e293b;
+            background-color: var(--background);
+            color: var(--text-primary);
             line-height: 1.5;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
         }
         
-        /* ===== APP LAYOUT ===== */
+        /* ===== APP LAYOUT COMPACTO ===== */
         .app-container {
             display: flex;
             flex-direction: column;
@@ -65,12 +82,12 @@
             max-height: 100%;
         }
         
-        /* ===== HEADER ===== */
+        /* ===== HEADER COMPACTO ===== */
         .app-header {
-            background: white;
+            background: var(--surface);
             padding: 12px 16px;
-            border-bottom: 1px solid #e2e8f0;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-bottom: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
             position: sticky;
             top: 0;
             z-index: 1000;
@@ -89,69 +106,73 @@
             gap: 10px;
         }
         
-        .logo i {
-            font-size: 24px;
-            color: #2563eb;
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
         }
         
-        .logo h1 {
-            font-size: 18px;
-            font-weight: 600;
-            color: #1e293b;
+        .logo-text h1 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+        
+        .logo-text span {
+            font-size: 10px;
+            color: var(--text-secondary);
+            font-weight: 500;
         }
         
         .header-info {
             display: flex;
             align-items: center;
-            gap: 15px;
-        }
-        
-        .install-btn {
-            background: #10b981;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 6px 12px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            display: none;
-            align-items: center;
-            gap: 5px;
-            transition: all 0.2s;
+            gap: 12px;
         }
         
         .datetime {
             text-align: right;
-            font-size: 13px;
+            font-family: 'Roboto Mono', monospace;
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--background);
         }
         
         #currentDate {
             display: block;
-            color: #64748b;
+            color: var(--text-secondary);
+            font-size: 10px;
         }
         
         #currentTime {
             display: block;
-            font-weight: 600;
-            color: #2563eb;
-            font-family: 'Roboto Mono', monospace;
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 13px;
         }
         
-        /* ===== TABS ===== */
+        /* ===== TABS COMPACTOS ===== */
         .app-tabs {
             display: flex;
-            background: white;
-            border-bottom: 1px solid #e2e8f0;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
             position: sticky;
-            top: 61px;
+            top: 60px;
             z-index: 100;
             flex-shrink: 0;
         }
         
         .tab-btn {
             flex: 1;
-            padding: 14px 10px;
+            padding: 12px 8px;
             border: none;
             background: none;
             cursor: pointer;
@@ -159,326 +180,378 @@
             flex-direction: column;
             align-items: center;
             gap: 6px;
-            color: #64748b;
-            font-size: 11px;
+            color: var(--text-secondary);
+            font-size: 10px;
+            font-weight: 600;
             transition: all 0.2s;
+            position: relative;
+        }
+        
+        .tab-btn i {
+            font-size: 18px;
         }
         
         .tab-btn.active {
-            color: #2563eb;
-            border-bottom: 3px solid #2563eb;
+            color: var(--primary);
         }
         
-        /* ===== CONTENIDO PRINCIPAL ===== */
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 20%;
+            right: 20%;
+            height: 3px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 2px;
+        }
+        
+        /* ===== CONTENIDO PRINCIPAL SIN SCROLL ===== */
         .main-content {
             flex: 1;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
-            padding: 15px;
+            padding: 12px;
             width: 100%;
         }
         
         .tab-content {
             display: none;
-            animation: fadeIn 0.3s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            height: 100%;
         }
         
         .tab-content.active {
             display: block;
         }
         
-        /* ===== FORMULARIO ===== */
+        /* ===== FORMULARIO COMPACTO ===== */
         .form-container {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            margin-bottom: 15px;
+            background: var(--surface);
+            padding: 16px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 12px;
+            /* AÑADIDO: Eliminar margin-bottom para evitar scroll */
+            margin-bottom: 0;
         }
         
         .form-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #2563eb;
-            margin-bottom: 15px;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+        }
+        
+        .form-title i {
+            color: var(--primary);
+            font-size: 16px;
         }
         
         .status-badge {
-            font-size: 12px;
-            padding: 4px 10px;
-            background: #dbeafe;
-            color: #1d4ed8;
+            font-size: 10px;
+            padding: 4px 8px;
+            background: var(--primary-light);
+            color: var(--primary-dark);
             border-radius: 12px;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
-            margin-left: 10px;
+            gap: 4px;
+            font-weight: 600;
+            margin-left: auto;
+        }
+        
+        .status-badge.known {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-badge.known-taras {
+            background: #fffbeb;
+            color: #92400e;
         }
         
         .status-dot {
             display: inline-block;
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
-            background: #94a3b8;
+            background: var(--text-tertiary);
         }
         
         .status-dot.known {
-            background: #10b981;
+            background: var(--success);
+        }
+        
+        .status-dot.known-taras {
+            background: var(--warning);
+        }
+        
+        /* ===== DISEÑO HORIZONTAL IMPORTANTE ===== */
+        /* Fornecedor y Producto en MISMA LÍNEA - HORIZONTAL */
+        .supplier-product-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        /* Pesos en misma línea - HORIZONTAL */
+        .weights-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        /* Ambos grupos iguales */
+        .horizontal-group {
+            display: flex;
+            flex-direction: column;
         }
         
         .form-group {
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
         
         label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-            color: #1e293b;
-            font-size: 13px;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        label i {
+            color: var(--primary);
+            font-size: 12px;
         }
         
         input, textarea {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            font-size: 14px;
+            padding: 10px 12px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 13px;
             transition: all 0.2s;
             -webkit-appearance: none;
             appearance: none;
-            background: white;
+            background: var(--surface);
+            color: var(--text-primary);
         }
         
         input:focus, textarea:focus {
             outline: none;
-            border-color: #2563eb;
+            border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
         
-        /* Fornecedor y Producto en MISMA LÍNEA - SIEMPRE HORIZONTAL */
-        .supplier-product-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-        
-        /* Pesos en misma línea */
-        .weights-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 12px;
+        input::placeholder {
+            color: var(--text-tertiary);
         }
         
         /* Input rows para cantidades */
         .input-row {
             display: flex;
             gap: 10px;
+            background: var(--background);
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
         }
         
         .input-half {
             flex: 1;
         }
         
-        .hint {
-            font-size: 10px;
-            color: #64748b;
+        .input-half small {
             display: block;
-            margin-top: 4px;
+            font-size: 10px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            font-weight: 500;
         }
         
-        /* Tara totals - SIEMPRE HORIZONTAL */
+        .input-half input {
+            padding: 8px 10px;
+            font-size: 13px;
+        }
+        
+        .hint {
+            font-size: 10px;
+            color: var(--text-secondary);
+            display: block;
+            margin-top: 4px;
+            font-style: italic;
+        }
+        
+        /* Tara totals - COMPACTOS */
         .tara-totals {
             display: flex;
             justify-content: space-between;
             gap: 8px;
             margin: 12px 0;
-            padding: 10px 0;
-            border-top: 1px solid #e2e8f0;
-            border-bottom: 1px solid #e2e8f0;
+            padding: 12px;
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
         }
         
         .tara-item {
             flex: 1;
             text-align: center;
-            padding: 0 3px;
+            padding: 0 4px;
         }
         
         .tara-label {
-            font-size: 10px;
-            color: #64748b;
+            font-size: 9px;
+            color: var(--text-secondary);
             display: block;
-            margin-bottom: 2px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            margin-bottom: 4px;
+            font-weight: 600;
+            text-transform: uppercase;
         }
         
         .tara-value {
             font-size: 11px;
-            font-weight: 600;
-            color: #1e293b;
+            font-weight: 700;
+            color: var(--text-primary);
             font-family: 'Roboto Mono', monospace;
+            display: block;
+            background: var(--surface);
+            padding: 6px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
         }
         
-        /* Botones de acción HORIZONTAL con iconos */
+        /* Botones de acción HORIZONTAL COMPACTOS */
         .action-buttons-horizontal {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 8px;
-            margin-top: 15px;
+            margin-top: 12px;
+            /* AÑADIDO: Reducir el margen superior para evitar scroll */
+            margin-top: 8px;
         }
         
         .btn-icon-action {
             width: 100%;
-            height: 44px;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-            background: white;
-            color: #64748b;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            border: 2px solid var(--border);
+            background: var(--surface);
+            color: var(--text-secondary);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 16px;
             transition: all 0.2s;
         }
         
         .btn-icon-action:hover {
-            background: #f8fafc;
-            border-color: #2563eb;
-            color: #2563eb;
+            border-color: var(--primary);
+            color: var(--primary);
         }
         
         .btn-icon-action.primary {
-            background: #2563eb;
-            border-color: #2563eb;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-color: var(--primary-dark);
             color: white;
         }
         
-        .btn-icon-action.primary:hover {
-            background: #1d4ed8;
-        }
-        
-        /* Ticket section */
+        /* Ticket section COMPACTA */
         .ticket-section {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            margin-bottom: 15px;
+            background: var(--surface);
+            padding: 16px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 12px;
         }
         
-        /* Ticket preview */
+        /* Ticket preview COMPACTO */
         .ticket-preview {
-            background: white;
-            border: 2px solid #000;
-            border-radius: 8px;
-            padding: 15px;
+            background: var(--surface);
+            border: 2px solid var(--text-primary);
+            border-radius: var(--radius-sm);
+            padding: 12px;
             font-family: 'Roboto Mono', monospace;
-            margin-bottom: 15px;
+            margin: 12px 0;
         }
         
         .ticket-header {
             text-align: center;
-            border-bottom: 2px solid #000;
-            padding-bottom: 10px;
-            margin-bottom: 10px;
+            border-bottom: 2px solid var(--text-primary);
+            padding-bottom: 8px;
+            margin-bottom: 8px;
         }
         
-        .ticket-item {
-            padding: 8px 0;
-            border-bottom: 1px dashed #ccc;
+        .ticket-header div:first-child {
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+        
+        .ticket-header div:nth-child(2) {
+            font-size: 10px;
+            color: var(--text-secondary);
+        }
+        
+        .ticket-header div:last-child {
+            font-size: 9px;
+            color: var(--text-tertiary);
         }
         
         /* Colores para diferencias */
         .diff-positive {
-            color: #10b981;
-            font-weight: bold;
+            color: var(--success);
+            font-weight: 700;
         }
         
         .diff-negative {
-            color: #ef4444;
-            font-weight: bold;
+            color: var(--error);
+            font-weight: 700;
         }
         
-        .history-item {
-            padding: 12px;
-            border-bottom: 1px solid #e2e8f0;
-            margin-bottom: 8px;
-            border-radius: 6px;
-            background: white;
-        }
-        
-        .history-item:hover {
-            background: #f8fafc;
-        }
-        
-        /* ===== RESPONSIVE ===== */
+        /* ===== RESPONSIVE COMPACTO ===== */
         @media (max-width: 768px) {
-            .supplier-product-row,
-            .weights-row {
-                grid-template-columns: 1fr 1fr;
-                gap: 10px;
+            .app-header {
+                padding: 10px 12px;
             }
             
-            .action-buttons-horizontal {
-                grid-template-columns: repeat(4, 1fr);
-                gap: 6px;
-            }
-            
-            .btn-icon-action {
-                height: 40px;
+            .logo-icon {
+                width: 32px;
+                height: 32px;
                 font-size: 16px;
             }
             
-            .tara-totals {
-                flex-wrap: nowrap;
-                gap: 5px;
-            }
-            
-            .tara-label {
-                font-size: 9px;
-            }
-            
-            .tara-value {
-                font-size: 10px;
-            }
-            
-            .header-content {
-                flex-direction: row;
-                justify-content: space-between;
-                align-items: center;
+            .logo-text h1 {
+                font-size: 14px;
             }
             
             .datetime {
-                text-align: right;
+                padding: 4px 8px;
             }
             
-            .form-container {
-                padding: 12px;
+            #currentDate {
+                font-size: 9px;
             }
             
-            .app-tabs {
-                top: 61px;
+            #currentTime {
+                font-size: 12px;
             }
             
             .tab-btn {
-                padding: 12px 5px;
-                font-size: 10px;
+                padding: 10px 6px;
+                font-size: 9px;
             }
             
             .tab-btn i {
@@ -486,53 +559,35 @@
             }
             
             .main-content {
+                padding: 10px;
+            }
+            
+            .form-container {
                 padding: 12px;
+                /* AÑADIDO: También en móvil */
+                margin-bottom: 0;
             }
             
             .form-title {
-                font-size: 15px;
-                margin-bottom: 12px;
+                font-size: 14px;
+                margin-bottom: 10px;
             }
-        }
-        
-        @media (max-width: 480px) {
+            
+            /* En móvil mantiene horizontal */
             .supplier-product-row,
             .weights-row {
                 grid-template-columns: 1fr 1fr;
                 gap: 8px;
             }
             
-            .action-buttons-horizontal {
-                grid-template-columns: repeat(4, 1fr);
-                gap: 4px;
-            }
-            
-            .btn-icon-action {
-                height: 36px;
-                font-size: 14px;
-            }
-            
-            .logo h1 {
-                font-size: 16px;
-            }
-            
-            .datetime {
-                font-size: 12px;
-            }
-            
-            .header-info {
-                flex-direction: column;
-                align-items: flex-end;
-                gap: 5px;
+            .input-row {
+                padding: 8px;
+                gap: 8px;
             }
             
             .tara-totals {
-                flex-wrap: nowrap;
-                gap: 4px;
-            }
-            
-            .tara-item {
-                padding: 0 2px;
+                padding: 10px;
+                gap: 6px;
             }
             
             .tara-label {
@@ -540,115 +595,119 @@
             }
             
             .tara-value {
-                font-size: 9px;
+                font-size: 10px;
+                padding: 4px;
             }
             
-            .input-row {
-                flex-direction: row;
+            .action-buttons-horizontal {
+                gap: 6px;
+                /* AÑADIDO: También en móvil */
+                margin-top: 6px;
+            }
+            
+            .btn-icon-action {
+                height: 36px;
+                font-size: 14px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            /* En móviles muy pequeños, se apilan */
+            .supplier-product-row,
+            .weights-row {
+                grid-template-columns: 1fr;
                 gap: 8px;
             }
             
-            .input-half {
-                flex: 1;
+            .action-buttons-horizontal {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 6px;
+            }
+            
+            .tara-totals {
+                flex-wrap: wrap;
+            }
+            
+            .tara-item {
+                flex: 1 0 calc(50% - 6px);
+                margin-bottom: 4px;
             }
         }
         
-        /* ===== INSTALL PROMPT ===== */
-        #pwaInstallPrompt {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(37, 99, 235, 0.3);
-            z-index: 10001;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            animation: slideUp 0.4s ease;
-            max-width: 90%;
-            width: 400px;
-            border: 2px solid white;
-        }
-        
-        @keyframes slideUp {
-            from {
-                transform: translate(-50%, 100%);
-                opacity: 0;
-            }
-            to {
-                transform: translate(-50%, 0);
-                opacity: 1;
-            }
-        }
-        
-        /* ===== BOTÓN FLOTANTE DE INSTALACIÓN ===== */
-        #floatingInstallBtn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 60px;
-            height: 60px;
-            border-radius: 30px;
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-            color: white;
-            border: none;
-            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
-            cursor: pointer;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            z-index: 999;
-            transition: all 0.3s;
-        }
-        
-        /* ===== TOAST NOTIFICATIONS ===== */
+        /* ===== TOAST COMPACTAS ===== */
         #toastContainer {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
+            bottom: 16px;
+            right: 16px;
             z-index: 10000;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
         }
         
         .toast {
-            background: white;
-            border-left: 4px solid #2563eb;
-            border-radius: 8px;
+            background: var(--surface);
+            border-left: 4px solid var(--primary);
+            border-radius: var(--radius-sm);
             padding: 12px 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: var(--shadow-md);
             display: flex;
             align-items: center;
             gap: 10px;
-            animation: slideIn 0.3s ease;
-            min-width: 280px;
+            animation: slideInRight 0.3s ease;
+            min-width: 250px;
+            border: 1px solid var(--border);
         }
         
-        .toast.success { border-left-color: #10b981; }
-        .toast.error { border-left-color: #ef4444; }
-        .toast.warning { border-left-color: #f59e0b; }
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .toast.success { border-left-color: var(--success); }
+        .toast.error { border-left-color: var(--error); }
+        .toast.warning { border-left-color: var(--warning); }
+        
+        .toast i {
+            font-size: 16px;
+        }
+        
+        .toast span {
+            font-size: 13px;
+            font-weight: 500;
+        }
+        
+        /* ===== SCROLLBAR PERSONALIZADA ===== */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--border);
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 3px;
+        }
     </style>
 </head>
 <body>
     <div class="app-container">
-        <!-- Header -->
+        <!-- Header compacto -->
         <header class="app-header">
             <div class="header-content">
                 <div class="logo">
-                    <i class="fas fa-weight-hanging"></i>
-                    <h1>Conferente</h1>
+                    <div class="logo-icon">
+                        <i class="fas fa-weight-hanging"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h1>Conferente</h1>
+                        <span>Controle de Pesagem</span>
+                    </div>
                 </div>
                 <div class="header-info">
-                    <button class="install-btn" id="installBtn">
-                        <i class="fas fa-download"></i>
-                        Instalar
-                    </button>
                     <div class="datetime">
                         <span id="currentDate">01 Jan 2026</span>
                         <span id="currentTime">16:25</span>
@@ -657,7 +716,7 @@
             </div>
         </header>
 
-        <!-- Tabs - SOLO 3 AHORA -->
+        <!-- Tabs compactos -->
         <nav class="app-tabs">
             <button class="tab-btn active" data-tab="pesar">
                 <i class="fas fa-weight-hanging"></i>
@@ -673,46 +732,44 @@
             </button>
         </nav>
 
-        <!-- Contenido principal -->
+        <!-- Contenido principal COMPACTO -->
         <div class="main-content">
-            <!-- Pestaña 1: Pesar -->
+            <!-- Pestaña 1: Pesar - Todo en pantalla sin scroll -->
             <section class="tab-content active" id="tab-pesar">
-                <!-- Formulario -->
                 <div class="form-container">
                     <div class="form-title">
-                        <i class="fas fa-plus-circle"></i> Nova Pesagem
-                        <span id="productStatus" class="status-badge">
+                        <i class="fas fa-plus-circle"></i>
+                        Nova Pesagem
+                        <div id="productStatus" class="status-badge">
                             <span class="status-dot"></span>
                             <span>Novo produto</span>
-                        </span>
+                        </div>
                     </div>
                     
                     <form id="pesagemForm">
-                        <!-- Fornecedor y Producto en MISMA LÍNEA - SIEMPRE HORIZONTAL -->
+                        <!-- Fornecedor y Producto EN LÍNEA HORIZONTAL -->
                         <div class="supplier-product-row">
-                            <!-- Fornecedor A LA IZQUIERDA -->
-                            <div class="supplier-group">
+                            <div class="horizontal-group">
                                 <label for="supplier"><i class="fas fa-truck"></i> Fornecedor</label>
                                 <input type="text" id="supplier" placeholder="Nome do fornecedor" list="supplierList">
                                 <datalist id="supplierList"></datalist>
                             </div>
                             
-                            <!-- Producto A LA DERECHA -->
-                            <div class="product-group">
+                            <div class="horizontal-group">
                                 <label for="product"><i class="fas fa-box"></i> Produto</label>
                                 <input type="text" id="product" placeholder="Nome do produto" autocomplete="off" list="productList">
                                 <datalist id="productList"></datalist>
                             </div>
                         </div>
                         
-                        <!-- Pesos -->
+                        <!-- Pesos EN LÍNEA HORIZONTAL -->
                         <div class="weights-row">
-                            <div class="form-group">
+                            <div class="horizontal-group">
                                 <label for="grossWeight"><i class="fas fa-weight-hanging"></i> Peso Bruto (kg)</label>
-                                <input type="text" id="grossWeight" placeholder="15.5, 12.3, 18.7">
+                                <input type="text" id="grossWeight" placeholder="Ex: 15.5, 12.3">
                                 <small class="hint">Separar por vírgula</small>
                             </div>
-                            <div class="form-group">
+                            <div class="horizontal-group">
                                 <label for="invoiceWeight"><i class="fas fa-file-invoice"></i> Peso Nota (kg)</label>
                                 <input type="number" id="invoiceWeight" step="0.001" placeholder="Peso declarado">
                             </div>
@@ -748,7 +805,7 @@
                             </div>
                         </div>
                         
-                        <!-- Totales de Tara - SIEMPRE HORIZONTAL -->
+                        <!-- Totales de Tara -->
                         <div class="tara-totals">
                             <div class="tara-item">
                                 <span class="tara-label">Total Caixas</span>
@@ -764,7 +821,7 @@
                             </div>
                         </div>
                         
-                        <!-- Botones de Acción - HORIZONTAL CON ICONOS -->
+                        <!-- Botones de Acción -->
                         <div class="action-buttons-horizontal">
                             <button type="button" class="btn-icon-action" id="clearForm" title="Limpar">
                                 <i class="fas fa-eraser"></i>
@@ -783,14 +840,15 @@
                 </div>
             </section>
             
-            <!-- Pestaña 2: Ticket -->
+            <!-- Pestaña 2: Ticket compacto -->
             <section class="tab-content" id="tab-ticket">
                 <div class="ticket-section">
                     <div class="form-title">
-                        <i class="fas fa-receipt"></i> Ticket Atual
+                        <i class="fas fa-receipt"></i>
+                        Ticket Atual
                     </div>
                     
-                    <!-- Botones del ticket - HORIZONTAL -->
+                    <!-- Botones del ticket -->
                     <div class="action-buttons-horizontal">
                         <button class="btn-icon-action" id="printTicketBtn" title="Imprimir">
                             <i class="fas fa-print"></i>
@@ -806,43 +864,44 @@
                         </button>
                     </div>
                     
-                    <!-- Ticket -->
+                    <!-- Ticket compacto -->
                     <div class="ticket-preview">
                         <div class="ticket-header">
-                            <div style="font-weight: bold; font-size: 14px;">CONTROLE DE PESAGEM</div>
-                            <div style="font-size: 11px;">Ticket #<span id="ticketNumberCompact2">001</span></div>
-                            <div style="font-size: 10px;" id="ticketDateCompact">03/01/2026</div>
+                            <div>CONTROLE DE PESAGEM</div>
+                            <div>Ticket #<span id="ticketNumberCompact2">001</span></div>
+                            <div id="ticketDateCompact">03/01/2026</div>
                         </div>
                         
                         <div class="ticket-body" id="ticketItemsCompact">
-                            <div style="text-align: center; padding: 20px 0; color: #94a3b8;">
-                                <i class="fas fa-receipt" style="font-size: 30px; margin-bottom: 8px;"></i>
-                                <div>Nenhuma pesagem registrada</div>
+                            <div style="text-align: center; padding: 20px 0; color: var(--text-tertiary);">
+                                <i class="fas fa-receipt" style="font-size: 24px; margin-bottom: 8px; opacity: 0.5;"></i>
+                                <div style="font-size: 12px;">Nenhuma pesagem registrada</div>
                             </div>
                         </div>
                         
-                        <div class="ticket-footer">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 12px;">
-                                <span>Total Itens:</span>
-                                <span id="ticketTotalItems">0</span>
+                        <div class="ticket-footer" style="margin-top: 12px; padding-top: 8px; border-top: 1px solid var(--border);">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 11px;">
+                                <span style="color: var(--text-secondary);">Total Itens:</span>
+                                <span id="ticketTotalItems" style="font-weight: 700;">0</span>
                             </div>
-                            <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 13px;">
-                                <span>TOTAL LÍQUIDO:</span>
-                                <span id="ticketTotalWeight">0.000 kg</span>
+                            <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 13px;">
+                                <span style="color: var(--text-primary);">TOTAL LÍQUIDO:</span>
+                                <span id="ticketTotalWeight" style="color: var(--primary);">0.000 kg</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
             
-            <!-- Pestaña 3: Histórico -->
+            <!-- Pestaña 3: Histórico compacto -->
             <section class="tab-content" id="tab-historico">
                 <div>
                     <div class="form-title">
-                        <i class="fas fa-history"></i> Histórico de Pesagens
+                        <i class="fas fa-history"></i>
+                        Histórico de Pesagens
                     </div>
                     
-                    <!-- Botones del histórico - HORIZONTAL -->
+                    <!-- Botones del histórico -->
                     <div class="action-buttons-horizontal">
                         <button class="btn-icon-action" id="filterTodayBtn" title="Hoje">
                             <i class="fas fa-calendar-day"></i>
@@ -858,11 +917,11 @@
                         </button>
                     </div>
                     
-                    <!-- Lista del histórico -->
-                    <div class="ticket-section" style="max-height: 500px; overflow-y: auto;" id="historyList">
-                        <div style="text-align: center; padding: 40px 0; color: #94a3b8;">
-                            <i class="fas fa-weight-hanging" style="font-size: 30px; margin-bottom: 8px;"></i>
-                            <div>Nenhuma pesagem no histórico</div>
+                    <!-- Lista del histórico COMPACTA -->
+                    <div id="historyList" style="max-height: 300px; overflow-y: auto;">
+                        <div style="text-align: center; padding: 40px 0; color: var(--text-tertiary);">
+                            <i class="fas fa-weight-hanging" style="font-size: 32px; margin-bottom: 12px; opacity: 0.5;"></i>
+                            <div style="font-size: 12px;">Nenhuma pesagem no histórico</div>
                         </div>
                     </div>
                 </div>
@@ -870,26 +929,8 @@
         </div>
     </div>
 
-    <!-- Botón flotante de instalación -->
-    <button id="floatingInstallBtn">
-        <i class="fas fa-download"></i>
-    </button>
-
     <!-- Toast Container -->
     <div id="toastContainer"></div>
-
-    <!-- PWA Install Prompt -->
-    <div id="pwaInstallPrompt" style="display: none;">
-        <i class="fas fa-mobile-alt" style="font-size: 28px;"></i>
-        <div class="prompt-content">
-            <strong>Instalar Conferente</strong>
-            <small>Instale o app para uma melhor experiência</small>
-        </div>
-        <button id="installPromptBtn">Instalar</button>
-        <button class="close-prompt" id="closePromptBtn">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
 
     <!-- JavaScript -->
     <script>
@@ -933,9 +974,34 @@
             // Variables para datos
             let currentTicket = [];
             let ticketNumber = parseInt(localStorage.getItem('ticketNumber')) || 1;
-            let productTaras = {}; // {productName: {boxTara: value, packagingTara: value}}
-            let supplierProducts = {}; // {supplierName: [product1, product2]}
+            let productTaras = {};
+            let supplierProducts = {};
             let suppliers = [];
+            
+            // Función para actualizar estado del producto
+            function updateProductStatus(isKnown, hasTaras = false) {
+                const statusBadge = document.getElementById('productStatus');
+                const statusDot = statusBadge.querySelector('.status-dot');
+                const statusText = statusBadge.querySelector('span:last-child');
+                
+                // Reset classes
+                statusBadge.className = 'status-badge';
+                statusDot.className = 'status-dot';
+                
+                if (isKnown) {
+                    if (hasTaras) {
+                        statusBadge.classList.add('known');
+                        statusDot.classList.add('known');
+                        statusText.textContent = 'Produto conhecido';
+                    } else {
+                        statusBadge.classList.add('known-taras');
+                        statusDot.classList.add('known-taras');
+                        statusText.textContent = 'Produto com taras';
+                    }
+                } else {
+                    statusText.textContent = 'Novo produto';
+                }
+            }
             
             // Inicializar desde localStorage
             function initFromStorage() {
@@ -1237,31 +1303,6 @@
                 }
             });
             
-            // Función para actualizar estado del producto
-            function updateProductStatus(isKnown, hasTaras = false) {
-                const statusBadge = document.getElementById('productStatus');
-                const statusDot = statusBadge.querySelector('.status-dot');
-                const statusText = statusBadge.querySelector('span:last-child');
-                
-                if (isKnown) {
-                    statusDot.classList.add('known');
-                    if (hasTaras) {
-                        statusText.textContent = 'Produto com taras';
-                        statusBadge.style.background = '#d1fae5';
-                        statusBadge.style.color = '#065f46';
-                    } else {
-                        statusText.textContent = 'Produto conhecido';
-                        statusBadge.style.background = '#fef3c7';
-                        statusBadge.style.color = '#92400e';
-                    }
-                } else {
-                    statusDot.classList.remove('known');
-                    statusText.textContent = 'Novo produto';
-                    statusBadge.style.background = '#dbeafe';
-                    statusBadge.style.color = '#1d4ed8';
-                }
-            }
-            
             // Función para actualizar ticket display
             function updateTicketDisplay() {
                 const ticketItems = document.getElementById('ticketItemsCompact');
@@ -1271,9 +1312,9 @@
                 
                 if (currentTicket.length === 0) {
                     ticketItems.innerHTML = `
-                        <div style="text-align: center; padding: 20px 0; color: #94a3b8;">
-                            <i class="fas fa-receipt" style="font-size: 30px; margin-bottom: 8px;"></i>
-                            <div>Nenhuma pesagem registrada</div>
+                        <div style="text-align: center; padding: 20px 0; color: var(--text-tertiary);">
+                            <i class="fas fa-receipt" style="font-size: 24px; margin-bottom: 8px; opacity: 0.5;"></i>
+                            <div style="font-size: 12px;">Nenhuma pesagem registrada</div>
                         </div>
                     `;
                     ticketTotalItems.textContent = '0';
@@ -1290,13 +1331,13 @@
                     const diffText = item.difference > 0 ? `+${item.difference.toFixed(3)}` : item.difference.toFixed(3);
                     
                     itemsHtml += `
-                        <div class="ticket-item">
+                        <div style="padding: 8px 0; border-bottom: 1px dashed var(--border);">
                             <div style="display: flex; justify-content: space-between;">
-                                <strong>${item.product}</strong>
-                                <small>${item.netWeight.toFixed(3)} kg</small>
+                                <strong style="font-size: 12px;">${item.product || 'Sem nome'}</strong>
+                                <small style="font-size: 11px;">${item.netWeight.toFixed(3)} kg</small>
                             </div>
-                            <div style="font-size: 11px; color: #64748b;">
-                                ${item.supplier} • Dif: <span class="${diffClass}">${diffText} kg</span>
+                            <div style="font-size: 10px; color: var(--text-secondary); margin-bottom: 4px;">
+                                <i class="fas fa-truck" style="margin-right: 4px;"></i>${item.supplier || 'Sem fornecedor'}
                             </div>
                         </div>
                     `;
@@ -1455,9 +1496,9 @@
                     
                     if (filteredWeighings.length === 0) {
                         historyList.innerHTML = `
-                            <div style="text-align: center; padding: 40px 0; color: #94a3b8;">
-                                <i class="fas fa-weight-hanging" style="font-size: 30px; margin-bottom: 8px;"></i>
-                                <div>Nenhuma pesagem no histórico ${filter !== 'all' ? `(${filter})` : ''}</div>
+                            <div style="text-align: center; padding: 40px 0; color: var(--text-tertiary);">
+                                <i class="fas fa-weight-hanging" style="font-size: 32px; margin-bottom: 12px; opacity: 0.5;"></i>
+                                <div style="font-size: 12px;">Nenhuma pesagem no histórico ${filter !== 'all' ? `(${filter})` : ''}</div>
                             </div>
                         `;
                         return;
@@ -1467,27 +1508,34 @@
                     
                     filteredWeighings.slice().reverse().forEach((weighing, index) => {
                         const item = document.createElement('div');
-                        item.className = 'history-item';
+                        item.style.cssText = `
+                            padding: 10px;
+                            border-bottom: 1px solid var(--border);
+                            margin-bottom: 6px;
+                            border-radius: 8px;
+                            background: var(--surface);
+                            border: 1px solid var(--border);
+                        `;
                         
                         // Determinar color de diferencia
                         const diffClass = weighing.difference > 0 ? 'diff-positive' : weighing.difference < 0 ? 'diff-negative' : '';
                         const diffText = weighing.difference > 0 ? `+${weighing.difference.toFixed(3)}` : weighing.difference.toFixed(3);
                         
                         item.innerHTML = `
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                <strong style="font-size: 13px;">${weighing.product || 'Sem nome'}</strong>
-                                <small style="color: #64748b; font-size: 11px;">${weighing.timestamp || ''}</small>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                <strong style="font-size: 12px;">${weighing.product || 'Sem nome'}</strong>
+                                <small style="color: var(--text-secondary); font-size: 10px;">${weighing.timestamp || ''}</small>
                             </div>
-                            <div style="font-size: 12px; color: #64748b; margin-bottom: 5px;">
-                                <i class="fas fa-truck"></i> ${weighing.supplier || 'Sem fornecedor'}
+                            <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">
+                                <i class="fas fa-truck" style="margin-right: 4px;"></i>${weighing.supplier || 'Sem fornecedor'}
                             </div>
-                            <div style="display: flex; justify-content: space-between; font-size: 12px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 11px;">
                                 <div>
-                                    <span style="color: #64748b;">Líquido: </span>
+                                    <span style="color: var(--text-secondary);">Líquido: </span>
                                     <strong>${weighing.netWeight.toFixed(3)} kg</strong>
                                 </div>
                                 <div>
-                                    <span style="color: #64748b;">Diferença: </span>
+                                    <span style="color: var(--text-secondary);">Diferença: </span>
                                     <strong class="${diffClass}">${diffText} kg</strong>
                                 </div>
                             </div>
@@ -1553,6 +1601,92 @@
             // Si hay un produto en el input, verificar si tiene taras
             if (productInput.value.trim() && productTaras[productInput.value.trim()]) {
                 loadProductTaras(productInput.value.trim());
+            }
+            
+            // ===== PWA INSTALL FUNCTIONALITY =====
+            let deferredPrompt;
+            
+            // Detectar si se puede instalar
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                console.log('PWA puede ser instalada');
+                
+                // Mostrar botón de instalación después de 5 segundos
+                setTimeout(() => {
+                    showInstallButton();
+                }, 5000);
+            });
+            
+            // Cuando se instala
+            window.addEventListener('appinstalled', () => {
+                console.log('PWA instalada con éxito');
+                deferredPrompt = null;
+                hideInstallButton();
+                showToast('Aplicação instalada com sucesso!', 'success');
+            });
+            
+            function showInstallButton() {
+                // Crear botón si no existe
+                if (!document.getElementById('installPWAButton')) {
+                    const installBtn = document.createElement('button');
+                    installBtn.id = 'installPWAButton';
+                    installBtn.innerHTML = '<i class="fas fa-download"></i> Instalar App';
+                    installBtn.style.cssText = `
+                        position: fixed;
+                        bottom: 20px;
+                        right: 20px;
+                        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+                        color: white;
+                        border: none;
+                        padding: 12px 20px;
+                        border-radius: 50px;
+                        font-weight: 600;
+                        font-size: 14px;
+                        cursor: pointer;
+                        box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+                        z-index: 1000;
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        transition: all 0.3s;
+                    `;
+                    
+                    installBtn.addEventListener('click', () => {
+                        if (deferredPrompt) {
+                            deferredPrompt.prompt();
+                            deferredPrompt.userChoice.then((choiceResult) => {
+                                if (choiceResult.outcome === 'accepted') {
+                                    console.log('Usuario aceptó instalar');
+                                }
+                                deferredPrompt = null;
+                            });
+                        }
+                    });
+                    
+                    installBtn.addEventListener('mouseenter', () => {
+                        installBtn.style.transform = 'scale(1.05)';
+                    });
+                    
+                    installBtn.addEventListener('mouseleave', () => {
+                        installBtn.style.transform = 'scale(1)';
+                    });
+                    
+                    document.body.appendChild(installBtn);
+                }
+            }
+            
+            function hideInstallButton() {
+                const installBtn = document.getElementById('installPWAButton');
+                if (installBtn) {
+                    installBtn.remove();
+                }
+            }
+            
+            // Verificar si ya está instalado
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                console.log('App ejecutándose como PWA instalada');
+                hideInstallButton();
             }
         });
         

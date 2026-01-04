@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerar Ícone PWA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #2563eb;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .icon-preview {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            border-radius: 25%;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 80px;
+            box-shadow: 0 20px 40px rgba(37, 99, 235, 0.3);
+        }
+        
+        .step {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+            background: #2563eb;
+            color: white;
+        }
+        
+        .btn:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .icon-preview {
+                width: 150px;
+                height: 150px;
+                font-size: 60px;
+            }
+            
+            .buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-paint-brush"></i> Gerar Ícone PWA</h1>
+        
+        <div class="icon-preview" id="iconPreview">
+            <i class="fas fa-weight-hanging"></i>
+        </div>
+        
+        <div class="step">
+            <h3><i class="fas fa-check-circle"></i> Instruções:</h3>
+            <p>1. Clique em "Gerar Ícone"</p>
+            <p>2. Salve o arquivo como <strong>icon.png</strong></p>
+            <p>3. Coloque na mesma pasta do seu projeto</p>
+            <p>4. Recarregue a aplicação</p>
+        </div>
+        
+        <div class="buttons">
+            <button class="btn" onclick="generateIcon()">
+                <i class="fas fa-download"></i> Gerar Ícone (512x512)
+            </button>
+            
+            <button class="btn" onclick="generateSmallIcon()">
+                <i class="fas fa-image"></i> Gerar Ícone Pequeno (192x192)
+            </button>
+            
+            <a href="index.html" class="btn">
+                <i class="fas fa-arrow-left"></i> Voltar para App
+            </a>
+        </div>
+        
+        <div style="margin-top: 30px; text-align: center; color: #64748b; font-size: 14px;">
+            <p><i class="fas fa-info-circle"></i> O ícone será azul com balança branca</p>
+        </div>
+    </div>
+    
+    <script>
+        function generateIcon() {
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width = 512;
+                canvas.height = 512;
+                const ctx = canvas.getContext('2d');
+                
+                // Fondo gradiente
+                const gradient = ctx.createLinearGradient(0, 0, 512, 512);
+                gradient.addColorStop(0, '#2563eb');
+                gradient.addColorStop(1, '#1d4ed8');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, 512, 512);
+                
+                // Ícono
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 250px FontAwesome';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('⚖', 256, 256);
+                
+                // Descargar
+                const link = document.createElement('a');
+                link.download = 'icon.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+                alert('Ícone gerado com sucesso! Salve como "icon.png"');
+            } catch (error) {
+                alert('Erro ao gerar ícone: ' + error.message);
+            }
+        }
+        
+        function generateSmallIcon() {
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width = 192;
+                canvas.height = 192;
+                const ctx = canvas.getContext('2d');
+                
+                const gradient = ctx.createLinearGradient(0, 0, 192, 192);
+                gradient.addColorStop(0, '#2563eb');
+                gradient.addColorStop(1, '#1d4ed8');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, 192, 192);
+                
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 100px FontAwesome';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('⚖', 96, 96);
+                
+                const link = document.createElement('a');
+                link.download = 'icon-192.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+                alert('Ícone pequeno gerado! Salve como "icon-192.png"');
+            } catch (error) {
+                alert('Erro ao gerar ícone pequeno: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
