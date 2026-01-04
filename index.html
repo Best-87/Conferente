@@ -13,27 +13,16 @@
     <meta name="apple-mobile-web-app-title" content="Conferente">
     <meta name="description" content="Sistema de controle de pesagem para armazém">
     <meta name="application-name" content="Conferente">
-    <meta name="msapplication-TileColor" content="#2563eb">
-    <meta name="msapplication-TileImage" content="https://raw.githubusercontent.com/Best-87/Conferente/main/icons/icon-144x144.png">
     
-    <!-- Mejoras para Chrome Mobile -->
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-    <!-- iOS específico -->
-    <link rel="apple-touch-startup-image" href="https://raw.githubusercontent.com/Best-87/Conferente/main/icons/icon-512x512.png">
-    
-    <!-- Icons para PWA - SOLO LOS ESENCIALES -->
-    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/Best-87/Conferente/main/icons/icon-192x192.png">
-    <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/Best-87/Conferente/main/icons/icon-192x192.png">
+    <!-- Icons corregidos -->
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/Best-87/Conferente/main/icons/icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="https://raw.githubusercontent.com/Best-87/Conferente/main/icons/icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="https://raw.githubusercontent.com/Best-87/Conferente/main/icons/icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="https://raw.githubusercontent.com/Best-87/Conferente/main/icons/icon-192x192.png">
     
     <!-- Styles & Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
-    
-    <!-- Service Worker Registration -->
-    <script src="install-service-worker.js"></script>
     
     <style>
         /* ===== RESET Y BASE ===== */
@@ -117,7 +106,6 @@
             gap: 15px;
         }
         
-        /* Botón de instalación PWA */
         .install-btn {
             background: #10b981;
             color: white;
@@ -131,10 +119,6 @@
             align-items: center;
             gap: 5px;
             transition: all 0.2s;
-        }
-        
-        .install-btn:hover {
-            background: #0da271;
         }
         
         .datetime {
@@ -180,10 +164,6 @@
             transition: all 0.2s;
         }
         
-        .tab-btn:hover {
-            background: #f8fafc;
-        }
-        
         .tab-btn.active {
             color: #2563eb;
             border-bottom: 3px solid #2563eb;
@@ -194,9 +174,7 @@
             flex: 1;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
-            padding: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
+            padding: 15px;
             width: 100%;
         }
         
@@ -217,18 +195,18 @@
         /* ===== FORMULARIO ===== */
         .form-container {
             background: white;
-            padding: 20px;
+            padding: 15px;
             border-radius: 10px;
             border: 1px solid #e2e8f0;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         
         .form-title {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
             color: #2563eb;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -259,7 +237,7 @@
         }
         
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
         
         label {
@@ -267,12 +245,12 @@
             margin-bottom: 5px;
             font-weight: 500;
             color: #1e293b;
-            font-size: 14px;
+            font-size: 13px;
         }
         
         input, textarea {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             border: 1px solid #e2e8f0;
             border-radius: 6px;
             font-size: 14px;
@@ -288,80 +266,145 @@
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
         
-        /* Botones - ESTILO DE LA IMAGEN */
-        button {
-            padding: 12px 15px;
-            border-radius: 8px;
-            border: none;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            min-height: 44px;
-            -webkit-appearance: none;
-            appearance: none;
-        }
-        
-        .btn-primary {
-            background: #2563eb;
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #1d4ed8;
-        }
-        
-        .btn-secondary {
-            background: #e2e8f0;
-            color: #1e293b;
-        }
-        
-        .btn-secondary:hover {
-            background: #cbd5e1;
-        }
-        
-        /* Tara totals - HORIZONTAL */
-        .tara-totals {
+        /* Fornecedor y Producto en MISMA LÍNEA - SIEMPRE HORIZONTAL */
+        .supplier-product-row {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin: 15px 0;
-            padding: 15px;
-            background: #f8fafc;
-            border-radius: 8px;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        
+        /* Pesos en misma línea */
+        .weights-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        
+        /* Input rows para cantidades */
+        .input-row {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .input-half {
+            flex: 1;
+        }
+        
+        .hint {
+            font-size: 10px;
+            color: #64748b;
+            display: block;
+            margin-top: 4px;
+        }
+        
+        /* Tara totals - SIEMPRE HORIZONTAL */
+        .tara-totals {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            margin: 12px 0;
+            padding: 10px 0;
+            border-top: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
         }
         
         .tara-item {
+            flex: 1;
             text-align: center;
+            padding: 0 3px;
         }
         
         .tara-label {
-            font-size: 11px;
+            font-size: 10px;
             color: #64748b;
             display: block;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
         .tara-value {
-            font-size: 16px;
-            font-weight: 700;
-            color: #2563eb;
+            font-size: 11px;
+            font-weight: 600;
+            color: #1e293b;
             font-family: 'Roboto Mono', monospace;
         }
         
-        /* Botones grid - ESTILO DE LA IMAGEN */
-        .buttons-grid {
+        /* Botones de acción HORIZONTAL con iconos */
+        .action-buttons-horizontal {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 8px;
-            margin-top: 20px;
+            margin-top: 15px;
         }
         
-        /* Diferença colors */
+        .btn-icon-action {
+            width: 100%;
+            height: 44px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            color: #64748b;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+        
+        .btn-icon-action:hover {
+            background: #f8fafc;
+            border-color: #2563eb;
+            color: #2563eb;
+        }
+        
+        .btn-icon-action.primary {
+            background: #2563eb;
+            border-color: #2563eb;
+            color: white;
+        }
+        
+        .btn-icon-action.primary:hover {
+            background: #1d4ed8;
+        }
+        
+        /* Ticket section */
+        .ticket-section {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+        }
+        
+        /* Ticket preview */
+        .ticket-preview {
+            background: white;
+            border: 2px solid #000;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Roboto Mono', monospace;
+            margin-bottom: 15px;
+        }
+        
+        .ticket-header {
+            text-align: center;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .ticket-item {
+            padding: 8px 0;
+            border-bottom: 1px dashed #ccc;
+        }
+        
+        /* Colores para diferencias */
         .diff-positive {
             color: #10b981;
             font-weight: bold;
@@ -372,80 +415,47 @@
             font-weight: bold;
         }
         
-        /* Ticket section */
-        .ticket-section {
+        .history-item {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 8px;
+            border-radius: 6px;
             background: white;
-            padding: 20px;
-            border-radius: 10px;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
         }
         
-        /* Ticket preview */
-        .ticket-preview {
-            background: white;
-            border: 2px solid #000;
-            border-radius: 8px;
-            padding: 20px;
-            font-family: 'Roboto Mono', monospace;
-            margin-bottom: 20px;
-        }
-        
-        .ticket-header {
-            text-align: center;
-            border-bottom: 2px solid #000;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .ticket-header h3 {
-            font-weight: bold;
-            font-size: 16px;
-            margin-bottom: 5px;
-        }
-        
-        .ticket-body {
-            max-height: 300px;
-            overflow-y: auto;
-            margin-bottom: 15px;
-        }
-        
-        .ticket-footer {
-            border-top: 2px solid #000;
-            padding-top: 15px;
-        }
-        
-        /* Print options */
-        .print-options {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        
-        /* Configurações */
-        .config-section {
+        .history-item:hover {
             background: #f8fafc;
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 30px;
         }
         
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
-            .buttons-grid {
-                grid-template-columns: repeat(2, 1fr);
+            .supplier-product-row,
+            .weights-row {
+                grid-template-columns: 1fr 1fr;
                 gap: 10px;
+            }
+            
+            .action-buttons-horizontal {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 6px;
+            }
+            
+            .btn-icon-action {
+                height: 40px;
+                font-size: 16px;
             }
             
             .tara-totals {
-                grid-template-columns: 1fr;
-                gap: 10px;
+                flex-wrap: nowrap;
+                gap: 5px;
             }
             
-            .print-options {
-                grid-template-columns: 1fr;
+            .tara-label {
+                font-size: 9px;
+            }
+            
+            .tara-value {
+                font-size: 10px;
             }
             
             .header-content {
@@ -459,10 +469,9 @@
             }
             
             .form-container {
-                padding: 15px;
+                padding: 12px;
             }
             
-            /* Tabs en móvil más compactos */
             .app-tabs {
                 top: 61px;
             }
@@ -477,21 +486,30 @@
             }
             
             .main-content {
-                padding: 15px;
+                padding: 12px;
             }
             
-            /* Ocultar botón de instalación en móvil si está instalado como PWA */
-            @media all and (display-mode: standalone) {
-                .install-btn {
-                    display: none !important;
-                }
+            .form-title {
+                font-size: 15px;
+                margin-bottom: 12px;
             }
         }
         
         @media (max-width: 480px) {
-            .buttons-grid {
-                grid-template-columns: 1fr;
-                gap: 10px;
+            .supplier-product-row,
+            .weights-row {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            
+            .action-buttons-horizontal {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 4px;
+            }
+            
+            .btn-icon-action {
+                height: 36px;
+                font-size: 14px;
             }
             
             .logo h1 {
@@ -502,49 +520,38 @@
                 font-size: 12px;
             }
             
-            .form-title {
-                font-size: 16px;
-            }
-            
             .header-info {
                 flex-direction: column;
                 align-items: flex-end;
                 gap: 5px;
             }
+            
+            .tara-totals {
+                flex-wrap: nowrap;
+                gap: 4px;
+            }
+            
+            .tara-item {
+                padding: 0 2px;
+            }
+            
+            .tara-label {
+                font-size: 8px;
+            }
+            
+            .tara-value {
+                font-size: 9px;
+            }
+            
+            .input-row {
+                flex-direction: row;
+                gap: 8px;
+            }
+            
+            .input-half {
+                flex: 1;
+            }
         }
-        
-        /* ===== TOAST NOTIFICATIONS ===== */
-        #toastContainer {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 10000;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        .toast {
-            background: white;
-            border-left: 4px solid #2563eb;
-            border-radius: 8px;
-            padding: 12px 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            animation: slideIn 0.3s ease;
-            min-width: 280px;
-        }
-        
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        
-        .toast.success { border-left-color: #10b981; }
-        .toast.error { border-left-color: #ef4444; }
-        .toast.warning { border-left-color: #f59e0b; }
         
         /* ===== INSTALL PROMPT ===== */
         #pwaInstallPrompt {
@@ -599,53 +606,33 @@
             transition: all 0.3s;
         }
         
-        #floatingInstallBtn:hover {
-            transform: scale(1.1) rotate(5deg);
-            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5);
+        /* ===== TOAST NOTIFICATIONS ===== */
+        #toastContainer {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
         
-        /* ===== ESTILOS PARA MODO PWA INSTALADO ===== */
-        @media all and (display-mode: standalone) {
-            body {
-                padding-top: env(safe-area-inset-top);
-                padding-bottom: env(safe-area-inset-bottom);
-                padding-left: env(safe-area-inset-left);
-                padding-right: env(safe-area-inset-right);
-            }
-            
-            .app-header {
-                padding-top: calc(12px + env(safe-area-inset-top, 0px));
-            }
-            
-            .app-tabs {
-                top: calc(61px + env(safe-area-inset-top, 0px));
-            }
-            
-            #floatingInstallBtn,
-            .install-btn {
-                display: none !important;
-            }
+        .toast {
+            background: white;
+            border-left: 4px solid #2563eb;
+            border-radius: 8px;
+            padding: 12px 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease;
+            min-width: 280px;
         }
         
-        /* ===== SCROLLBAR PERSONALIZADA ===== */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: #e2e8f0;
-            border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: #2563eb;
-            border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: #1d4ed8;
-        }
+        .toast.success { border-left-color: #10b981; }
+        .toast.error { border-left-color: #ef4444; }
+        .toast.warning { border-left-color: #f59e0b; }
     </style>
 </head>
 <body>
@@ -670,7 +657,7 @@
             </div>
         </header>
 
-        <!-- Tabs -->
+        <!-- Tabs - SOLO 3 AHORA -->
         <nav class="app-tabs">
             <button class="tab-btn active" data-tab="pesar">
                 <i class="fas fa-weight-hanging"></i>
@@ -683,10 +670,6 @@
             <button class="tab-btn" data-tab="historico">
                 <i class="fas fa-history"></i>
                 <span>Histórico</span>
-            </button>
-            <button class="tab-btn" data-tab="config">
-                <i class="fas fa-cog"></i>
-                <span>Config</span>
             </button>
         </nav>
 
@@ -705,26 +688,29 @@
                     </div>
                     
                     <form id="pesagemForm">
-                        <!-- Producto -->
-                        <div class="form-group">
-                            <label for="product"><i class="fas fa-box"></i> Produto</label>
-                            <input type="text" id="product" placeholder="Nome do produto" autocomplete="off" list="productList">
-                            <datalist id="productList"></datalist>
-                            <small style="font-size: 12px; color: #64748b;">Produtos conhecidos autocompletam as taras</small>
-                        </div>
-                        
-                        <!-- Fornecedor -->
-                        <div class="form-group">
-                            <label for="supplier"><i class="fas fa-truck"></i> Fornecedor</label>
-                            <input type="text" id="supplier" placeholder="Nome do fornecedor">
+                        <!-- Fornecedor y Producto en MISMA LÍNEA - SIEMPRE HORIZONTAL -->
+                        <div class="supplier-product-row">
+                            <!-- Fornecedor A LA IZQUIERDA -->
+                            <div class="supplier-group">
+                                <label for="supplier"><i class="fas fa-truck"></i> Fornecedor</label>
+                                <input type="text" id="supplier" placeholder="Nome do fornecedor" list="supplierList">
+                                <datalist id="supplierList"></datalist>
+                            </div>
+                            
+                            <!-- Producto A LA DERECHA -->
+                            <div class="product-group">
+                                <label for="product"><i class="fas fa-box"></i> Produto</label>
+                                <input type="text" id="product" placeholder="Nome do produto" autocomplete="off" list="productList">
+                                <datalist id="productList"></datalist>
+                            </div>
                         </div>
                         
                         <!-- Pesos -->
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                        <div class="weights-row">
                             <div class="form-group">
                                 <label for="grossWeight"><i class="fas fa-weight-hanging"></i> Peso Bruto (kg)</label>
                                 <input type="text" id="grossWeight" placeholder="15.5, 12.3, 18.7">
-                                <small style="font-size: 11px; color: #64748b;">Separar por vírgula para múltiplas</small>
+                                <small class="hint">Separar por vírgula</small>
                             </div>
                             <div class="form-group">
                                 <label for="invoiceWeight"><i class="fas fa-file-invoice"></i> Peso Nota (kg)</label>
@@ -735,14 +721,14 @@
                         <!-- Caixas -->
                         <div class="form-group">
                             <label><i class="fas fa-cube"></i> Caixas</label>
-                            <div style="display: flex; gap: 10px;">
-                                <div style="flex: 1;">
-                                    <small style="display: block; font-size: 11px; color: #64748b;">Quantidade</small>
-                                    <input type="number" id="boxQuantity" value="0" min="0" style="padding: 8px;">
+                            <div class="input-row">
+                                <div class="input-half">
+                                    <small>Quantidade</small>
+                                    <input type="number" id="boxQuantity" value="0" min="0">
                                 </div>
-                                <div style="flex: 1;">
-                                    <small style="display: block; font-size: 11px; color: #64748b;">Tara/Unid. (kg)</small>
-                                    <input type="number" id="boxTara" step="0.001" placeholder="0.000" style="padding: 8px;">
+                                <div class="input-half">
+                                    <small>Tara/Unid. (kg)</small>
+                                    <input type="number" id="boxTara" step="0.001" placeholder="0.000">
                                 </div>
                             </div>
                         </div>
@@ -750,19 +736,19 @@
                         <!-- Embalagens -->
                         <div class="form-group">
                             <label><i class="fas fa-layer-group"></i> Embalagens</label>
-                            <div style="display: flex; gap: 10px;">
-                                <div style="flex: 1;">
-                                    <small style="display: block; font-size: 11px; color: #64748b;">Quantidade</small>
-                                    <input type="number" id="packagingQuantity" value="0" min="0" style="padding: 8px;">
+                            <div class="input-row">
+                                <div class="input-half">
+                                    <small>Quantidade</small>
+                                    <input type="number" id="packagingQuantity" value="0" min="0">
                                 </div>
-                                <div style="flex: 1;">
-                                    <small style="display: block; font-size: 11px; color: #64748b;">Tara/Unid. (kg)</small>
-                                    <input type="number" id="packagingTara" step="0.001" placeholder="0.000" style="padding: 8px;">
+                                <div class="input-half">
+                                    <small>Tara/Unid. (kg)</small>
+                                    <input type="number" id="packagingTara" step="0.001" placeholder="0.000">
                                 </div>
                             </div>
                         </div>
                         
-                        <!-- Totales de Tara - HORIZONTAL -->
+                        <!-- Totales de Tara - SIEMPRE HORIZONTAL -->
                         <div class="tara-totals">
                             <div class="tara-item">
                                 <span class="tara-label">Total Caixas</span>
@@ -778,43 +764,22 @@
                             </div>
                         </div>
                         
-                        <!-- Botones de Acción -->
-                        <div class="buttons-grid">
-                            <button type="button" class="btn-secondary" id="clearForm">
-                                <i class="fas fa-eraser"></i> Limpar
+                        <!-- Botones de Acción - HORIZONTAL CON ICONOS -->
+                        <div class="action-buttons-horizontal">
+                            <button type="button" class="btn-icon-action" id="clearForm" title="Limpar">
+                                <i class="fas fa-eraser"></i>
                             </button>
-                            <button type="submit" class="btn-primary">
-                                <i class="fas fa-plus"></i> Adicionar
+                            <button type="submit" class="btn-icon-action primary" title="Adicionar">
+                                <i class="fas fa-plus"></i>
                             </button>
-                            <button type="button" class="btn-secondary" id="quickCalc">
-                                <i class="fas fa-calculator"></i> Calcular
+                            <button type="button" class="btn-icon-action" id="quickCalc" title="Calcular">
+                                <i class="fas fa-calculator"></i>
                             </button>
-                            <button type="button" class="btn-secondary" id="saveProduct">
-                                <i class="fas fa-save"></i> Salvar Prod.
+                            <button type="button" class="btn-icon-action" id="saveProduct" title="Salvar Produto">
+                                <i class="fas fa-save"></i>
                             </button>
                         </div>
                     </form>
-                </div>
-                
-                <!-- Stats Rápidos -->
-                <div class="form-container">
-                    <div class="form-title">
-                        <i class="fas fa-chart-line"></i> Hoje
-                    </div>
-                    <div class="tara-totals">
-                        <div class="tara-item">
-                            <span class="tara-label">Pesagens Hoje</span>
-                            <span class="tara-value" id="sessionCountCompact">0</span>
-                        </div>
-                        <div class="tara-item">
-                            <span class="tara-label">Total Líquido</span>
-                            <span class="tara-value" id="sessionNetCompact">0.000 kg</span>
-                        </div>
-                        <div class="tara-item">
-                            <span class="tara-label">Ticket Atual</span>
-                            <span class="tara-value">#<span id="ticketNumberCompact">001</span></span>
-                        </div>
-                    </div>
                 </div>
             </section>
             
@@ -825,59 +790,46 @@
                         <i class="fas fa-receipt"></i> Ticket Atual
                     </div>
                     
-                    <!-- Botones del ticket -->
-                    <div class="buttons-grid">
-                        <button class="btn-secondary" id="printTicketBtn">
-                            <i class="fas fa-print"></i> Imprimir
+                    <!-- Botones del ticket - HORIZONTAL -->
+                    <div class="action-buttons-horizontal">
+                        <button class="btn-icon-action" id="printTicketBtn" title="Imprimir">
+                            <i class="fas fa-print"></i>
                         </button>
-                        <button class="btn-secondary" id="shareTicketBtn">
-                            <i class="fab fa-whatsapp"></i> WhatsApp
+                        <button class="btn-icon-action" id="shareTicketBtn" title="WhatsApp">
+                            <i class="fab fa-whatsapp"></i>
                         </button>
-                        <button class="btn-secondary" id="exportTicketBtn">
-                            <i class="fas fa-file-export"></i> Exportar
+                        <button class="btn-icon-action" id="exportTicketBtn" title="Exportar">
+                            <i class="fas fa-file-export"></i>
                         </button>
-                        <button class="btn-secondary" id="clearTicketBtn">
-                            <i class="fas fa-trash"></i> Limpar
+                        <button class="btn-icon-action" id="clearTicketBtn" title="Limpar">
+                            <i class="fas fa-trash"></i>
                         </button>
                     </div>
                     
                     <!-- Ticket -->
                     <div class="ticket-preview">
                         <div class="ticket-header">
-                            <div style="font-weight: bold; font-size: 16px;">CONTROLE DE PESAGEM</div>
-                            <div style="font-size: 12px;">Ticket #<span id="ticketNumberCompact2">001</span></div>
-                            <div style="font-size: 11px;" id="ticketDateCompact">03/01/2026</div>
+                            <div style="font-weight: bold; font-size: 14px;">CONTROLE DE PESAGEM</div>
+                            <div style="font-size: 11px;">Ticket #<span id="ticketNumberCompact2">001</span></div>
+                            <div style="font-size: 10px;" id="ticketDateCompact">03/01/2026</div>
                         </div>
                         
                         <div class="ticket-body" id="ticketItemsCompact">
-                            <div style="text-align: center; padding: 30px 0; color: #94a3b8;">
-                                <i class="fas fa-receipt" style="font-size: 40px; margin-bottom: 10px;"></i>
+                            <div style="text-align: center; padding: 20px 0; color: #94a3b8;">
+                                <i class="fas fa-receipt" style="font-size: 30px; margin-bottom: 8px;"></i>
                                 <div>Nenhuma pesagem registrada</div>
                             </div>
                         </div>
                         
                         <div class="ticket-footer">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 12px;">
                                 <span>Total Itens:</span>
                                 <span id="ticketTotalItems">0</span>
                             </div>
-                            <div style="display: flex; justify-content: space-between; font-weight: bold;">
+                            <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 13px;">
                                 <span>TOTAL LÍQUIDO:</span>
                                 <span id="ticketTotalWeight">0.000 kg</span>
                             </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Opciones de impresión -->
-                    <div style="margin-top: 20px;">
-                        <h4 style="margin-bottom: 10px; color: #1e293b;"><i class="fas fa-print"></i> Opções de Impressão</h4>
-                        <div class="print-options">
-                            <button class="btn-secondary" id="printThermalBtn">
-                                <i class="fas fa-receipt"></i> Ticket Térmico
-                            </button>
-                            <button class="btn-secondary" id="printFullBtn">
-                                <i class="fas fa-file-pdf"></i> Página Completa
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -890,121 +842,27 @@
                         <i class="fas fa-history"></i> Histórico de Pesagens
                     </div>
                     
-                    <!-- Botones del histórico -->
-                    <div class="buttons-grid">
-                        <button class="btn-secondary" id="filterTodayBtn">
-                            <i class="fas fa-calendar-day"></i> Hoje
+                    <!-- Botones del histórico - HORIZONTAL -->
+                    <div class="action-buttons-horizontal">
+                        <button class="btn-icon-action" id="filterTodayBtn" title="Hoje">
+                            <i class="fas fa-calendar-day"></i>
                         </button>
-                        <button class="btn-secondary" id="filterWeekBtn">
-                            <i class="fas fa-calendar-week"></i> Esta Semana
+                        <button class="btn-icon-action" id="filterWeekBtn" title="Esta Semana">
+                            <i class="fas fa-calendar-week"></i>
                         </button>
-                        <button class="btn-secondary" id="filterAllBtn">
-                            <i class="fas fa-calendar-alt"></i> Todos
+                        <button class="btn-icon-action" id="filterAllBtn" title="Todos">
+                            <i class="fas fa-calendar-alt"></i>
                         </button>
-                        <button class="btn-secondary" id="exportHistoryBtn">
-                            <i class="fas fa-file-csv"></i> CSV
+                        <button class="btn-icon-action" id="exportHistoryBtn" title="CSV">
+                            <i class="fas fa-file-csv"></i>
                         </button>
                     </div>
                     
                     <!-- Lista del histórico -->
                     <div class="ticket-section" style="max-height: 500px; overflow-y: auto;" id="historyList">
-                        <div style="text-align: center; padding: 60px 0; color: #94a3b8;">
-                            <i class="fas fa-weight-hanging" style="font-size: 40px; margin-bottom: 10px;"></i>
+                        <div style="text-align: center; padding: 40px 0; color: #94a3b8;">
+                            <i class="fas fa-weight-hanging" style="font-size: 30px; margin-bottom: 8px;"></i>
                             <div>Nenhuma pesagem no histórico</div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            
-            <!-- Pestaña 4: Configuração -->
-            <section class="tab-content" id="tab-config">
-                <div class="config-section">
-                    <h3 style="margin-bottom: 15px; color: #1e293b;">
-                        <i class="fas fa-cog"></i> Configurações da Aplicação
-                    </h3>
-                    
-                    <div style="display: grid; gap: 20px;">
-                        <!-- Informações -->
-                        <div class="form-container">
-                            <h4 style="margin-bottom: 15px; color: #2563eb;">
-                                <i class="fas fa-info-circle"></i> Informações
-                            </h4>
-                            <div class="tara-totals">
-                                <div class="tara-item">
-                                    <span class="tara-label">Pesagens</span>
-                                    <span class="tara-value" id="dataCount">0</span>
-                                </div>
-                                <div class="tara-item">
-                                    <span class="tara-label">Produtos</span>
-                                    <span class="tara-value" id="productCount">0</span>
-                                </div>
-                                <div class="tara-item">
-                                    <span class="tara-label">Armazenamento</span>
-                                    <span class="tara-value" id="storageUsed">0 KB</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Gerenciamento de Dados -->
-                        <div class="form-container">
-                            <h4 style="margin-bottom: 15px; color: #2563eb;">
-                                <i class="fas fa-database"></i> Gerenciamento de Dados
-                            </h4>
-                            <div class="buttons-grid">
-                                <button class="btn-secondary" id="exportAllData">
-                                    <i class="fas fa-file-export"></i> Exportar Tudo
-                                </button>
-                                <button class="btn-secondary" id="importDataBtn">
-                                    <i class="fas fa-file-import"></i> Importar
-                                </button>
-                                <button class="btn-secondary" id="clearAllData">
-                                    <i class="fas fa-trash"></i> Limpar Tudo
-                                </button>
-                                <button class="btn-secondary" id="backupDataBtn">
-                                    <i class="fas fa-save"></i> Backup
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <!-- Instalação PWA -->
-                        <div class="form-container">
-                            <h4 style="margin-bottom: 15px; color: #2563eb;">
-                                <i class="fas fa-mobile-alt"></i> Instalação do App
-                            </h4>
-                            <div class="buttons-grid">
-                                <button class="btn-primary" id="installAppBtn">
-                                    <i class="fas fa-download"></i> Instalar App
-                                </button>
-                                <button class="btn-secondary" id="createAPKBtn">
-                                    <i class="fas fa-android"></i> Criar APK
-                                </button>
-                                <button class="btn-secondary" id="checkUpdateBtn">
-                                    <i class="fas fa-sync"></i> Verificar Atualizações
-                                </button>
-                                <button class="btn-secondary" onclick="window.open('generate-apk.html', '_blank')">
-                                    <i class="fas fa-question-circle"></i> Ajuda
-                                </button>
-                            </div>
-                            <p style="margin-top: 15px; font-size: 12px; color: #64748b;">
-                                <i class="fas fa-info-circle"></i> Para melhor experiência, instale o app no seu dispositivo.
-                            </p>
-                        </div>
-                        
-                        <!-- Sobre -->
-                        <div class="form-container">
-                            <h4 style="margin-bottom: 15px; color: #2563eb;">
-                                <i class="fas fa-code"></i> Sobre
-                            </h4>
-                            <div style="text-align: center; padding: 15px;">
-                                <div style="font-size: 14px; color: #64748b; margin-bottom: 10px;">
-                                    <strong>Controle de Pesagem</strong><br>
-                                    Versão 1.0.0
-                                </div>
-                                <div style="font-size: 12px; color: #94a3b8;">
-                                    Desenvolvido para controle de pesagem em armazém<br>
-                                    © 2026 - Todos os direitos reservados
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -1034,55 +892,689 @@
     </div>
 
     <!-- JavaScript -->
-    <script src="app.js"></script>
     <script>
-        // Script adicional para PWA
         document.addEventListener('DOMContentLoaded', function() {
-            // Botón flotante de instalación
-            const floatingInstallBtn = document.getElementById('floatingInstallBtn');
-            const installPrompt = document.getElementById('pwaInstallPrompt');
-            const installPromptBtn = document.getElementById('installPromptBtn');
-            const closePromptBtn = document.getElementById('closePromptBtn');
+            // Elementos del DOM para cálculos
+            const grossWeightInput = document.getElementById('grossWeight');
+            const invoiceWeightInput = document.getElementById('invoiceWeight');
+            const boxQuantityInput = document.getElementById('boxQuantity');
+            const boxTaraInput = document.getElementById('boxTara');
+            const packagingQuantityInput = document.getElementById('packagingQuantity');
+            const packagingTaraInput = document.getElementById('packagingTara');
+            const totalBoxTaraSpan = document.getElementById('totalBoxTara');
+            const totalPackagingTaraSpan = document.getElementById('totalPackagingTara');
+            const totalTaraSpan = document.getElementById('totalTara');
             
-            // Mostrar/ocultar botón flotante según soporte PWA
-            if ('beforeinstallprompt' in window) {
-                floatingInstallBtn.style.display = 'flex';
-                
-                floatingInstallBtn.addEventListener('click', function() {
-                    installPrompt.style.display = 'flex';
-                });
-                
-                closePromptBtn.addEventListener('click', function() {
-                    installPrompt.style.display = 'none';
-                });
-                
-                installPromptBtn.addEventListener('click', function() {
-                    if (window.deferredPrompt) {
-                        window.deferredPrompt.prompt();
-                        installPrompt.style.display = 'none';
+            // Elementos para funcionalidad
+            const supplierInput = document.getElementById('supplier');
+            const productInput = document.getElementById('product');
+            const supplierList = document.getElementById('supplierList');
+            const productList = document.getElementById('productList');
+            const historyList = document.getElementById('historyList');
+            
+            // Botones de acción
+            const clearFormBtn = document.getElementById('clearForm');
+            const quickCalcBtn = document.getElementById('quickCalc');
+            const saveProductBtn = document.getElementById('saveProduct');
+            const form = document.getElementById('pesagemForm');
+            
+            // Botones del ticket
+            const printTicketBtn = document.getElementById('printTicketBtn');
+            const shareTicketBtn = document.getElementById('shareTicketBtn');
+            const exportTicketBtn = document.getElementById('exportTicketBtn');
+            const clearTicketBtn = document.getElementById('clearTicketBtn');
+            
+            // Botones del histórico
+            const filterTodayBtn = document.getElementById('filterTodayBtn');
+            const filterWeekBtn = document.getElementById('filterWeekBtn');
+            const filterAllBtn = document.getElementById('filterAllBtn');
+            const exportHistoryBtn = document.getElementById('exportHistoryBtn');
+            
+            // Variables para datos
+            let currentTicket = [];
+            let ticketNumber = parseInt(localStorage.getItem('ticketNumber')) || 1;
+            let productTaras = {}; // {productName: {boxTara: value, packagingTara: value}}
+            let supplierProducts = {}; // {supplierName: [product1, product2]}
+            let suppliers = [];
+            
+            // Inicializar desde localStorage
+            function initFromStorage() {
+                try {
+                    // Cargar ticket actual
+                    const savedTicket = localStorage.getItem('currentTicket');
+                    if (savedTicket) {
+                        currentTicket = JSON.parse(savedTicket);
+                        updateTicketDisplay();
                     }
-                });
+                    
+                    // Cargar número de ticket
+                    const savedTicketNumber = localStorage.getItem('ticketNumber');
+                    if (savedTicketNumber) {
+                        ticketNumber = parseInt(savedTicketNumber);
+                        document.getElementById('ticketNumberCompact2').textContent = ticketNumber.toString().padStart(3, '0');
+                    }
+                    
+                    // Cargar taras de productos
+                    const savedProductTaras = localStorage.getItem('productTaras');
+                    if (savedProductTaras) {
+                        productTaras = JSON.parse(savedProductTaras);
+                    }
+                    
+                    // Cargar supplierProducts
+                    const savedSupplierProducts = localStorage.getItem('supplierProducts');
+                    if (savedSupplierProducts) {
+                        supplierProducts = JSON.parse(savedSupplierProducts);
+                        suppliers = Object.keys(supplierProducts);
+                        
+                        // Actualizar datalists
+                        suppliers.forEach(supplier => {
+                            const option = document.createElement('option');
+                            option.value = supplier;
+                            supplierList.appendChild(option);
+                        });
+                        
+                        // Agregar todos los productos a la lista
+                        const allProducts = [...new Set(Object.values(supplierProducts).flat())];
+                        allProducts.forEach(product => {
+                            const option = document.createElement('option');
+                            option.value = product;
+                            productList.appendChild(option);
+                        });
+                    }
+                } catch (e) {
+                    console.error('Error cargando datos:', e);
+                }
             }
             
-            // Detectar si ya está instalada como PWA
-            if (window.matchMedia('(display-mode: standalone)').matches) {
-                floatingInstallBtn.style.display = 'none';
-                document.getElementById('installBtn').style.display = 'none';
+            // Función para calcular taras
+            function calculateTaras() {
+                const boxQty = parseFloat(boxQuantityInput.value) || 0;
+                const boxTara = parseFloat(boxTaraInput.value) || 0;
+                const packagingQty = parseFloat(packagingQuantityInput.value) || 0;
+                const packagingTara = parseFloat(packagingTaraInput.value) || 0;
+                
+                const totalBoxTara = boxQty * boxTara;
+                const totalPackagingTara = packagingQty * packagingTara;
+                const totalTara = totalBoxTara + totalPackagingTara;
+                
+                totalBoxTaraSpan.textContent = totalBoxTara.toFixed(3) + ' kg';
+                totalPackagingTaraSpan.textContent = totalPackagingTara.toFixed(3) + ' kg';
+                totalTaraSpan.textContent = totalTara.toFixed(3) + ' kg';
+                
+                return totalTara;
+            }
+            
+            // Función para cargar taras de un producto conocido
+            function loadProductTaras(productName) {
+                if (productTaras[productName]) {
+                    const taras = productTaras[productName];
+                    boxTaraInput.value = taras.boxTara || '';
+                    packagingTaraInput.value = taras.packagingTara || '';
+                    calculateTaras();
+                    
+                    // Mostrar que es un producto conocido con taras
+                    updateProductStatus(true, true);
+                    showToast(`Taras carregadas para ${productName}`, 'info');
+                } else {
+                    // Producto conocido pero sin taras guardadas
+                    updateProductStatus(true, false);
+                }
+            }
+            
+            // Función para guardar taras de un producto
+            function saveProductTaras(productName) {
+                const boxTara = parseFloat(boxTaraInput.value) || 0;
+                const packagingTara = parseFloat(packagingTaraInput.value) || 0;
+                
+                if (boxTara > 0 || packagingTara > 0) {
+                    productTaras[productName] = {
+                        boxTara: boxTara,
+                        packagingTara: packagingTara,
+                        lastUpdated: new Date().toISOString()
+                    };
+                    
+                    localStorage.setItem('productTaras', JSON.stringify(productTaras));
+                    
+                    // También aprender asociación fornecedor-produto
+                    const supplier = supplierInput.value.trim();
+                    if (supplier && productName) {
+                        if (!supplierProducts[supplier]) {
+                            supplierProducts[supplier] = [];
+                        }
+                        
+                        if (!supplierProducts[supplier].includes(productName)) {
+                            supplierProducts[supplier].push(productName);
+                            localStorage.setItem('supplierProducts', JSON.stringify(supplierProducts));
+                            
+                            // Actualizar datalist
+                            const option = document.createElement('option');
+                            option.value = productName;
+                            productList.appendChild(option);
+                        }
+                    }
+                    
+                    updateProductStatus(true, true);
+                    showToast(`Taras salvas para ${productName}`, 'success');
+                }
+            }
+            
+            // Event listener para autocompletar producto
+            productInput.addEventListener('input', function() {
+                const productName = this.value.trim();
+                if (productName && productTaras[productName]) {
+                    loadProductTaras(productName);
+                }
+            });
+            
+            // Event listener para cuando el producto pierde el foco (guardar taras)
+            productInput.addEventListener('blur', function() {
+                const productName = this.value.trim();
+                const boxTara = parseFloat(boxTaraInput.value) || 0;
+                const packagingTara = parseFloat(packagingTaraInput.value) || 0;
+                
+                if (productName && (boxTara > 0 || packagingTara > 0)) {
+                    // Si hay taras, preguntar si quiere guardarlas
+                    if (!productTaras[productName]) {
+                        setTimeout(() => {
+                            if (confirm(`Salvar as taras para o produto "${productName}"?`)) {
+                                saveProductTaras(productName);
+                            }
+                        }, 500);
+                    }
+                }
+            });
+            
+            // Botón específico para salvar producto con taras
+            saveProductBtn.addEventListener('click', function() {
+                const supplier = supplierInput.value.trim();
+                const product = productInput.value.trim();
+                const boxTara = parseFloat(boxTaraInput.value) || 0;
+                const packagingTara = parseFloat(packagingTaraInput.value) || 0;
+                
+                if (!product) {
+                    showToast('Digite o nome do produto', 'warning');
+                    return;
+                }
+                
+                if (boxTara === 0 && packagingTara === 0) {
+                    showToast('Digite as taras para salvar', 'warning');
+                    return;
+                }
+                
+                saveProductTaras(product);
+            });
+            
+            // Función para calcular peso neto
+            function calculateNetWeight() {
+                const grossWeightStr = grossWeightInput.value.trim();
+                const invoiceWeight = parseFloat(invoiceWeightInput.value) || 0;
+                const totalTara = calculateTaras();
+                
+                if (!grossWeightStr) return 0;
+                
+                // Sumar múltiples pesos separados por coma
+                const weights = grossWeightStr.split(',').map(w => parseFloat(w.trim())).filter(w => !isNaN(w));
+                const totalGross = weights.reduce((sum, w) => sum + w, 0);
+                
+                const netWeight = totalGross - totalTara;
+                return {
+                    totalGross,
+                    netWeight,
+                    invoiceWeight,
+                    difference: totalGross - invoiceWeight
+                };
+            }
+            
+            // Event listeners para cálculos automáticos
+            [boxQuantityInput, boxTaraInput, packagingQuantityInput, packagingTaraInput].forEach(input => {
+                input.addEventListener('input', calculateTaras);
+            });
+            
+            // Botón calcular
+            quickCalcBtn.addEventListener('click', function() {
+                const result = calculateNetWeight();
+                if (result.totalGross > 0) {
+                    showToast(`Peso Líquido: ${result.netWeight.toFixed(3)} kg`, 'info');
+                } else {
+                    showToast('Digite o peso bruto', 'warning');
+                }
+            });
+            
+            // Botón limpiar formulario
+            clearFormBtn.addEventListener('click', function() {
+                document.getElementById('pesagemForm').reset();
+                calculateTaras();
+                updateProductStatus(false, false);
+                showToast('Formulário limpo', 'info');
+            });
+            
+            // Form submit - Adicionar pesagem
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const supplier = supplierInput.value.trim();
+                const product = productInput.value.trim();
+                const result = calculateNetWeight();
+                
+                if (!product || result.totalGross === 0) {
+                    showToast('Preencha produto e peso bruto', 'warning');
+                    return;
+                }
+                
+                // Crear objeto de pesagem
+                const weighing = {
+                    id: Date.now(),
+                    supplier,
+                    product,
+                    grossWeight: result.totalGross,
+                    invoiceWeight: result.invoiceWeight,
+                    netWeight: result.netWeight,
+                    difference: result.difference,
+                    boxQuantity: parseFloat(boxQuantityInput.value) || 0,
+                    boxTara: parseFloat(boxTaraInput.value) || 0,
+                    packagingQuantity: parseFloat(packagingQuantityInput.value) || 0,
+                    packagingTara: parseFloat(packagingTaraInput.value) || 0,
+                    totalTara: result.totalGross - result.netWeight,
+                    timestamp: new Date().toLocaleString('pt-BR')
+                };
+                
+                // Agregar al ticket actual
+                currentTicket.push(weighing);
+                localStorage.setItem('currentTicket', JSON.stringify(currentTicket));
+                
+                // Guardar en histórico
+                let history = JSON.parse(localStorage.getItem('weighings')) || [];
+                history.push(weighing);
+                localStorage.setItem('weighings', JSON.stringify(history));
+                
+                // Actualizar display
+                updateTicketDisplay();
+                
+                // Mostrar confirmación
+                showToast(`Pesagem adicionada: ${result.netWeight.toFixed(3)} kg`, 'success');
+                
+                // Limpiar solo algunos campos
+                grossWeightInput.value = '';
+                invoiceWeightInput.value = '';
+                boxQuantityInput.value = '0';
+                packagingQuantityInput.value = '0';
+                
+                // Dejar las taras para el próximo producto del mismo tipo
+                calculateTaras();
+                
+                // Actualizar histórico si está visible
+                if (document.getElementById('tab-historico').classList.contains('active')) {
+                    loadHistoryWithColors();
+                }
+            });
+            
+            // Sistema de aprendizaje para fornecedor
+            supplierInput.addEventListener('input', function() {
+                const supplierName = this.value.trim();
+                if (supplierName && supplierProducts[supplierName]) {
+                    // Actualizar datalist de productos para este fornecedor
+                    productList.innerHTML = '';
+                    supplierProducts[supplierName].forEach(product => {
+                        const option = document.createElement('option');
+                        option.value = product;
+                        productList.appendChild(option);
+                    });
+                    
+                    // Si solo hay un producto, autocompletar
+                    if (supplierProducts[supplierName].length === 1) {
+                        const singleProduct = supplierProducts[supplierName][0];
+                        productInput.value = singleProduct;
+                        
+                        // Cargar taras si existen
+                        if (productTaras[singleProduct]) {
+                            loadProductTaras(singleProduct);
+                        }
+                    }
+                    
+                    updateProductStatus(supplierProducts[supplierName].length > 0, false);
+                } else {
+                    updateProductStatus(false, false);
+                }
+            });
+            
+            // Función para actualizar estado del producto
+            function updateProductStatus(isKnown, hasTaras = false) {
+                const statusBadge = document.getElementById('productStatus');
+                const statusDot = statusBadge.querySelector('.status-dot');
+                const statusText = statusBadge.querySelector('span:last-child');
+                
+                if (isKnown) {
+                    statusDot.classList.add('known');
+                    if (hasTaras) {
+                        statusText.textContent = 'Produto com taras';
+                        statusBadge.style.background = '#d1fae5';
+                        statusBadge.style.color = '#065f46';
+                    } else {
+                        statusText.textContent = 'Produto conhecido';
+                        statusBadge.style.background = '#fef3c7';
+                        statusBadge.style.color = '#92400e';
+                    }
+                } else {
+                    statusDot.classList.remove('known');
+                    statusText.textContent = 'Novo produto';
+                    statusBadge.style.background = '#dbeafe';
+                    statusBadge.style.color = '#1d4ed8';
+                }
+            }
+            
+            // Función para actualizar ticket display
+            function updateTicketDisplay() {
+                const ticketItems = document.getElementById('ticketItemsCompact');
+                const ticketTotalItems = document.getElementById('ticketTotalItems');
+                const ticketTotalWeight = document.getElementById('ticketTotalWeight');
+                const ticketDate = document.getElementById('ticketDateCompact');
+                
+                if (currentTicket.length === 0) {
+                    ticketItems.innerHTML = `
+                        <div style="text-align: center; padding: 20px 0; color: #94a3b8;">
+                            <i class="fas fa-receipt" style="font-size: 30px; margin-bottom: 8px;"></i>
+                            <div>Nenhuma pesagem registrada</div>
+                        </div>
+                    `;
+                    ticketTotalItems.textContent = '0';
+                    ticketTotalWeight.textContent = '0.000 kg';
+                    return;
+                }
+                
+                let totalNetWeight = 0;
+                let itemsHtml = '';
+                
+                currentTicket.forEach((item, index) => {
+                    totalNetWeight += item.netWeight;
+                    const diffClass = item.difference > 0 ? 'diff-positive' : item.difference < 0 ? 'diff-negative' : '';
+                    const diffText = item.difference > 0 ? `+${item.difference.toFixed(3)}` : item.difference.toFixed(3);
+                    
+                    itemsHtml += `
+                        <div class="ticket-item">
+                            <div style="display: flex; justify-content: space-between;">
+                                <strong>${item.product}</strong>
+                                <small>${item.netWeight.toFixed(3)} kg</small>
+                            </div>
+                            <div style="font-size: 11px; color: #64748b;">
+                                ${item.supplier} • Dif: <span class="${diffClass}">${diffText} kg</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                ticketItems.innerHTML = itemsHtml;
+                ticketTotalItems.textContent = currentTicket.length;
+                ticketTotalWeight.textContent = totalNetWeight.toFixed(3) + ' kg';
+                ticketDate.textContent = new Date().toLocaleDateString('pt-BR');
+            }
+            
+            // Botones del ticket
+            printTicketBtn.addEventListener('click', function() {
+                if (currentTicket.length === 0) {
+                    showToast('Nenhuma pesagem no ticket', 'warning');
+                    return;
+                }
+                showToast('Funcionalidade de impressão em desenvolvimento', 'info');
+            });
+            
+            shareTicketBtn.addEventListener('click', function() {
+                if (currentTicket.length === 0) {
+                    showToast('Nenhuma pesagem no ticket', 'warning');
+                    return;
+                }
+                
+                let message = `*Ticket #${ticketNumber} - Controle de Pesagem*\n\n`;
+                currentTicket.forEach(item => {
+                    message += `• ${item.product}: ${item.netWeight.toFixed(3)} kg\n`;
+                    message += `  Fornecedor: ${item.supplier}\n\n`;
+                });
+                
+                const totalNet = currentTicket.reduce((sum, item) => sum + item.netWeight, 0);
+                message += `*Total: ${totalNet.toFixed(3)} kg*\n`;
+                message += `Itens: ${currentTicket.length}`;
+                
+                // Para WhatsApp
+                const encodedMessage = encodeURIComponent(message);
+                window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
+            });
+            
+            exportTicketBtn.addEventListener('click', function() {
+                if (currentTicket.length === 0) {
+                    showToast('Nenhuma pesagem no ticket', 'warning');
+                    return;
+                }
+                
+                let csv = 'Produto,Fornecedor,Peso Bruto,Peso Nota,Peso Líquido,Diferença,Data\n';
+                currentTicket.forEach(item => {
+                    csv += `"${item.product}","${item.supplier}",${item.grossWeight},${item.invoiceWeight},${item.netWeight},${item.difference},"${item.timestamp}"\n`;
+                });
+                
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `ticket_${ticketNumber}_${new Date().toISOString().split('T')[0]}.csv`;
+                a.click();
+                
+                showToast('Ticket exportado como CSV', 'success');
+            });
+            
+            clearTicketBtn.addEventListener('click', function() {
+                if (currentTicket.length === 0) {
+                    showToast('Ticket já está vazio', 'info');
+                    return;
+                }
+                
+                if (confirm('Limpar todas as pesagens do ticket atual?')) {
+                    // Guardar ticket en histórico completo antes de limpiar
+                    let allTickets = JSON.parse(localStorage.getItem('allTickets')) || [];
+                    allTickets.push({
+                        number: ticketNumber,
+                        date: new Date().toISOString(),
+                        items: [...currentTicket],
+                        totalItems: currentTicket.length,
+                        totalWeight: currentTicket.reduce((sum, item) => sum + item.netWeight, 0)
+                    });
+                    localStorage.setItem('allTickets', JSON.stringify(allTickets));
+                    
+                    // Incrementar número de ticket
+                    ticketNumber++;
+                    localStorage.setItem('ticketNumber', ticketNumber);
+                    document.getElementById('ticketNumberCompact2').textContent = ticketNumber.toString().padStart(3, '0');
+                    
+                    // Limpiar ticket actual
+                    currentTicket = [];
+                    localStorage.setItem('currentTicket', JSON.stringify(currentTicket));
+                    updateTicketDisplay();
+                    
+                    showToast(`Ticket #${ticketNumber-1} salvo no histórico`, 'success');
+                }
+            });
+            
+            // Funcionalidad del histórico
+            filterTodayBtn.addEventListener('click', function() {
+                showToast('Mostrando pesagens de hoje', 'info');
+                loadHistoryWithColors('today');
+            });
+            
+            filterWeekBtn.addEventListener('click', function() {
+                showToast('Mostrando pesagens desta semana', 'info');
+                loadHistoryWithColors('week');
+            });
+            
+            filterAllBtn.addEventListener('click', function() {
+                showToast('Mostrando todas as pesagens', 'info');
+                loadHistoryWithColors('all');
+            });
+            
+            exportHistoryBtn.addEventListener('click', function() {
+                const weighings = JSON.parse(localStorage.getItem('weighings')) || [];
+                if (weighings.length === 0) {
+                    showToast('Nenhuma pesagem no histórico', 'warning');
+                    return;
+                }
+                
+                let csv = 'Data,Produto,Fornecedor,Peso Bruto,Peso Nota,Peso Líquido,Diferença,Caixas,Tara Caixa,Embalagens,Tara Embalagem\n';
+                weighings.forEach(item => {
+                    csv += `"${item.timestamp}","${item.product}","${item.supplier}",${item.grossWeight},${item.invoiceWeight},${item.netWeight},${item.difference},${item.boxQuantity},${item.boxTara},${item.packagingQuantity},${item.packagingTara}\n`;
+                });
+                
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `historico_pesagens_${new Date().toISOString().split('T')[0]}.csv`;
+                a.click();
+                
+                showToast('Histórico exportado como CSV', 'success');
+            });
+            
+            // Función para cargar histórico con colores
+            function loadHistoryWithColors(filter = 'all') {
+                try {
+                    const weighings = JSON.parse(localStorage.getItem('weighings')) || [];
+                    
+                    // Filtrar por fecha
+                    const now = new Date();
+                    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                    const weekAgo = new Date(today);
+                    weekAgo.setDate(weekAgo.getDate() - 7);
+                    
+                    let filteredWeighings = weighings;
+                    if (filter === 'today') {
+                        filteredWeighings = weighings.filter(w => {
+                            const itemDate = new Date(w.timestamp);
+                            return itemDate >= today;
+                        });
+                    } else if (filter === 'week') {
+                        filteredWeighings = weighings.filter(w => {
+                            const itemDate = new Date(w.timestamp);
+                            return itemDate >= weekAgo;
+                        });
+                    }
+                    
+                    if (filteredWeighings.length === 0) {
+                        historyList.innerHTML = `
+                            <div style="text-align: center; padding: 40px 0; color: #94a3b8;">
+                                <i class="fas fa-weight-hanging" style="font-size: 30px; margin-bottom: 8px;"></i>
+                                <div>Nenhuma pesagem no histórico ${filter !== 'all' ? `(${filter})` : ''}</div>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    historyList.innerHTML = '';
+                    
+                    filteredWeighings.slice().reverse().forEach((weighing, index) => {
+                        const item = document.createElement('div');
+                        item.className = 'history-item';
+                        
+                        // Determinar color de diferencia
+                        const diffClass = weighing.difference > 0 ? 'diff-positive' : weighing.difference < 0 ? 'diff-negative' : '';
+                        const diffText = weighing.difference > 0 ? `+${weighing.difference.toFixed(3)}` : weighing.difference.toFixed(3);
+                        
+                        item.innerHTML = `
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <strong style="font-size: 13px;">${weighing.product || 'Sem nome'}</strong>
+                                <small style="color: #64748b; font-size: 11px;">${weighing.timestamp || ''}</small>
+                            </div>
+                            <div style="font-size: 12px; color: #64748b; margin-bottom: 5px;">
+                                <i class="fas fa-truck"></i> ${weighing.supplier || 'Sem fornecedor'}
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 12px;">
+                                <div>
+                                    <span style="color: #64748b;">Líquido: </span>
+                                    <strong>${weighing.netWeight.toFixed(3)} kg</strong>
+                                </div>
+                                <div>
+                                    <span style="color: #64748b;">Diferença: </span>
+                                    <strong class="${diffClass}">${diffText} kg</strong>
+                                </div>
+                            </div>
+                        `;
+                        
+                        historyList.appendChild(item);
+                    });
+                } catch (e) {
+                    console.error('Error cargando histórico:', e);
+                }
+            }
+            
+            // Función para mostrar toast
+            function showToast(message, type = 'info') {
+                const toastContainer = document.getElementById('toastContainer');
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                
+                const icons = {
+                    'success': 'fas fa-check-circle',
+                    'error': 'fas fa-exclamation-circle',
+                    'warning': 'fas fa-exclamation-triangle',
+                    'info': 'fas fa-info-circle'
+                };
+                
+                toast.innerHTML = `
+                    <i class="${icons[type] || icons.info}"></i>
+                    <span>${message}</span>
+                `;
+                
+                toastContainer.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.remove();
+                }, 3000);
+            }
+            
+            // Sistema de tabs
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    document.getElementById('tab-' + tabId).classList.add('active');
+                    
+                    // Cargar histórico si es necesario
+                    if (tabId === 'historico') {
+                        setTimeout(() => loadHistoryWithColors(), 100);
+                    }
+                });
+            });
+            
+            // Inicializar
+            initFromStorage();
+            calculateTaras(); // Calcular taras iniciales
+            
+            // Si hay un produto en el input, verificar si tiene taras
+            if (productInput.value.trim() && productTaras[productInput.value.trim()]) {
+                loadProductTaras(productInput.value.trim());
             }
         });
         
-        // ✅ REGISTRO DEL SERVICE WORKER (NUEVO)
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(function(registration) {
-                        console.log('✅ Service Worker registrado con éxito:', registration.scope);
-                    })
-                    .catch(function(error) {
-                        console.log('❌ Error registrando Service Worker:', error);
-                    });
+        // Actualizar hora
+        function updateDateTime() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('pt-BR', { 
+                day: '2-digit', 
+                month: 'short', 
+                year: 'numeric' 
             });
+            const timeStr = now.toLocaleTimeString('pt-BR', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            
+            document.getElementById('currentDate').textContent = dateStr;
+            document.getElementById('currentTime').textContent = timeStr;
         }
+        
+        setInterval(updateDateTime, 1000);
+        updateDateTime();
     </script>
 </body>
 </html>

@@ -2,13 +2,12 @@
   "name": "Controle de Pesagem",
   "short_name": "Pesagem",
   "start_url": "./index.html",
-  "scope": "/",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#2563eb",
   "theme_color": "#2563eb",
   "description": "Sistema de controle de pesagem para armazém",
   "orientation": "portrait-primary",
-  "prefer_related_applications": false,
   "icons": [
     {
       "src": "https://raw.githubusercontent.com/Best-87/Conferente/main/icons/icon-72x72.png",
@@ -31,49 +30,16 @@
       "type": "image/png"
     },
     {
-      "src": "https://raw.githubusercontent.com/Best-87/Conferente/main/icons/icon-152x152.png",
-      "sizes": "152x152",
-      "type": "image/png"
-    },
-    {
       "src": "https://raw.githubusercontent.com/Best-87/Conferente/main/icons/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "https://raw.githubusercontent.com/Best-87/Conferente/main/icons/icon-384x384.png",
-      "sizes": "384x384",
-      "type": "image/png"
-    },
-    {
       "src": "https://raw.githubusercontent.com/Best-87/Conferente/main/icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "https://via.placeholder.com/360x640/2563eb/ffffff?text=Pesagem+Mobile",
-      "type": "image/png",
-      "sizes": "360x640",
-      "form_factor": "narrow",
-      "label": "Tela principal de pesagem"
-    },
-    {
-      "src": "https://via.placeholder.com/360x640/10b981/ffffff?text=Ticket+View",
-      "type": "image/png",
-      "sizes": "360x640",
-      "form_factor": "narrow",
-      "label": "Visualização de ticket"
-    },
-    {
-      "src": "https://via.placeholder.com/1280x720/2563eb/ffffff?text=Controle+de+Pesagem+Desktop",
-      "type": "image/png",
-      "sizes": "1280x720",
-      "form_factor": "wide",
-      "label": "Visão desktop completa"
     }
   ]
 }
