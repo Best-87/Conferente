@@ -510,7 +510,7 @@
             color: var(--text-tertiary);
         }
         
-        /* Colores para diferencias */
+        /* Colores para diferencias - MEJORADO */
         .diff-positive {
             color: var(--success);
             font-weight: 700;
@@ -519,6 +519,77 @@
         .diff-negative {
             color: var(--error);
             font-weight: 700;
+        }
+        
+        /* ===== HISTORIAL MEJORADO ===== */
+        .history-container {
+            background: var(--surface);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            padding: 12px;
+            margin-top: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .history-item {
+            background: var(--background);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--primary);
+            border: 1px solid var(--border);
+        }
+        
+        .history-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+        
+        .history-product {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-primary);
+        }
+        
+        .history-date {
+            font-size: 10px;
+            color: var(--text-secondary);
+            font-family: 'Roboto Mono', monospace;
+        }
+        
+        .history-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            font-size: 11px;
+        }
+        
+        .history-detail {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px dashed var(--border);
+        }
+        
+        .history-detail-label {
+            color: var(--text-secondary);
+        }
+        
+        .history-detail-value {
+            font-weight: 500;
+            font-family: 'Roboto Mono', monospace;
+        }
+        
+        .history-supplier {
+            font-size: 10px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
         
         /* ===== RESPONSIVE COMPACTO ===== */
@@ -608,6 +679,10 @@
             .btn-icon-action {
                 height: 36px;
                 font-size: 14px;
+            }
+            
+            .history-details {
+                grid-template-columns: 1fr;
             }
         }
         
@@ -864,7 +939,7 @@
                         </button>
                     </div>
                     
-                    <!-- Ticket compacto -->
+                    <!-- Ticket compacto MEJORADO -->
                     <div class="ticket-preview">
                         <div class="ticket-header">
                             <div>CONTROLE DE PESAGEM</div>
@@ -893,7 +968,7 @@
                 </div>
             </section>
             
-            <!-- Pestaña 3: Histórico compacto -->
+            <!-- Pestaña 3: Histórico compacto MEJORADO -->
             <section class="tab-content" id="tab-historico">
                 <div>
                     <div class="form-title">
@@ -917,8 +992,8 @@
                         </button>
                     </div>
                     
-                    <!-- Lista del histórico COMPACTA -->
-                    <div id="historyList" style="max-height: 300px; overflow-y: auto;">
+                    <!-- Lista del histórico MEJORADA -->
+                    <div id="historyList" class="history-container">
                         <div style="text-align: center; padding: 40px 0; color: var(--text-tertiary);">
                             <i class="fas fa-weight-hanging" style="font-size: 32px; margin-bottom: 12px; opacity: 0.5;"></i>
                             <div style="font-size: 12px;">Nenhuma pesagem no histórico</div>
@@ -932,7 +1007,7 @@
     <!-- Toast Container -->
     <div id="toastContainer"></div>
 
-    <!-- JavaScript -->
+    <!-- JavaScript ACTUALIZADO CON TARAS POR FORNECEDOR-PRODUTO -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Elementos del DOM para cálculos
@@ -974,7 +1049,7 @@
             // Variables para datos
             let currentTicket = [];
             let ticketNumber = parseInt(localStorage.getItem('ticketNumber')) || 1;
-            let productTaras = {};
+            let productTaras = {}; // Ahora usa clave: "fornecedor_produto"
             let supplierProducts = {};
             let suppliers = [];
             
@@ -1070,46 +1145,49 @@
                 return totalTara;
             }
             
-            // Función para cargar taras de un producto conocido
-            function loadProductTaras(productName) {
-                if (productTaras[productName]) {
-                    const taras = productTaras[productName];
+            // ===== FUNCIÓN MODIFICADA: CARGAR TARAS POR FORNECEDOR-PRODUCTO =====
+            function loadProductTaras(productName, supplierName) {
+                const key = `${supplierName}_${productName}`;
+                if (productTaras[key]) {
+                    const taras = productTaras[key];
                     boxTaraInput.value = taras.boxTara || '';
                     packagingTaraInput.value = taras.packagingTara || '';
                     calculateTaras();
                     
                     // Mostrar que es un producto conocido con taras
                     updateProductStatus(true, true);
-                    showToast(`Taras carregadas para ${productName}`, 'info');
+                    showToast(`Taras carregadas para ${productName} (${supplierName})`, 'info');
                 } else {
                     // Producto conocido pero sin taras guardadas
                     updateProductStatus(true, false);
                 }
             }
             
-            // Función para guardar taras de un producto
-            function saveProductTaras(productName) {
+            // ===== FUNCIÓN MODIFICADA: GUARDAR TARAS POR FORNECEDOR-PRODUCTO =====
+            function saveProductTaras(productName, supplierName) {
                 const boxTara = parseFloat(boxTaraInput.value) || 0;
                 const packagingTara = parseFloat(packagingTaraInput.value) || 0;
                 
                 if (boxTara > 0 || packagingTara > 0) {
-                    productTaras[productName] = {
+                    const key = `${supplierName}_${productName}`;
+                    productTaras[key] = {
                         boxTara: boxTara,
                         packagingTara: packagingTara,
-                        lastUpdated: new Date().toISOString()
+                        lastUpdated: new Date().toISOString(),
+                        supplier: supplierName,
+                        product: productName
                     };
                     
                     localStorage.setItem('productTaras', JSON.stringify(productTaras));
                     
                     // También aprender asociación fornecedor-produto
-                    const supplier = supplierInput.value.trim();
-                    if (supplier && productName) {
-                        if (!supplierProducts[supplier]) {
-                            supplierProducts[supplier] = [];
+                    if (supplierName && productName) {
+                        if (!supplierProducts[supplierName]) {
+                            supplierProducts[supplierName] = [];
                         }
                         
-                        if (!supplierProducts[supplier].includes(productName)) {
-                            supplierProducts[supplier].push(productName);
+                        if (!supplierProducts[supplierName].includes(productName)) {
+                            supplierProducts[supplierName].push(productName);
                             localStorage.setItem('supplierProducts', JSON.stringify(supplierProducts));
                             
                             // Actualizar datalist
@@ -1120,30 +1198,34 @@
                     }
                     
                     updateProductStatus(true, true);
-                    showToast(`Taras salvas para ${productName}`, 'success');
+                    showToast(`Taras salvas para ${productName} (${supplierName})`, 'success');
                 }
             }
             
-            // Event listener para autocompletar producto
+            // ===== EVENT LISTENER MODIFICADO: AUTOCOMPLETAR PRODUCTO =====
             productInput.addEventListener('input', function() {
                 const productName = this.value.trim();
-                if (productName && productTaras[productName]) {
-                    loadProductTaras(productName);
+                const supplierName = supplierInput.value.trim();
+                
+                if (productName && supplierName) {
+                    loadProductTaras(productName, supplierName);
                 }
             });
             
             // Event listener para cuando el producto pierde el foco (guardar taras)
             productInput.addEventListener('blur', function() {
                 const productName = this.value.trim();
+                const supplierName = supplierInput.value.trim();
                 const boxTara = parseFloat(boxTaraInput.value) || 0;
                 const packagingTara = parseFloat(packagingTaraInput.value) || 0;
                 
-                if (productName && (boxTara > 0 || packagingTara > 0)) {
+                if (productName && supplierName && (boxTara > 0 || packagingTara > 0)) {
+                    const key = `${supplierName}_${productName}`;
                     // Si hay taras, preguntar si quiere guardarlas
-                    if (!productTaras[productName]) {
+                    if (!productTaras[key]) {
                         setTimeout(() => {
-                            if (confirm(`Salvar as taras para o produto "${productName}"?`)) {
-                                saveProductTaras(productName);
+                            if (confirm(`Salvar as taras para "${productName}" do fornecedor "${supplierName}"?`)) {
+                                saveProductTaras(productName, supplierName);
                             }
                         }, 500);
                     }
@@ -1162,12 +1244,17 @@
                     return;
                 }
                 
+                if (!supplier) {
+                    showToast('Digite o nome do fornecedor', 'warning');
+                    return;
+                }
+                
                 if (boxTara === 0 && packagingTara === 0) {
                     showToast('Digite as taras para salvar', 'warning');
                     return;
                 }
                 
-                saveProductTaras(product);
+                saveProductTaras(product, supplier);
             });
             
             // Función para calcular peso neto
@@ -1187,7 +1274,8 @@
                     totalGross,
                     netWeight,
                     invoiceWeight,
-                    difference: totalGross - invoiceWeight
+                    difference: netWeight - invoiceWeight, // Diferencia = Líquido - Nota
+                    totalTara: totalTara
                 };
             }
             
@@ -1240,7 +1328,7 @@
                     boxTara: parseFloat(boxTaraInput.value) || 0,
                     packagingQuantity: parseFloat(packagingQuantityInput.value) || 0,
                     packagingTara: parseFloat(packagingTaraInput.value) || 0,
-                    totalTara: result.totalGross - result.netWeight,
+                    totalTara: result.totalTara,
                     timestamp: new Date().toLocaleString('pt-BR')
                 };
                 
@@ -1291,10 +1379,8 @@
                         const singleProduct = supplierProducts[supplierName][0];
                         productInput.value = singleProduct;
                         
-                        // Cargar taras si existen
-                        if (productTaras[singleProduct]) {
-                            loadProductTaras(singleProduct);
-                        }
+                        // Cargar taras si existen para este fornecedor
+                        loadProductTaras(singleProduct, supplierName);
                     }
                     
                     updateProductStatus(supplierProducts[supplierName].length > 0, false);
@@ -1303,7 +1389,7 @@
                 }
             });
             
-            // Función para actualizar ticket display
+            // ===== FUNCIÓN MEJORADA PARA ACTUALIZAR TICKET =====
             function updateTicketDisplay() {
                 const ticketItems = document.getElementById('ticketItemsCompact');
                 const ticketTotalItems = document.getElementById('ticketTotalItems');
@@ -1328,16 +1414,29 @@
                 currentTicket.forEach((item, index) => {
                     totalNetWeight += item.netWeight;
                     const diffClass = item.difference > 0 ? 'diff-positive' : item.difference < 0 ? 'diff-negative' : '';
-                    const diffText = item.difference > 0 ? `+${item.difference.toFixed(3)}` : item.difference.toFixed(3);
+                    const diffText = item.difference > 0 ? `+${item.difference.toFixed(2)}kg` : `${item.difference.toFixed(2)}kg`;
+                    const diffSymbol = item.difference > 0 ? '+' : '';
                     
                     itemsHtml += `
                         <div style="padding: 8px 0; border-bottom: 1px dashed var(--border);">
                             <div style="display: flex; justify-content: space-between;">
                                 <strong style="font-size: 12px;">${item.product || 'Sem nome'}</strong>
-                                <small style="font-size: 11px;">${item.netWeight.toFixed(3)} kg</small>
+                                <small style="font-size: 11px;">${item.netWeight.toFixed(2)} kg</small>
                             </div>
                             <div style="font-size: 10px; color: var(--text-secondary); margin-bottom: 4px;">
                                 <i class="fas fa-truck" style="margin-right: 4px;"></i>${item.supplier || 'Sem fornecedor'}
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 10px; margin-top: 4px;">
+                                <div>
+                                    <div>Tara: ${item.totalTara.toFixed(2)}kg</div>
+                                    <div>Bruto: ${item.grossWeight.toFixed(2)}kg</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div>Nota: ${item.invoiceWeight > 0 ? item.invoiceWeight.toFixed(2) : '0.00'}kg</div>
+                                    <div class="${diffClass}" style="font-weight: 600;">
+                                        Dif: ${diffText}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -1345,7 +1444,7 @@
                 
                 ticketItems.innerHTML = itemsHtml;
                 ticketTotalItems.textContent = currentTicket.length;
-                ticketTotalWeight.textContent = totalNetWeight.toFixed(3) + ' kg';
+                ticketTotalWeight.textContent = totalNetWeight.toFixed(2) + ' kg';
                 ticketDate.textContent = new Date().toLocaleDateString('pt-BR');
             }
             
@@ -1366,12 +1465,15 @@
                 
                 let message = `*Ticket #${ticketNumber} - Controle de Pesagem*\n\n`;
                 currentTicket.forEach(item => {
-                    message += `• ${item.product}: ${item.netWeight.toFixed(3)} kg\n`;
-                    message += `  Fornecedor: ${item.supplier}\n\n`;
+                    const diffText = item.difference > 0 ? `+${item.difference.toFixed(2)}kg` : `${item.difference.toFixed(2)}kg`;
+                    message += `• ${item.product}: ${item.netWeight.toFixed(2)} kg\n`;
+                    message += `  Fornecedor: ${item.supplier}\n`;
+                    message += `  Tara: ${item.totalTara.toFixed(2)}kg | Nota: ${item.invoiceWeight > 0 ? item.invoiceWeight.toFixed(2) : '0.00'}kg\n`;
+                    message += `  Diferença: ${diffText}\n\n`;
                 });
                 
                 const totalNet = currentTicket.reduce((sum, item) => sum + item.netWeight, 0);
-                message += `*Total: ${totalNet.toFixed(3)} kg*\n`;
+                message += `*Total: ${totalNet.toFixed(2)} kg*\n`;
                 message += `Itens: ${currentTicket.length}`;
                 
                 // Para WhatsApp
@@ -1385,9 +1487,9 @@
                     return;
                 }
                 
-                let csv = 'Produto,Fornecedor,Peso Bruto,Peso Nota,Peso Líquido,Diferença,Data\n';
+                let csv = 'Produto,Fornecedor,Peso Bruto,Peso Nota,Peso Líquido,Tara Total,Diferença,Data\n';
                 currentTicket.forEach(item => {
-                    csv += `"${item.product}","${item.supplier}",${item.grossWeight},${item.invoiceWeight},${item.netWeight},${item.difference},"${item.timestamp}"\n`;
+                    csv += `"${item.product}","${item.supplier}",${item.grossWeight},${item.invoiceWeight},${item.netWeight},${item.totalTara},${item.difference},"${item.timestamp}"\n`;
                 });
                 
                 const blob = new Blob([csv], { type: 'text/csv' });
@@ -1455,9 +1557,9 @@
                     return;
                 }
                 
-                let csv = 'Data,Produto,Fornecedor,Peso Bruto,Peso Nota,Peso Líquido,Diferença,Caixas,Tara Caixa,Embalagens,Tara Embalagem\n';
+                let csv = 'Data,Produto,Fornecedor,Peso Bruto,Peso Nota,Peso Líquido,Tara Total,Diferença,Caixas,Tara Caixa,Embalagens,Tara Embalagem\n';
                 weighings.forEach(item => {
-                    csv += `"${item.timestamp}","${item.product}","${item.supplier}",${item.grossWeight},${item.invoiceWeight},${item.netWeight},${item.difference},${item.boxQuantity},${item.boxTara},${item.packagingQuantity},${item.packagingTara}\n`;
+                    csv += `"${item.timestamp}","${item.product}","${item.supplier}",${item.grossWeight},${item.invoiceWeight},${item.netWeight},${item.totalTara},${item.difference},${item.boxQuantity},${item.boxTara},${item.packagingQuantity},${item.packagingTara}\n`;
                 });
                 
                 const blob = new Blob([csv], { type: 'text/csv' });
@@ -1470,7 +1572,7 @@
                 showToast('Histórico exportado como CSV', 'success');
             });
             
-            // Función para cargar histórico con colores
+            // ===== FUNCIÓN MEJORADA PARA CARGAR HISTORIAL =====
             function loadHistoryWithColors(filter = 'all') {
                 try {
                     const weighings = JSON.parse(localStorage.getItem('weighings')) || [];
@@ -1504,47 +1606,66 @@
                         return;
                     }
                     
-                    historyList.innerHTML = '';
+                    let historyHtml = '';
                     
+                    // Mostrar las más recientes primero
                     filteredWeighings.slice().reverse().forEach((weighing, index) => {
-                        const item = document.createElement('div');
-                        item.style.cssText = `
-                            padding: 10px;
-                            border-bottom: 1px solid var(--border);
-                            margin-bottom: 6px;
-                            border-radius: 8px;
-                            background: var(--surface);
-                            border: 1px solid var(--border);
-                        `;
-                        
-                        // Determinar color de diferencia
                         const diffClass = weighing.difference > 0 ? 'diff-positive' : weighing.difference < 0 ? 'diff-negative' : '';
-                        const diffText = weighing.difference > 0 ? `+${weighing.difference.toFixed(3)}` : weighing.difference.toFixed(3);
+                        const diffText = weighing.difference > 0 ? `+${weighing.difference.toFixed(2)}kg` : `${weighing.difference.toFixed(2)}kg`;
                         
-                        item.innerHTML = `
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                                <strong style="font-size: 12px;">${weighing.product || 'Sem nome'}</strong>
-                                <small style="color: var(--text-secondary); font-size: 10px;">${weighing.timestamp || ''}</small>
-                            </div>
-                            <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">
-                                <i class="fas fa-truck" style="margin-right: 4px;"></i>${weighing.supplier || 'Sem fornecedor'}
-                            </div>
-                            <div style="display: flex; justify-content: space-between; font-size: 11px;">
-                                <div>
-                                    <span style="color: var(--text-secondary);">Líquido: </span>
-                                    <strong>${weighing.netWeight.toFixed(3)} kg</strong>
+                        historyHtml += `
+                            <div class="history-item">
+                                <div class="history-item-header">
+                                    <div class="history-product">${weighing.product || 'Sem nome'}</div>
+                                    <div class="history-date">${weighing.timestamp || ''}</div>
                                 </div>
-                                <div>
-                                    <span style="color: var(--text-secondary);">Diferença: </span>
-                                    <strong class="${diffClass}">${diffText} kg</strong>
+                                
+                                <div class="history-supplier">
+                                    <i class="fas fa-truck"></i> ${weighing.supplier || 'Sem fornecedor'}
+                                </div>
+                                
+                                <div class="history-details">
+                                    <div class="history-detail">
+                                        <span class="history-detail-label">Peso Bruto:</span>
+                                        <span class="history-detail-value">${weighing.grossWeight.toFixed(2)} kg</span>
+                                    </div>
+                                    
+                                    <div class="history-detail">
+                                        <span class="history-detail-label">Tara Total:</span>
+                                        <span class="history-detail-value">${weighing.totalTara.toFixed(2)} kg</span>
+                                    </div>
+                                    
+                                    <div class="history-detail">
+                                        <span class="history-detail-label">Peso Nota:</span>
+                                        <span class="history-detail-value">${weighing.invoiceWeight > 0 ? weighing.invoiceWeight.toFixed(2) : '0.00'} kg</span>
+                                    </div>
+                                    
+                                    <div class="history-detail">
+                                        <span class="history-detail-label">Peso Líquido:</span>
+                                        <span class="history-detail-value" style="font-weight: 700; color: var(--primary);">${weighing.netWeight.toFixed(2)} kg</span>
+                                    </div>
+                                    
+                                    <div class="history-detail" style="grid-column: span 2;">
+                                        <span class="history-detail-label">Diferença:</span>
+                                        <span class="history-detail-value ${diffClass}" style="font-weight: 600;">
+                                            ${diffText}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         `;
-                        
-                        historyList.appendChild(item);
                     });
+                    
+                    historyList.innerHTML = historyHtml;
+                    
                 } catch (e) {
                     console.error('Error cargando histórico:', e);
+                    historyList.innerHTML = `
+                        <div style="text-align: center; padding: 40px 0; color: var(--error);">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 32px; margin-bottom: 12px;"></i>
+                            <div style="font-size: 12px;">Erro ao carregar histórico</div>
+                        </div>
+                    `;
                 }
             }
             
@@ -1591,6 +1712,11 @@
                     if (tabId === 'historico') {
                         setTimeout(() => loadHistoryWithColors(), 100);
                     }
+                    
+                    // Actualizar ticket si es necesario
+                    if (tabId === 'ticket') {
+                        updateTicketDisplay();
+                    }
                 });
             });
             
@@ -1598,9 +1724,9 @@
             initFromStorage();
             calculateTaras(); // Calcular taras iniciales
             
-            // Si hay un produto en el input, verificar si tiene taras
-            if (productInput.value.trim() && productTaras[productInput.value.trim()]) {
-                loadProductTaras(productInput.value.trim());
+            // Si hay un produto y fornecedor en el input, verificar si tiene taras
+            if (productInput.value.trim() && supplierInput.value.trim()) {
+                loadProductTaras(productInput.value.trim(), supplierInput.value.trim());
             }
             
             // ===== PWA INSTALL FUNCTIONALITY =====
@@ -1610,7 +1736,7 @@
             window.addEventListener('beforeinstallprompt', (e) => {
                 e.preventDefault();
                 deferredPrompt = e;
-                console.log('PWA puede ser instalada');
+                console.log('PWA pode ser instalada');
                 
                 // Mostrar botón de instalación después de 5 segundos
                 setTimeout(() => {
@@ -1620,7 +1746,7 @@
             
             // Cuando se instala
             window.addEventListener('appinstalled', () => {
-                console.log('PWA instalada con éxito');
+                console.log('PWA instalada com sucesso');
                 deferredPrompt = null;
                 hideInstallButton();
                 showToast('Aplicação instalada com sucesso!', 'success');
@@ -1657,7 +1783,7 @@
                             deferredPrompt.prompt();
                             deferredPrompt.userChoice.then((choiceResult) => {
                                 if (choiceResult.outcome === 'accepted') {
-                                    console.log('Usuario aceptó instalar');
+                                    console.log('Usuário aceitou instalar');
                                 }
                                 deferredPrompt = null;
                             });
@@ -1685,7 +1811,7 @@
             
             // Verificar si ya está instalado
             if (window.matchMedia('(display-mode: standalone)').matches) {
-                console.log('App ejecutándose como PWA instalada');
+                console.log('App executando como PWA instalada');
                 hideInstallButton();
             }
         });
