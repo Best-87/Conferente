@@ -8,6 +8,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let products = {};
     let weighings = [];
     let deferredPrompt = null;
+    let newServiceWorker = null;
+    let updateNotificationShown = false;
     
     // ===== ELEMENTOS DEL DOM =====
     const elements = {
@@ -109,7 +111,260 @@ document.addEventListener('DOMContentLoaded', function() {
         // Configurar PWA
         setupPWA();
         
+        // Configurar detección de conexión
+        setupConnectionMonitor();
+        
+        // Configurar detección de actualizaciones
+        setupUpdateChecker();
+        
         console.log('✅ App lista!');
+    }
+    
+    // ===== MONITOR DE CONEXIÓN =====
+    function setupConnectionMonitor() {
+        console.log('🌐 Configurando monitor de conexión...');
+        
+        // Crear elemento para mostrar estado de conexión
+        const connectionStatus = document.createElement('div');
+        connectionStatus.id = 'connectionStatus';
+        connectionStatus.style.cssText = `
+            position: fixed;
+            top: 70px;
+            right: 10px;
+            z-index: 10000;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+            opacity: 0.9;
+            pointer-events: none;
+        `;
+        document.body.appendChild(connectionStatus);
+        
+        // Función para actualizar estado
+        function updateConnectionStatus() {
+            const isOnline = navigator.onLine;
+            
+            if (isOnline) {
+                connectionStatus.innerHTML = '<i class="fas fa-wifi"></i> Online';
+                connectionStatus.style.backgroundColor = '#10b981';
+                connectionStatus.style.color = 'white';
+                connectionStatus.style.border = '2px solid #10b981';
+                connectionStatus.style.opacity = '0.9';
+                
+                // Mostrar toast de conexión restaurada
+                if (window.lastOnlineStatus === false) {
+                    showToast('✅ Conexão restaurada', 'success');
+                }
+                
+                // Ocultar después de 5 segundos
+                setTimeout(() => {
+                    if (navigator.onLine) {
+                        connectionStatus.style.opacity = '0.3';
+                    }
+                }, 5000);
+            } else {
+                connectionStatus.innerHTML = '<i class="fas fa-wifi-slash"></i> Offline';
+                connectionStatus.style.backgroundColor = '#ef4444';
+                connectionStatus.style.color = 'white';
+                connectionStatus.style.border = '2px solid #ef4444';
+                connectionStatus.style.opacity = '0.9';
+                
+                // Mostrar toast de modo offline
+                if (window.lastOnlineStatus === true) {
+                    showToast('⚠️ Modo offline ativado', 'warning');
+                }
+            }
+            
+            window.lastOnlineStatus = isOnline;
+        }
+        
+        // Estado inicial
+        updateConnectionStatus();
+        window.lastOnlineStatus = navigator.onLine;
+        
+        // Escuchar cambios de conexión
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+        
+        console.log('✅ Monitor de conexión configurado');
+    }
+    
+    // ===== DETECCIÓN DE ACTUALIZACIONES =====
+    function setupUpdateChecker() {
+        console.log('🔄 Configurando detector de actualizaciones...');
+        
+        if ('serviceWorker' in navigator) {
+            // Registrar el Service Worker
+            navigator.serviceWorker.register('sw.js')
+                .then(registration => {
+                    console.log('✅ Service Worker registrado:', registration.scope);
+                    
+                    // Verificar si hay una nueva versión
+                    registration.addEventListener('updatefound', () => {
+                        console.log('🔄 Nueva versión encontrada!');
+                        newServiceWorker = registration.installing;
+                        
+                        newServiceWorker.addEventListener('statechange', () => {
+                            if (newServiceWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // Nueva versión lista para instalar
+                                if (!updateNotificationShown) {
+                                    setTimeout(() => {
+                                        showUpdateNotification();
+                                        updateNotificationShown = true;
+                                    }, 3000);
+                                }
+                            }
+                        });
+                    });
+                    
+                    // Verificar actualizaciones periódicamente
+                    setInterval(() => {
+                        registration.update();
+                    }, 30 * 60 * 1000); // Cada 30 minutos
+                })
+                .catch(error => {
+                    console.error('❌ Error registrando Service Worker:', error);
+                });
+            
+            // Escuchar cuando el Service Worker toma control
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                console.log('🔄 Service Worker ha tomado control');
+                showToast('🔄 Aplicação atualizada! Recarregando...', 'info');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            });
+        } else {
+            console.log('ℹ️ Service Worker no soportado en este navegador');
+        }
+    }
+    
+    function showUpdateNotification() {
+        console.log('📢 Mostrando notificación de actualización');
+        
+        // Crear notificación de actualización
+        const updateNotification = document.createElement('div');
+        updateNotification.id = 'updateNotification';
+        updateNotification.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.3);
+            z-index: 10001;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            animation: slideUp 0.4s ease;
+            max-width: 90%;
+            width: 400px;
+            border: 2px solid white;
+        `;
+        
+        updateNotification.innerHTML = `
+            <div style="flex: 1;">
+                <strong style="display: block; font-size: 16px; margin-bottom: 4px;">
+                    <i class="fas fa-sync-alt"></i> Nova versão disponível!
+                </strong>
+                <small style="font-size: 13px; opacity: 0.9;">
+                    Atualize para a versão mais recente
+                </small>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button id="updateNowBtn" style="
+                    background: white;
+                    color: #d97706;
+                    border: none;
+                    padding: 8px 16px;
+                    border-radius: 8px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    font-size: 14px;
+                    transition: all 0.2s;
+                ">
+                    Atualizar
+                </button>
+                <button id="updateLaterBtn" style="
+                    background: transparent;
+                    color: white;
+                    border: 1px solid white;
+                    padding: 8px 16px;
+                    border-radius: 8px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    font-size: 14px;
+                    transition: all 0.2s;
+                ">
+                    Depois
+                </button>
+            </div>
+        `;
+        
+        document.body.appendChild(updateNotification);
+        
+        // Agregar keyframes para animación
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideUp {
+                from { transform: translate(-50%, 100%); opacity: 0; }
+                to { transform: translate(-50%, 0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Botón para actualizar ahora
+        document.getElementById('updateNowBtn').addEventListener('click', () => {
+            console.log('🔄 Usuário escolheu atualizar agora');
+            if (newServiceWorker) {
+                // Enviar mensaje al Service Worker para saltar la espera
+                newServiceWorker.postMessage({ type: 'SKIP_WAITING' });
+            }
+            updateNotification.remove();
+            showToast('Atualizando aplicação...', 'info');
+        });
+        
+        // Botón para después
+        document.getElementById('updateLaterBtn').addEventListener('click', () => {
+            console.log('⏰ Usuário escolheu atualizar depois');
+            updateNotification.remove();
+            showToast('Você será notificado novamente', 'info');
+            
+            // Mostrar nuevamente en 30 minutos
+            updateNotificationShown = false;
+            setTimeout(() => {
+                if (newServiceWorker && newServiceWorker.state === 'installed' && !updateNotificationShown) {
+                    showUpdateNotification();
+                    updateNotificationShown = true;
+                }
+            }, 30 * 60 * 1000);
+        });
+        
+        // Auto-ocultar después de 30 segundos
+        setTimeout(() => {
+            if (document.getElementById('updateNotification')) {
+                updateNotification.style.animation = 'slideUp 0.4s ease reverse';
+                setTimeout(() => {
+                    if (updateNotification.parentNode) {
+                        updateNotification.remove();
+                        updateNotificationShown = false;
+                    }
+                }, 400);
+            }
+        }, 30000);
+        
+        // Mostrar toast informativo
+        showToast('📢 Nova versão disponível!', 'info');
     }
     
     // ===== CARGA DE DATOS =====
@@ -141,45 +396,19 @@ document.addEventListener('DOMContentLoaded', function() {
             deferredPrompt = e;
             console.log('📱 PWA puede ser instalada');
             
-            // Mostrar botones de instalación
-            if (elements.installAppBtn) {
-                elements.installAppBtn.style.display = 'flex';
-            }
-            
-            if (document.getElementById('installBtn')) {
-                document.getElementById('installBtn').style.display = 'flex';
-            }
-            
-            showToast('Aplicação pode ser instalada como app!', 'info');
+            // Mostrar notificación después de 5 segundos
+            setTimeout(() => {
+                if (deferredPrompt && !window.matchMedia('(display-mode: standalone)').matches) {
+                    showToast('📱 Esta app pode ser instalada! Procure a opção "Instalar" no menu do navegador.', 'info');
+                }
+            }, 5000);
         });
         
         window.addEventListener('appinstalled', () => {
             console.log('✅ PWA instalada con éxito');
             deferredPrompt = null;
-            
-            // Ocultar botones de instalación
-            if (elements.installAppBtn) {
-                elements.installAppBtn.style.display = 'none';
-            }
-            
-            if (document.getElementById('installBtn')) {
-                document.getElementById('installBtn').style.display = 'none';
-            }
-            
-            if (document.getElementById('floatingInstallBtn')) {
-                document.getElementById('floatingInstallBtn').style.display = 'none';
-            }
-            
-            showToast('Aplicação instalada com sucesso!', 'success');
+            showToast('✅ Aplicação instalada com sucesso!', 'success');
         });
-        
-        // Verificar si ya está instalada
-        if (window.matchMedia('(display-mode: standalone)').matches) {
-            console.log('📱 App ejecutándose como PWA instalada');
-            if (elements.installAppBtn) {
-                elements.installAppBtn.style.display = 'none';
-            }
-        }
     }
     
     function showInstallPrompt() {
@@ -188,7 +417,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             deferredPrompt.userChoice.then((choiceResult) => {
                 if (choiceResult.outcome === 'accepted') {
-                    showToast('Aplicação instalada com sucesso!', 'success');
+                    showToast('✅ Aplicação instalada com sucesso!', 'success');
+                } else {
+                    showToast('Instalação cancelada', 'info');
                 }
                 deferredPrompt = null;
             });
@@ -227,7 +458,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (elements.quickCalcBtn) {
             elements.quickCalcBtn.addEventListener('click', () => {
                 calculateTaras();
-                showToast('Cálculos atualizados', 'info');
+                showToast('🧮 Cálculos atualizados', 'info');
             });
         }
         
@@ -265,21 +496,21 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (elements.filterTodayBtn) {
             elements.filterTodayBtn.addEventListener('click', () => {
-                showToast('Mostrando pesagens de hoje', 'info');
-                updateHistoricoTab();
+                showToast('📅 Mostrando pesagens de hoje', 'info');
+                updateHistoricoTab('today');
             });
         }
         
         if (elements.filterWeekBtn) {
             elements.filterWeekBtn.addEventListener('click', () => {
-                showToast('Mostrando pesagens da semana', 'info');
+                showToast('📆 Mostrando pesagens da semana', 'info');
                 updateHistoricoTab('week');
             });
         }
         
         if (elements.filterAllBtn) {
             elements.filterAllBtn.addEventListener('click', () => {
-                showToast('Mostrando todas as pesagens', 'info');
+                showToast('📊 Mostrando todas as pesagens', 'info');
                 updateHistoricoTab('all');
             });
         }
@@ -315,9 +546,12 @@ document.addEventListener('DOMContentLoaded', function() {
             elements.backupDataBtn.addEventListener('click', backupData);
         }
         
-        // Navegación por tabs
+        // Navegación por tabs - CORREGIDO
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', function() {
+                const tabId = this.dataset.tab;
+                console.log(`🔄 Cambiando a tab: ${tabId}`);
+                
                 // Remover active de todos
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                 document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -326,8 +560,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.classList.add('active');
                 
                 // Mostrar contenido
-                const tabId = this.dataset.tab;
-                document.getElementById(`tab-${tabId}`).classList.add('active');
+                const tabContent = document.getElementById(`tab-${tabId}`);
+                if (tabContent) {
+                    tabContent.classList.add('active');
+                } else {
+                    console.error(`❌ No se encontró tab-content con ID: tab-${tabId}`);
+                }
                 
                 // Actualizar datos
                 updateTabData(tabId);
@@ -365,7 +603,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (elements.statusDot) elements.statusDot.className = 'status-dot known';
             if (elements.statusText) elements.statusText.textContent = 'Produto conhecido';
             
-            showToast('Taras preenchidas automaticamente', 'success');
+            showToast('✅ Taras preenchidas automaticamente', 'success');
         } else {
             // Producto nuevo
             if (elements.boxTara) elements.boxTara.value = '';
@@ -381,7 +619,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function calculateTaras() {
         console.log('🧮 Calculando taras...');
         
-        // Obtener valores
+        // Obtener valores - CORREGIDO para evitar NaN
         const boxQty = parseFloat(elements.boxQuantity?.value) || 0;
         const boxTara = parseFloat(elements.boxTara?.value) || 0;
         const packagingQty = parseFloat(elements.packagingQuantity?.value) || 0;
@@ -396,7 +634,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log(`📦 Embalagens: ${packagingQty} x ${packagingTara} = ${totalPackagingTara}`);
         console.log(`📦 Tara Total: ${totalTara}`);
         
-        // Actualizar UI
+        // Actualizar UI - CORREGIDO
         if (elements.totalBoxTara) {
             elements.totalBoxTara.textContent = totalBoxTara.toFixed(3) + ' kg';
         }
@@ -419,13 +657,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // Validaciones básicas
         const productName = elements.product?.value.trim();
         if (!productName) {
-            showToast('Por favor, insira o nome do produto', 'error');
+            showToast('❌ Por favor, insira o nome do produto', 'error');
             return;
         }
         
         const grossWeightInput = elements.grossWeight?.value.trim();
         if (!grossWeightInput) {
-            showToast('Por favor, insira o peso bruto', 'error');
+            showToast('❌ Por favor, insira o peso bruto', 'error');
             return;
         }
         
@@ -439,7 +677,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .filter(w => !isNaN(w) && w > 0);
         
         if (weightValues.length === 0) {
-            showToast('Nenhum peso bruto válido encontrado', 'error');
+            showToast('❌ Nenhum peso bruto válido encontrado', 'error');
             return;
         }
         
@@ -488,7 +726,7 @@ document.addEventListener('DOMContentLoaded', function() {
         updateConfigData();
         clearForm();
         
-        showToast(`${weightValues.length} pesagem(ns) adicionada(s) com sucesso!`, 'success');
+        showToast(`✅ ${weightValues.length} pesagem(ns) adicionada(s) com sucesso!`, 'success');
         
         // Vibrar si está soportado (para móviles)
         if (navigator.vibrate) {
@@ -502,7 +740,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const packagingTara = elements.packagingTara?.value;
         
         if (!productName) {
-            showToast('Digite o nome do produto primeiro', 'warning');
+            showToast('⚠️ Digite o nome do produto primeiro', 'warning');
             return;
         }
         
@@ -520,7 +758,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (elements.statusDot) elements.statusDot.className = 'status-dot known';
         if (elements.statusText) elements.statusText.textContent = 'Produto salvo';
         
-        showToast(`"${productName}" salvo com sucesso!`, 'success');
+        showToast(`✅ "${productName}" salvo com sucesso!`, 'success');
     }
     
     // ===== FUNCIONES DE UI =====
@@ -536,7 +774,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 updateTicketTab();
                 break;
             case 'historico':
-                updateHistoricoTab();
+                updateHistoricoTab('all');
                 break;
             case 'config':
                 updateConfigData();
@@ -570,6 +808,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function updateTicketTab() {
         try {
+            console.log('🎫 Actualizando tab ticket...');
+            
             const recentWeighings = weighings.slice(0, 10); // Últimas 10
             
             // Actualizar número y fecha
@@ -585,7 +825,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 elements.ticketDateCompact.textContent = new Date().toLocaleDateString('pt-BR');
             }
             
-            // Actualizar items
+            // Actualizar items - CORREGIDO
             if (elements.ticketItemsCompact) {
                 if (recentWeighings.length === 0) {
                     elements.ticketItemsCompact.innerHTML = `
@@ -642,9 +882,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    function updateHistoricoTab(filter = 'today') {
+    function updateHistoricoTab(filter = 'all') {
         try {
-            if (!elements.historyList) return;
+            console.log(`📜 Actualizando histórico con filtro: ${filter}`);
+            
+            if (!elements.historyList) {
+                console.error('❌ Elemento historyList no encontrado');
+                return;
+            }
             
             let filteredWeighings = [];
             const now = new Date();
@@ -720,6 +965,12 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log(`📜 Histórico actualizado: ${filteredWeighings.length} items`);
         } catch (e) {
             console.error('Error en updateHistoricoTab:', e);
+            elements.historyList.innerHTML = `
+                <div style="text-align: center; padding: 40px 0; color: #ef4444;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 40px; margin-bottom: 10px;"></i>
+                    <div>Erro ao carregar histórico</div>
+                </div>
+            `;
         }
     }
     
@@ -808,12 +1059,12 @@ document.addEventListener('DOMContentLoaded', function() {
             elements.product.focus();
         }
         
-        showToast('Formulário limpo', 'info');
+        showToast('🧹 Formulário limpo', 'info');
     }
     
     function clearAllWeighings() {
         if (weighings.length === 0) {
-            showToast('Nenhuma pesagem para limpar', 'warning');
+            showToast('⚠️ Nenhuma pesagem para limpar', 'warning');
             return;
         }
         
@@ -826,7 +1077,7 @@ document.addEventListener('DOMContentLoaded', function() {
             updateHistoricoTab();
             updateConfigData();
             
-            showToast('Todas as pesagens foram limpas', 'success');
+            showToast('✅ Todas as pesagens foram limpas', 'success');
         }
     }
     
@@ -845,7 +1096,7 @@ document.addEventListener('DOMContentLoaded', function() {
             updateProductList();
             updateConfigData();
             
-            showToast('Todos os dados foram apagados', 'success');
+            showToast('✅ Todos os dados foram apagados', 'success');
         }
     }
     
@@ -853,7 +1104,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function exportToCSV() {
         if (weighings.length === 0) {
-            showToast('Nenhuma pesagem para exportar', 'warning');
+            showToast('⚠️ Nenhuma pesagem para exportar', 'warning');
             return;
         }
         
@@ -893,14 +1144,14 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.removeChild(link);
         URL.revokeObjectURL(link.href);
         
-        showToast('CSV exportado com sucesso', 'success');
+        showToast('✅ CSV exportado com sucesso', 'success');
     }
     
     // ===== IMPRESIÓN =====
     
     function printThermalTicket() {
         if (weighings.length === 0) {
-            showToast('Nenhuma pesagem para imprimir', 'warning');
+            showToast('⚠️ Nenhuma pesagem para imprimir', 'warning');
             return;
         }
         
@@ -1016,7 +1267,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function printFullPage() {
         if (weighings.length === 0) {
-            showToast('Nenhuma pesagem para imprimir', 'warning');
+            showToast('⚠️ Nenhuma pesagem para imprimir', 'warning');
             return;
         }
         
@@ -1119,7 +1370,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function shareWhatsApp() {
         if (weighings.length === 0) {
-            showToast('Nenhuma pesagem para compartilhar', 'warning');
+            showToast('⚠️ Nenhuma pesagem para compartilhar', 'warning');
             return;
         }
         
@@ -1151,6 +1402,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const encoded = encodeURIComponent(message);
         window.open(`https://wa.me/?text=${encoded}`, '_blank');
+        
+        showToast('📤 Compartilhando via WhatsApp...', 'info');
     }
     
     // ===== FUNCIONES ADICIONALES =====
@@ -1159,16 +1412,20 @@ document.addEventListener('DOMContentLoaded', function() {
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistration().then(reg => {
                 if (reg) {
-                    reg.update();
-                    showToast('Verificando atualizações...', 'info');
+                    showToast('🔄 Verificando atualizações...', 'info');
                     
-                    setTimeout(() => {
-                        showToast('Aplicação está atualizada!', 'success');
-                    }, 2000);
+                    reg.update().then(() => {
+                        setTimeout(() => {
+                            showToast('✅ Aplicação está atualizada!', 'success');
+                        }, 1000);
+                    }).catch(error => {
+                        showToast('❌ Erro ao verificar atualizações', 'error');
+                        console.error('Error checking updates:', error);
+                    });
                 }
             });
         } else {
-            showToast('Service Worker não suportado', 'warning');
+            showToast('⚠️ Service Worker não suportado', 'warning');
         }
     }
     
@@ -1193,14 +1450,13 @@ document.addEventListener('DOMContentLoaded', function() {
                             products = data.products;
                             saveData();
                             updateAllUI();
-                            showToast('Dados importados com sucesso!', 'success');
+                            showToast('✅ Dados importados com sucesso!', 'success');
                         }
                     } else if (file.name.endsWith('.csv')) {
-                        // Implementar importación CSV si es necesario
-                        showToast('Importação de CSV em desenvolvimento', 'info');
+                        showToast('📄 Importação de CSV em desenvolvimento', 'info');
                     }
                 } catch (error) {
-                    showToast('Erro ao importar dados: ' + error.message, 'error');
+                    showToast('❌ Erro ao importar dados: ' + error.message, 'error');
                 }
             };
             reader.readAsText(file);
@@ -1228,7 +1484,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.removeChild(link);
         URL.revokeObjectURL(link.href);
         
-        showToast('Backup criado com sucesso!', 'success');
+        showToast('✅ Backup criado com sucesso!', 'success');
     }
     
     function updateAllUI() {
@@ -1298,7 +1554,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // Remover después de 3 segundos
         setTimeout(() => {
             toast.style.animation = 'slideIn 0.3s ease reverse';
-            setTimeout(() => toast.remove(), 300);
+            setTimeout(() => {
+                if (toast.parentNode === container) {
+                    container.removeChild(toast);
+                }
+            }, 300);
         }, 3000);
     }
     
@@ -1314,6 +1574,7 @@ document.addEventListener('DOMContentLoaded', function() {
         printThermalTicket,
         shareWhatsApp,
         showToast,
+        checkForUpdates,
         getStats: () => ({
             weighings: weighings.length,
             products: Object.keys(products).length
