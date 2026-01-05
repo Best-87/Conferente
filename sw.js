@@ -1,10 +1,9 @@
-const APP_VERSION = '1.2.0';
+const APP_VERSION = '1.1.0';
 const CACHE_NAME = `pesagem-v${APP_VERSION}`;
 
 const CORE_ASSETS = [
   './',
   './index.html',
-  './app.js',
   './manifest.json',
   './icon.png',
   './icon-192.png',
@@ -12,7 +11,6 @@ const CORE_ASSETS = [
   'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap'
 ];
 
-// Instalar Service Worker
 self.addEventListener('install', event => {
   console.log('[SW] Instalando versión:', APP_VERSION);
   
@@ -26,10 +24,12 @@ self.addEventListener('install', event => {
         console.log('[SW] Instalación completada');
         return self.skipWaiting();
       })
+      .catch(error => {
+        console.error('[SW] Error en instalación:', error);
+      })
   );
 });
 
-// Activar Service Worker
 self.addEventListener('activate', event => {
   console.log('[SW] Activando versión:', APP_VERSION);
   
@@ -46,77 +46,80 @@ self.addEventListener('activate', event => {
     })
     .then(() => {
       console.log('[SW] Activación completada');
-      
-      // Notificar a los clientes sobre la nueva versión
-      self.clients.matchAll().then(clients => {
-        clients.forEach(client => {
-          client.postMessage({
-            type: 'NEW_VERSION_AVAILABLE',
-            version: APP_VERSION
-          });
-        });
-      });
-      
       return self.clients.claim();
     })
   );
 });
 
-// Interceptar fetch
 self.addEventListener('fetch', event => {
+  // Solo manejar solicitudes GET y HTTP/HTTPS
+  if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) {
+    return;
+  }
+  
+  // Para solicitudes de la API, siempre ir a la red primero
+  if (event.request.url.includes('/api/')) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+  
   event.respondWith(
     caches.match(event.request)
-      .then(response => {
-        // Si está en caché, devolverlo
-        if (response) {
-          return response;
+      .then(cachedResponse => {
+        // Si está en caché y es un archivo estático, devolverlo
+        if (cachedResponse && 
+            (event.request.url.includes('cdnjs.cloudflare.com') || 
+             event.request.url.includes('fonts.googleapis.com') ||
+             event.request.url.endsWith('.css') ||
+             event.request.url.endsWith('.js') ||
+             event.request.url.endsWith('.png') ||
+             event.request.url.endsWith('.json'))) {
+          return cachedResponse;
         }
         
-        // Si no está en caché, ir a la red
+        // Ir a la red para otros recursos
         return fetch(event.request)
           .then(networkResponse => {
-            // Solo cachear si es del mismo origen
-            if (event.request.url.startsWith(self.location.origin)) {
+            // Solo cachear respuestas exitosas y del mismo origen
+            if (networkResponse.ok && 
+                event.request.url.startsWith(self.location.origin)) {
               const responseToCache = networkResponse.clone();
               caches.open(CACHE_NAME)
-                .then(cache => {
-                  cache.put(event.request, responseToCache);
-                });
+                .then(cache => cache.put(event.request, responseToCache));
             }
             return networkResponse;
           })
-          .catch(() => {
-            // Si falla la red y es una página, devolver la página offline
+          .catch(error => {
+            // Si falla la red y no tenemos caché, devolver offline page
             if (event.request.destination === 'document') {
               return caches.match('./index.html');
             }
             return new Response('App offline', {
               status: 503,
               statusText: 'Service Unavailable',
-              headers: new Headers({ 'Content-Type': 'text/plain' })
+              headers: new Headers({
+                'Content-Type': 'text/plain'
+              })
             });
           });
       })
   );
 });
 
-// Escuchar mensajes del cliente
 self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
-    console.log('[SW] Saltando espera por solicitud del cliente');
     self.skipWaiting();
   }
 });
 
-// Verificar actualizaciones periódicamente
+// Manejar actualizaciones automáticas
 self.addEventListener('periodicsync', event => {
-  if (event.tag === 'check-updates') {
-    event.waitUntil(checkForUpdates());
+  if (event.tag === 'update-cache') {
+    event.waitUntil(updateCache());
   }
 });
 
-async function checkForUpdates() {
-  console.log('[SW] Verificando actualizaciones...');
+async function updateCache() {
   const cache = await caches.open(CACHE_NAME);
   const requests = await cache.keys();
   
@@ -125,7 +128,6 @@ async function checkForUpdates() {
       const networkResponse = await fetch(request);
       if (networkResponse.ok) {
         await cache.put(request, networkResponse);
-        console.log('[SW] Actualizado:', request.url);
       }
     } catch (error) {
       console.log('[SW] No se pudo actualizar:', request.url);
